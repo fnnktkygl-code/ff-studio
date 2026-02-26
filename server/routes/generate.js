@@ -47,19 +47,26 @@ async function generateImage(ai, prompt, imageDataParts) {
   }
 }
 
+function getApiKey() {
+  // Support both GEMINI_API_KEY and GOOGLE_API_KEY (matches SDK behavior)
+  const key = (process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY || '').trim()
+  return key || null
+}
+
 router.post('/generate', validateGenerateRequest, async (req, res) => {
-  const apiKey = process.env.GEMINI_API_KEY
-  const vertexProject = process.env.GOOGLE_CLOUD_PROJECT
-  const vertexLocation = process.env.GOOGLE_CLOUD_LOCATION || 'us-central1'
+  const apiKey = getApiKey()
+  const vertexProject = (process.env.GOOGLE_CLOUD_PROJECT || '').trim() || null
+  const vertexLocation = (process.env.GOOGLE_CLOUD_LOCATION || '').trim() || 'us-central1'
 
   if (!apiKey && !vertexProject) {
-    return res.status(500).json({ error: 'Server API key or Vertex AI project not configured.' })
+    return res.status(500).json({ error: 'Server API key not configured. Set GEMINI_API_KEY in environment variables.' })
   }
 
   try {
-    const ai = vertexProject
-      ? new GoogleGenAI({ vertexai: true, project: vertexProject, location: vertexLocation })
-      : new GoogleGenAI({ apiKey })
+    // Prefer API key over Vertex AI (simpler auth, no ADC needed)
+    const ai = apiKey
+      ? new GoogleGenAI({ apiKey })
+      : new GoogleGenAI({ vertexai: true, project: vertexProject, location: vertexLocation })
     const { images, prompts, videoPrompt } = req.body
 
     // Prepare image parts for Gemini
@@ -117,8 +124,17 @@ router.post('/generate', validateGenerateRequest, async (req, res) => {
     })
   } catch (err) {
     console.error('Generation error:', err)
-    res.status(500).json({
-      error: err.message || 'Generation failed. Please try again.',
+
+    // Return proper status code for auth errors
+    const status = err.status || 500
+    const isAuthError = status === 401 || status === 403
+    const errorMessage = isAuthError
+      ? `Authentication failed: ${err.message || 'Invalid API key'}. Check your GEMINI_API_KEY.`
+      : err.message || 'Generation failed. Please try again.'
+
+    res.status(isAuthError ? 401 : 500).json({
+      error: errorMessage,
+      authError: isAuthError,
     })
   }
 })
