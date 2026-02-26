@@ -87,6 +87,66 @@ async function generateImage(ai, prompt, imageDataParts, model, maxRetries = 4) 
   }
 }
 
+async function generateImageViaVertexApiKey(apiKey, prompt, imageDataParts, model, maxRetries = 4) {
+  let retries = maxRetries
+  let delay = 2000
+
+  while (retries > 0) {
+    try {
+      const url = `https://aiplatform.googleapis.com/v1/publishers/google/models/${model}:generateContent?key=${apiKey}`
+      const payload = {
+        contents: [{
+          role: 'user',
+          parts: [
+            { text: prompt },
+            ...imageDataParts,
+          ],
+        }],
+        generationConfig: {
+          responseModalities: ['TEXT', 'IMAGE'],
+        },
+      }
+
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      })
+
+      const result = await response.json().catch(() => ({}))
+      if (!response.ok || result.error) {
+        const message = typeof result?.error?.message === 'string'
+          ? result.error.message
+          : `HTTP ${response.status}`
+        const err = new Error(message)
+        err.status = result?.error?.code || response.status
+        throw err
+      }
+
+      const imagePart = result.candidates?.[0]?.content?.parts?.find((p) => p.inlineData)
+      if (!imagePart) {
+        throw new Error('No image in response')
+      }
+
+      return {
+        data: imagePart.inlineData.data,
+        mimeType: imagePart.inlineData.mimeType || 'image/jpeg',
+      }
+    } catch (err) {
+      retries--
+      if (retries === 0) throw err
+
+      if (isRetriableError(err)) {
+        const jitter = Math.floor(Math.random() * 500)
+        await new Promise((r) => setTimeout(r, delay + jitter))
+        delay = Math.min(delay * 2, 8000)
+        continue
+      }
+      throw err
+    }
+  }
+}
+
 function getApiKey() {
   // Support both GEMINI_API_KEY and GOOGLE_API_KEY (matches SDK behavior)
   const key = (process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY || '').trim()
@@ -102,18 +162,19 @@ router.post('/generate', validateGenerateRequest, async (req, res) => {
   const vertexProject = (process.env.GOOGLE_CLOUD_PROJECT || '').trim() || null
   const useVertexApiKey = isTruthy(process.env.GOOGLE_GENAI_USE_VERTEXAI)
   const vertexLocation = (process.env.GOOGLE_CLOUD_LOCATION || '').trim() || (useVertexApiKey ? 'global' : 'us-central1')
-  const model = (process.env.GENERATION_MODEL || '').trim() || 'gemini-2.5-flash-image-preview'
+  const model = (process.env.GENERATION_MODEL || '').trim() || 'gemini-2.5-flash-image'
 
   if (!apiKey && !vertexProject) {
     return res.status(500).json({ error: 'Server API key not configured. Set GEMINI_API_KEY or GOOGLE_API_KEY in environment variables.' })
   }
 
   try {
-    const ai = apiKey
-      ? new GoogleGenAI(useVertexApiKey
-        ? { vertexai: true, apiKey, apiVersion: 'v1' }
-        : { apiKey })
-      : new GoogleGenAI({ vertexai: true, project: vertexProject, location: vertexLocation })
+    const useDirectVertexApiKey = useVertexApiKey && !!apiKey
+    const ai = useDirectVertexApiKey
+      ? null
+      : (apiKey
+        ? new GoogleGenAI({ apiKey })
+        : new GoogleGenAI({ vertexai: true, project: vertexProject, location: vertexLocation }))
     const { images, prompts, videoPrompt } = req.body
 
     const vertexMaxPrompts = Math.max(1, Number(process.env.VERTEX_MAX_PROMPTS || 2))
@@ -142,7 +203,11 @@ router.post('/generate', validateGenerateRequest, async (req, res) => {
 
       const batch = effectivePrompts.slice(i, i + batchSize)
       const batchResults = await Promise.all(
-        batch.map(prompt => generateImage(ai, prompt, imageDataParts, model, maxRetries).catch(err => {
+        batch.map(prompt => (
+          useDirectVertexApiKey
+            ? generateImageViaVertexApiKey(apiKey, prompt, imageDataParts, model, maxRetries)
+            : generateImage(ai, prompt, imageDataParts, model, maxRetries)
+        ).catch(err => {
           console.error('Image generation failed:', err.message)
           errors.push(err.message)
           if (isRateLimitError(err)) {
@@ -189,7 +254,9 @@ router.post('/generate', validateGenerateRequest, async (req, res) => {
     let video = null
     if (videoPrompt) {
       try {
-        const videoResult = await generateImage(ai, videoPrompt, imageDataParts, model)
+        const videoResult = useDirectVertexApiKey
+          ? await generateImageViaVertexApiKey(apiKey, videoPrompt, imageDataParts, model, maxRetries)
+          : await generateImage(ai, videoPrompt, imageDataParts, model, maxRetries)
         video = `data:${videoResult.mimeType};base64,${videoResult.data}`
       } catch (err) {
         console.error('Video generation failed:', err.message)
