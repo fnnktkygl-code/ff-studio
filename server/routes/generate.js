@@ -4,8 +4,33 @@ import { validateGenerateRequest } from '../middleware/validate.js'
 
 const router = Router()
 
+function normalizeErrorMessage(err) {
+  if (!err) return ''
+  if (typeof err.message === 'string') return err.message
+  return String(err)
+}
+
+function getEmbeddedStatus(message) {
+  try {
+    const parsed = JSON.parse(message)
+    return parsed?.error?.code || null
+  } catch {
+    return null
+  }
+}
+
+function isRetriableError(err) {
+  const status = err?.status || getEmbeddedStatus(normalizeErrorMessage(err))
+  const message = normalizeErrorMessage(err).toLowerCase()
+  return status === 429
+    || status >= 500
+    || message.includes('resource_exhausted')
+    || message.includes('resource exhausted')
+    || message.includes('too many requests')
+}
+
 async function generateImage(ai, prompt, imageDataParts, model) {
-  let retries = 3
+  let retries = 6
   let delay = 2000
 
   while (retries > 0) {
@@ -38,9 +63,10 @@ async function generateImage(ai, prompt, imageDataParts, model) {
       if (retries === 0) throw err
 
       // Retry on rate limit or transient errors
-      if (err.status === 429 || err.status >= 500) {
-        await new Promise(r => setTimeout(r, delay))
-        delay *= 2
+      if (isRetriableError(err)) {
+        const jitter = Math.floor(Math.random() * 500)
+        await new Promise(r => setTimeout(r, delay + jitter))
+        delay = Math.min(delay * 2, 15000)
         continue
       }
       throw err
@@ -85,8 +111,8 @@ router.post('/generate', validateGenerateRequest, async (req, res) => {
       }
     }))
 
-    // Generate all images in parallel (max 4 concurrent)
-    const batchSize = 4
+    // Vertex keys can be heavily rate-limited: use conservative concurrency there.
+    const batchSize = useVertexApiKey ? 1 : 4
     const allResults = []
     const errors = []
 
@@ -106,7 +132,22 @@ router.post('/generate', validateGenerateRequest, async (req, res) => {
       .filter(Boolean)
       .map(r => `data:${r.mimeType};base64,${r.data}`)
 
+    const allRateLimited = errors.length > 0 && errors.every((errorMsg) => {
+      const lower = String(errorMsg).toLowerCase()
+      return lower.includes('resource_exhausted')
+        || lower.includes('resource exhausted')
+        || lower.includes('too many requests')
+        || lower.includes('"code":429')
+    })
+
     if (generatedImages.length === 0) {
+      if (allRateLimited) {
+        return res.status(429).json({
+          error: 'Rate limit reached on Vertex AI. Please retry in 1-2 minutes, or reduce generation frequency.',
+          code: 'RATE_LIMITED',
+        })
+      }
+
       const errorMsg = errors.length > 0
         ? `All ${errors.length} image generation(s) failed: ${errors[0]}`
         : 'No images were generated'
