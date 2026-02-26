@@ -30,6 +30,7 @@ export const useGenerationStore = create((set) => ({
   videoResult: null,
   receipt: null,
   error: null,
+  abortController: null,
 
   // Actions
   addImage: (imageData) =>
@@ -55,6 +56,11 @@ export const useGenerationStore = create((set) => ({
   setVideoResult: (videoResult) => set({ videoResult }),
   setReceipt: (receipt) => set({ receipt }),
   setError: (error) => set({ error, status: 'error' }),
+  setAbortController: (abortController) => set({ abortController }),
+  abortGeneration: () => set((state) => {
+    state.abortController?.abort()
+    return { abortController: null }
+  }),
 
   reset: () =>
     set({
@@ -67,6 +73,7 @@ export const useGenerationStore = create((set) => ({
       videoResult: null,
       receipt: null,
       error: null,
+      abortController: null,
     }),
 
   resetResults: () =>
@@ -78,5 +85,6 @@ export const useGenerationStore = create((set) => ({
       videoResult: null,
       receipt: null,
       error: null,
+      abortController: null,
     }),
 }))

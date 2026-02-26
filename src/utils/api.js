@@ -1,5 +1,23 @@
 const API_BASE = '/api'
 
+function createRequestSignal(timeoutMs = 90000, externalSignal) {
+  const controller = new AbortController()
+  const timeoutId = setTimeout(() => controller.abort('timeout'), timeoutMs)
+
+  if (externalSignal) {
+    if (externalSignal.aborted) {
+      controller.abort(externalSignal.reason)
+    } else {
+      externalSignal.addEventListener('abort', () => controller.abort(externalSignal.reason), { once: true })
+    }
+  }
+
+  return {
+    signal: controller.signal,
+    clear: () => clearTimeout(timeoutId),
+  }
+}
+
 export function getClientApiKey() {
   const localKey = typeof window !== 'undefined'
     ? (localStorage.getItem('ff_studio_api_key') || '').trim()
@@ -11,19 +29,31 @@ export function getClientApiKey() {
   return envKey || ''
 }
 
-export async function apiPost(path, body) {
+export async function apiPost(path, body, options = {}) {
+  const { signal: externalSignal, timeoutMs = 90000 } = options
+  const request = createRequestSignal(timeoutMs, externalSignal)
   let res
   try {
     res = await fetch(`${API_BASE}${path}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
+      signal: request.signal,
     })
-  } catch {
+  } catch (e) {
+    if (e?.name === 'AbortError') {
+      const error = new Error(externalSignal?.aborted ? 'Generation canceled.' : 'Request timed out. Please try again.')
+      error.code = externalSignal?.aborted ? 'REQUEST_ABORTED' : 'REQUEST_TIMEOUT'
+      error.status = 0
+      throw error
+    }
+
     const error = new Error('Network error: could not reach server.')
     error.code = 'NETWORK_ERROR'
     error.status = 0
     throw error
+  } finally {
+    request.clear()
   }
 
   if (!res.ok) {
@@ -38,7 +68,8 @@ export async function apiPost(path, body) {
   return res.json()
 }
 
-export async function directGeminiCall(apiKey, prompt, imageDataParts) {
+export async function directGeminiCall(apiKey, prompt, imageDataParts, options = {}) {
+  const { signal: externalSignal, timeoutMs = 90000 } = options
   const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image-preview:generateContent?key=${apiKey}`
 
   const payload = {
@@ -58,11 +89,25 @@ export async function directGeminiCall(apiKey, prompt, imageDataParts) {
   let delay = 2000
 
   while (retries > 0) {
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    })
+    const request = createRequestSignal(timeoutMs, externalSignal)
+    let response
+    try {
+      response = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+        signal: request.signal,
+      })
+    } catch (e) {
+      if (e?.name === 'AbortError') {
+        const error = new Error(externalSignal?.aborted ? 'Generation canceled.' : 'Request timed out. Please try again.')
+        error.code = externalSignal?.aborted ? 'REQUEST_ABORTED' : 'REQUEST_TIMEOUT'
+        throw error
+      }
+      throw e
+    } finally {
+      request.clear()
+    }
 
     const result = await response.json()
 

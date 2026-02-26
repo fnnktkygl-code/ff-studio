@@ -20,6 +20,7 @@ export function GeneratingPage() {
   const progress = useGenerationStore((s) => s.progress)
   const progressMessage = useGenerationStore((s) => s.progressMessage)
   const resetResults = useGenerationStore((s) => s.resetResults)
+  const abortGeneration = useGenerationStore((s) => s.abortGeneration)
 
   // If user navigates here without generating, redirect
   useEffect(() => {
@@ -29,6 +30,7 @@ export function GeneratingPage() {
   }, [status, navigate])
 
   const handleCancel = () => {
+    abortGeneration()
     resetResults()
     navigate('/customize')
   }
