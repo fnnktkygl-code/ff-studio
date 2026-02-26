@@ -4,7 +4,7 @@ import { base64ToBlob } from '../utils/imageUtils'
 export function useShare() {
   const canShare = typeof navigator.share === 'function'
 
-  const shareImage = useCallback(async (base64, title = 'Fatma Shooting Studio - Fashion Photo') => {
+  const shareImage = useCallback(async (base64, title = 'Lady Vampire Studio - Fashion Photo') => {
     const blob = base64ToBlob(base64)
     const file = new File([blob], 'fashion-photo.jpg', { type: 'image/jpeg' })
 
@@ -15,7 +15,7 @@ export function useShare() {
     }
   }, [])
 
-  const shareAll = useCallback(async (base64Array, title = 'Fatma Shooting Studio - Fashion Collection') => {
+  const shareAll = useCallback(async (base64Array, title = 'Lady Vampire Studio - Fashion Collection') => {
     const files = base64Array.map((b64, i) =>
       new File([base64ToBlob(b64)], `fashion-photo-${i + 1}.jpg`, { type: 'image/jpeg' })
     )

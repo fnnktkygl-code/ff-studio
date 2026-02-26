@@ -11,8 +11,8 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.svg', 'apple-touch-icon-180x180.png'],
       manifest: {
-        name: 'Fatma Shooting Studio',
-        short_name: 'Fatma Shooting Studio',
+        name: 'Lady Vampire Studio',
+        short_name: 'Lady Vampire Studio',
         description: 'Fashion Photography Studio',
         theme_color: '#0f172a',
         background_color: '#0f172a',
