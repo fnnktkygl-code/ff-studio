@@ -133,14 +133,20 @@ router.post('/generate', validateGenerateRequest, async (req, res) => {
 
     // Return proper status code for auth errors
     const status = err.status || 500
-    const isAuthError = status === 401 || status === 403
+    const message = err.message || ''
+    const isVertexApiKeyUnsupported = message.includes('API keys are not supported by this API')
+      || message.includes('Expected OAuth2 access token')
+    const isAuthError = status === 401 || status === 403 || isVertexApiKeyUnsupported
     const errorMessage = isAuthError
-      ? `Authentication failed: ${err.message || 'Invalid API key'}. Check GEMINI_API_KEY/GOOGLE_API_KEY and GOOGLE_GENAI_USE_VERTEXAI.`
-      : err.message || 'Generation failed. Please try again.'
+      ? (isVertexApiKeyUnsupported
+        ? 'Authentication failed: this Vertex endpoint requires OAuth2 credentials (service account), not only an API key. Use a Gemini API key with GOOGLE_GENAI_USE_VERTEXAI=false, or configure GOOGLE_CLOUD_PROJECT + service account credentials for Vertex AI.'
+        : `Authentication failed: ${message || 'Invalid API key'}. Check GEMINI_API_KEY/GOOGLE_API_KEY and GOOGLE_GENAI_USE_VERTEXAI.`)
+      : message || 'Generation failed. Please try again.'
 
     res.status(isAuthError ? 401 : 500).json({
       error: errorMessage,
       authError: isAuthError,
+      code: isVertexApiKeyUnsupported ? 'VERTEX_API_KEY_UNSUPPORTED' : undefined,
     })
   }
 })
