@@ -51,7 +51,7 @@ export function SettingsPage() {
     // Check server health
     fetch('/api/health')
       .then(r => r.json())
-      .then(data => setServerStatus(data.hasApiKey ? 'connected' : 'no-key'))
+      .then(data => setServerStatus(data.hasAuth ? 'connected' : 'no-key'))
       .catch(() => setServerStatus('offline'))
   }, [])
 
