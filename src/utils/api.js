@@ -43,6 +43,7 @@ export async function directGeminiCall(apiKey, prompt, imageDataParts) {
 
   const payload = {
     contents: [{
+      role: 'user',
       parts: [
         { text: prompt },
         ...imageDataParts,
