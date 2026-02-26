@@ -134,9 +134,9 @@ export function SettingsPage() {
           <h3 className="text-xs font-bold uppercase tracking-widest" style={{ color: 'var(--text-label)' }}>Server Status</h3>
           <div className="flex items-center gap-2">
             <div className={`w-2 h-2 rounded-full ${serverStatus === 'connected' ? 'bg-emerald-400' :
-                serverStatus === 'no-key' ? 'bg-yellow-400' :
-                  serverStatus === 'offline' ? 'bg-red-400' :
-                    'bg-slate-500 animate-pulse'
+              serverStatus === 'no-key' ? 'bg-yellow-400' :
+                serverStatus === 'offline' ? 'bg-red-400' :
+                  'bg-slate-500 animate-pulse'
               }`} />
             <span className="text-sm" style={{ color: 'var(--text-secondary)' }}>
               {serverStatus === 'connected' && 'Connected with API key'}
@@ -183,7 +183,7 @@ export function SettingsPage() {
               <h3 className="text-xs font-bold uppercase tracking-widest" style={{ color: 'var(--text-label)' }}>Install App</h3>
             </div>
             <p className="text-[11px]" style={{ color: 'var(--text-muted)' }}>
-              Install Fatma Shooting Studio to your home screen for full-screen experience and quick access.
+              Install Lady Vampire Studio to your home screen for full-screen experience and quick access.
             </p>
             {canInstall ? (
               <Button size="sm" onClick={promptInstall}>Install Now</Button>
@@ -228,9 +228,9 @@ export function SettingsPage() {
         {/* About */}
         <div style={{ ...sectionStyle, textAlign: 'center' }} className="space-y-2">
           <div className="w-12 h-12 mx-auto rounded-xl bg-gradient-to-br from-brand-dark to-brand flex items-center justify-center">
-            <span className="text-white font-extrabold text-lg">F</span>
+            <span className="text-white font-extrabold text-lg">L</span>
           </div>
-          <p className="text-sm font-bold" style={{ color: 'var(--text-primary)' }}>Fatma Shooting Studio</p>
+          <p className="text-sm font-bold" style={{ color: 'var(--text-primary)' }}>Lady Vampire Studio</p>
           <p className="text-[11px]" style={{ color: 'var(--text-secondary)' }}>Fashion Photography Studio</p>
           <p className="text-[10px]" style={{ color: 'var(--text-muted)' }}>Version 1.0.0</p>
         </div>
