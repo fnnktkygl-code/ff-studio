@@ -5,6 +5,7 @@ import { Button } from '../components/common/Button'
 import { usePWAInstall } from '../hooks/usePWAInstall'
 import { useHistory } from '../hooks/useHistory'
 import { useToast } from '../hooks/useToast'
+import { useThemeStore } from '../stores/themeStore'
 import { getClientApiKey } from '../utils/api'
 
 function KeyIcon({ className }) {
@@ -39,17 +40,40 @@ function CheckIcon({ className }) {
   )
 }
 
+function SunIcon({ className }) {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+      <circle cx="12" cy="12" r="4" /><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" />
+    </svg>
+  )
+}
+
+function MoonIcon({ className }) {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+      <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
+    </svg>
+  )
+}
+
+const sectionStyle = {
+  background: 'var(--section-bg)',
+  border: '1px solid var(--border)',
+  borderRadius: '1rem',
+  padding: '1rem',
+}
+
 export function SettingsPage() {
   const [apiKey, setApiKey] = useState('')
   const [serverStatus, setServerStatus] = useState('checking')
   const { canInstall, isInstalled, promptInstall } = usePWAInstall()
   const { clearHistory, generations } = useHistory()
   const toast = useToast()
+  const { theme, toggleTheme } = useThemeStore()
+  const isDark = theme === 'dark'
 
   useEffect(() => {
     setApiKey(getClientApiKey())
-
-    // Check server health
     fetch('/api/health')
       .then(r => r.json())
       .then(data => setServerStatus(data.hasAuth ? 'connected' : 'no-key'))
@@ -75,33 +99,61 @@ export function SettingsPage() {
     <PageTransition>
       <Header title="Settings" />
 
-      <div className="flex-1 overflow-y-auto px-5 pt-4 pb-24 space-y-6">
+      <div className="flex-1 overflow-y-auto px-5 pt-4 pb-24 space-y-4">
+
+        {/* Theme Toggle */}
+        <div style={sectionStyle}>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: 'var(--bg-elevated)' }}>
+                {isDark
+                  ? <MoonIcon className="w-4 h-4 text-brand" />
+                  : <SunIcon className="w-4 h-4 text-brand" />
+                }
+              </div>
+              <div>
+                <p className="text-sm font-bold" style={{ color: 'var(--text-primary)' }}>
+                  {isDark ? 'Dark Mode' : 'Light Mode'}
+                </p>
+                <p className="text-[11px]" style={{ color: 'var(--text-muted)' }}>
+                  {isDark ? 'Switch to warm light theme' : 'Switch to dark theme'}
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={toggleTheme}
+              className={`w-12 h-7 rounded-full transition-colors relative ${isDark ? 'bg-slate-700' : 'bg-gradient-to-r from-brand-dark to-brand'}`}
+            >
+              <div className={`w-5 h-5 bg-white rounded-full absolute top-1 transition-transform shadow ${isDark ? 'translate-x-1' : 'translate-x-6'}`} />
+            </button>
+          </div>
+        </div>
+
         {/* Server Status */}
-        <section className="p-4 bg-white/5 rounded-2xl space-y-3">
-          <h3 className="text-xs font-bold text-slate-300 uppercase tracking-widest">Server Status</h3>
+        <div style={sectionStyle} className="space-y-3">
+          <h3 className="text-xs font-bold uppercase tracking-widest" style={{ color: 'var(--text-label)' }}>Server Status</h3>
           <div className="flex items-center gap-2">
-            <div className={`w-2 h-2 rounded-full ${
-              serverStatus === 'connected' ? 'bg-emerald-400' :
-              serverStatus === 'no-key' ? 'bg-yellow-400' :
-              serverStatus === 'offline' ? 'bg-red-400' :
-              'bg-slate-500 animate-pulse'
-            }`} />
-            <span className="text-sm text-slate-400">
+            <div className={`w-2 h-2 rounded-full ${serverStatus === 'connected' ? 'bg-emerald-400' :
+                serverStatus === 'no-key' ? 'bg-yellow-400' :
+                  serverStatus === 'offline' ? 'bg-red-400' :
+                    'bg-slate-500 animate-pulse'
+              }`} />
+            <span className="text-sm" style={{ color: 'var(--text-secondary)' }}>
               {serverStatus === 'connected' && 'Connected with API key'}
               {serverStatus === 'no-key' && 'Server running, no API key configured'}
               {serverStatus === 'offline' && 'Server offline — using fallback mode'}
               {serverStatus === 'checking' && 'Checking...'}
             </span>
           </div>
-        </section>
+        </div>
 
         {/* API Key Fallback */}
-        <section className="p-4 bg-white/5 rounded-2xl space-y-3">
+        <div style={sectionStyle} className="space-y-3">
           <div className="flex items-center gap-2">
             <KeyIcon className="w-4 h-4 text-brand" />
-            <h3 className="text-xs font-bold text-slate-300 uppercase tracking-widest">Fallback API Key</h3>
+            <h3 className="text-xs font-bold uppercase tracking-widest" style={{ color: 'var(--text-label)' }}>Fallback API Key</h3>
           </div>
-          <p className="text-[11px] text-slate-500">
+          <p className="text-[11px]" style={{ color: 'var(--text-muted)' }}>
             Used when the proxy server is unavailable. Your key is stored locally on this device only.
           </p>
           <div className="flex gap-2">
@@ -110,53 +162,56 @@ export function SettingsPage() {
               value={apiKey}
               onChange={(e) => setApiKey(e.target.value)}
               placeholder="Enter Gemini API key..."
-              className="flex-1 bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-brand/50 transition-colors"
+              className="flex-1 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand/40 transition-colors"
+              style={{
+                background: 'var(--input-bg)',
+                border: '1px solid var(--input-border)',
+                color: 'var(--input-text)',
+              }}
             />
             <Button size="sm" onClick={handleSaveApiKey}>
               <CheckIcon className="w-4 h-4" />
             </Button>
           </div>
-        </section>
+        </div>
 
         {/* Install PWA */}
         {!isInstalled && (
-          <section className="p-4 bg-white/5 rounded-2xl space-y-3">
+          <div style={sectionStyle} className="space-y-3">
             <div className="flex items-center gap-2">
               <DownloadIcon className="w-4 h-4 text-brand" />
-              <h3 className="text-xs font-bold text-slate-300 uppercase tracking-widest">Install App</h3>
+              <h3 className="text-xs font-bold uppercase tracking-widest" style={{ color: 'var(--text-label)' }}>Install App</h3>
             </div>
-            <p className="text-[11px] text-slate-500">
+            <p className="text-[11px]" style={{ color: 'var(--text-muted)' }}>
               Install Fatma Shooting Studio to your home screen for full-screen experience and quick access.
             </p>
             {canInstall ? (
-              <Button size="sm" onClick={promptInstall}>
-                Install Now
-              </Button>
+              <Button size="sm" onClick={promptInstall}>Install Now</Button>
             ) : (
-              <p className="text-[11px] text-slate-500 italic">
+              <p className="text-[11px] italic" style={{ color: 'var(--text-muted)' }}>
                 Open in Safari (iOS) or Chrome (Android) to install.
               </p>
             )}
-          </section>
+          </div>
         )}
 
         {isInstalled && (
-          <section className="p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl">
+          <div className="p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl">
             <div className="flex items-center gap-2">
               <CheckIcon className="w-4 h-4 text-emerald-400" />
               <span className="text-sm font-bold text-emerald-400">App installed</span>
             </div>
-          </section>
+          </div>
         )}
 
         {/* Clear History */}
-        <section className="p-4 bg-white/5 rounded-2xl space-y-3">
+        <div style={sectionStyle} className="space-y-3">
           <div className="flex items-center gap-2">
             <TrashIcon className="w-4 h-4 text-red-400" />
-            <h3 className="text-xs font-bold text-slate-300 uppercase tracking-widest">Data</h3>
+            <h3 className="text-xs font-bold uppercase tracking-widest" style={{ color: 'var(--text-label)' }}>Data</h3>
           </div>
           <div className="flex items-center justify-between">
-            <p className="text-sm text-slate-400">
+            <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
               {generations.length} generation{generations.length !== 1 ? 's' : ''} saved
             </p>
             <Button
@@ -168,17 +223,17 @@ export function SettingsPage() {
               Clear History
             </Button>
           </div>
-        </section>
+        </div>
 
         {/* About */}
-        <section className="p-4 bg-white/5 rounded-2xl space-y-2 text-center">
+        <div style={{ ...sectionStyle, textAlign: 'center' }} className="space-y-2">
           <div className="w-12 h-12 mx-auto rounded-xl bg-gradient-to-br from-brand-dark to-brand flex items-center justify-center">
             <span className="text-white font-extrabold text-lg">F</span>
           </div>
-          <p className="text-sm font-bold text-white">Fatma Shooting Studio</p>
-          <p className="text-[11px] text-slate-500">Fashion Photography Studio</p>
-          <p className="text-[10px] text-slate-600">Version 1.0.0</p>
-        </section>
+          <p className="text-sm font-bold" style={{ color: 'var(--text-primary)' }}>Fatma Shooting Studio</p>
+          <p className="text-[11px]" style={{ color: 'var(--text-secondary)' }}>Fashion Photography Studio</p>
+          <p className="text-[10px]" style={{ color: 'var(--text-muted)' }}>Version 1.0.0</p>
+        </div>
       </div>
     </PageTransition>
   )

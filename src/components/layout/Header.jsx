@@ -24,15 +24,21 @@ export function Header({ title, showBack = false, onBack, rightAction, className
   }
 
   return (
-    <header className={cn(
-      'sticky top-0 z-40 flex items-center justify-between px-5 h-14 bg-surface-dark/80 backdrop-blur-xl border-b border-slate-200',
-      className
-    )}>
+    <header
+      className={cn('sticky top-0 z-40 flex items-center justify-between px-5 h-14 backdrop-blur-xl border-b', className)}
+      style={{
+        background: 'var(--nav-bg)',
+        borderColor: 'var(--nav-border)',
+      }}
+    >
       <div className="w-10 flex items-center">
         {(showBack || !isHome) && !isHome ? (
           <button
             onClick={handleBack}
-            className="p-2 -ml-2 rounded-full text-slate-500 hover:text-slate-900 hover:bg-slate-200/50 active:scale-95 transition-all"
+            className="p-2 -ml-2 rounded-full active:scale-95 transition-all"
+            style={{ color: 'var(--text-secondary)' }}
+            onMouseEnter={e => { e.currentTarget.style.color = 'var(--text-primary)'; e.currentTarget.style.background = 'var(--bg-elevated)' }}
+            onMouseLeave={e => { e.currentTarget.style.color = 'var(--text-secondary)'; e.currentTarget.style.background = 'transparent' }}
           >
             <ChevronLeftIcon className="w-5 h-5" />
           </button>
@@ -43,7 +49,10 @@ export function Header({ title, showBack = false, onBack, rightAction, className
         )}
       </div>
 
-      <h1 className="flex-1 text-center text-xs font-bold tracking-[0.2em] text-slate-800 uppercase">
+      <h1
+        className="flex-1 text-center text-xs font-bold tracking-[0.2em] uppercase"
+        style={{ color: 'var(--text-primary)' }}
+      >
         {title || 'Fatma Studio'}
       </h1>
 

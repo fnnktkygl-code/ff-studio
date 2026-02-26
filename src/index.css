@@ -7,7 +7,7 @@
   --color-surface: #ffffff;
   --color-surface-dark: #faf8f5;
   --color-surface-elevated: #ffffff;
-  --color-surface-light: #f3f0eb;
+  --color-surface-light: #f0ece6;
   --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
 }
 
@@ -15,23 +15,116 @@
   -webkit-tap-highlight-color: transparent;
 }
 
-html, body, #root {
+html,
+body,
+#root {
   height: 100%;
   overscroll-behavior: none;
 }
 
 body {
   margin: 0;
-  background: var(--color-surface-dark);
-  color: #3e3a36;
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* ─── DARK THEME (default) ─────────────────────────────── */
+:root,
+[data-theme='dark'] {
+  --bg-base: #0f0f13;
+  --bg-surface: #17171e;
+  --bg-elevated: #1e1e28;
+  --bg-card: rgba(255, 255, 255, 0.05);
+  --bg-card-hover: rgba(255, 255, 255, 0.08);
+  --border: rgba(255, 255, 255, 0.08);
+  --border-muted: rgba(255, 255, 255, 0.05);
+  --text-primary: #f0eef7;
+  --text-secondary: #a09bb8;
+  --text-muted: #6b6785;
+  --text-label: #8580a0;
+  --nav-bg: rgba(17, 17, 24, 0.92);
+  --nav-border: rgba(255, 255, 255, 0.06);
+  --nav-inactive: #6b6785;
+  --nav-inactive-hover: #b0abcc;
+  --input-bg: rgba(255, 255, 255, 0.06);
+  --input-border: rgba(255, 255, 255, 0.10);
+  --input-text: #f0eef7;
+  --input-placeholder: #5c5878;
+  --section-bg: rgba(255, 255, 255, 0.04);
+  --scroll-track: rgba(255, 255, 255, 0.06);
+}
+
+/* ─── LIGHT THEME ───────────────────────────────────────── */
+[data-theme='light'] {
+  --bg-base: #faf8f5;
+  --bg-surface: #ffffff;
+  --bg-elevated: #f5f2ee;
+  --bg-card: #ffffff;
+  --bg-card-hover: #f7f4f0;
+  --border: #e0d8d0;
+  --border-muted: #eae5df;
+  --text-primary: #1e1a16;
+  --text-secondary: #5c5248;
+  --text-muted: #8c8078;
+  --text-label: #7a7068;
+  --nav-bg: rgba(255, 255, 255, 0.95);
+  --nav-border: #e0d8d0;
+  --nav-inactive: #8c8078;
+  --nav-inactive-hover: #3e3630;
+  --input-bg: #ffffff;
+  --input-border: #d8cfc6;
+  --input-text: #1e1a16;
+  --input-placeholder: #b0a898;
+  --section-bg: #ffffff;
+  --scroll-track: #e8e3dc;
+}
+
+/* ─── SEMANTIC UTILITY CLASSES ──────────────────────────── */
+/* These map to the CSS variables above so all components pick up the right colors */
+.theme-bg {
+  background-color: var(--bg-base);
+}
+
+.theme-surface {
+  background-color: var(--bg-surface);
+}
+
+.theme-elevated {
+  background-color: var(--bg-elevated);
+}
+
+.theme-card {
+  background-color: var(--bg-card);
+}
+
+.theme-border {
+  border-color: var(--border);
+}
+
+.theme-text {
+  color: var(--text-primary);
+}
+
+.theme-text-sec {
+  color: var(--text-secondary);
+}
+
+.theme-text-muted {
+  color: var(--text-muted);
+}
+
+/* ─── GLOBALS ───────────────────────────────────────────── */
+#app-root {
+  background-color: var(--bg-base);
+  color: var(--text-primary);
+  transition: background-color 0.2s, color 0.2s;
+}
+
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
+
 .no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
