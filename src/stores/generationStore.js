@@ -15,6 +15,8 @@ const DEFAULT_OPTIONS = {
   outputCount: '4',
   generateVideo: false,
   aiModel: 'gemini-2.5-flash-image',
+  headwear: 'none',
+  videoModel: 'veo-2.0-generate-001',
 }
 
 export const useGenerationStore = create((set) => ({

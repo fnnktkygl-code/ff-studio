@@ -12,6 +12,7 @@ export const ETHNICITIES = [
   { value: 'hispanic', label: 'Hispanic' },
   { value: 'middle-eastern', label: 'Middle Eastern' },
   { value: 'south-asian', label: 'South Asian' },
+  { value: 'algerian', label: 'Algerian / North African' },
 ]
 
 export const ENVIRONMENTS = [
@@ -28,9 +29,13 @@ export const GARMENT_TYPES = [
   { value: 'top', label: 'Shirt / Top' },
   { value: 'dress', label: 'Dress' },
   { value: 'pants', label: 'Pants' },
+  { value: 'skirt', label: 'Skirt' },
+  { value: 'shorts', label: 'Shorts' },
   { value: 'shoes', label: 'Shoes / Sneakers' },
   { value: 'sweater', label: 'Sweater' },
   { value: 'jacket', label: 'Jacket / Coat' },
+  { value: 'guandura', label: 'Guandura / Gandoura' },
+  { value: 'abaya', label: 'Abaya' },
 ]
 
 export const PRODUCT_STYLES = [
@@ -87,6 +92,7 @@ export const TARGET_MARKETS = [
   { value: 'uk', label: 'UK' },
   { value: 'south-korea', label: 'South Korea' },
   { value: 'north-africa', label: 'North Africa' },
+  { value: 'algeria', label: 'Algeria' },
   { value: 'west-africa', label: 'West Africa' },
 ]
 
@@ -119,6 +125,20 @@ export const AI_MODEL_OPTIONS = [
     label: 'Imagen 4 Ultra',
     sublabel: 'Ultra quality · $0.06/img',
     recommended: false,
+  },
+]
+
+export const HEADWEAR_OPTIONS = [
+  { value: 'none', label: 'No Headwear' },
+  { value: 'hijab', label: 'Hijab / Modest Cover' },
+]
+
+export const VIDEO_MODEL_OPTIONS = [
+  {
+    value: 'veo-2.0-generate-001',
+    label: 'Veo 2.0 (DeepMind)',
+    sublabel: 'Cinematic HD · ~$0.40/sec',
+    recommended: true,
   },
 ]
 

@@ -12,7 +12,7 @@ import { useImageUpload } from '../hooks/useImageUpload'
 import {
   MODEL_TYPES, ETHNICITIES, ENVIRONMENTS, GARMENT_TYPES,
   PRODUCT_STYLES, BRAND_STYLES, FABRICS, FITS, SIZES, TARGET_MARKETS, OUTPUT_COUNTS,
-  AI_MODEL_OPTIONS,
+  AI_MODEL_OPTIONS, HEADWEAR_OPTIONS, VIDEO_MODEL_OPTIONS,
 } from '../utils/constants'
 
 function SparklesIcon({ className }) {
@@ -115,8 +115,8 @@ export function CustomizePage() {
                   key={model.value}
                   onClick={() => setOption('aiModel', model.value)}
                   className={`relative flex flex-col items-start gap-0.5 p-3 rounded-2xl border transition-all text-left ${isActive
-                      ? 'bg-brand/15 border-brand/40 shadow-sm shadow-brand/10'
-                      : 'bg-white/5 border-white/5 hover:border-white/15'
+                    ? 'bg-brand/15 border-brand/40 shadow-sm shadow-brand/10'
+                    : 'bg-white/5 border-white/5 hover:border-white/15'
                     }`}
                 >
                   {model.recommended && (
@@ -172,11 +172,21 @@ export function CustomizePage() {
                 onChange={(v) => setOption('modelType', v)}
               />
               <OptionSelector
-                label="Ethnicity"
+                label="Ethnicity / Origin"
                 options={ETHNICITIES}
                 value={options.ethnicity}
                 onChange={(v) => setOption('ethnicity', v)}
               />
+
+              {/* Hijab / Headwear: Hide or disable for skirts and shorts */}
+              {!['skirt', 'shorts'].includes(options.garmentType) && (
+                <OptionSelector
+                  label="Headwear (Modesty)"
+                  options={HEADWEAR_OPTIONS}
+                  value={options.headwear}
+                  onChange={(v) => setOption('headwear', v)}
+                />
+              )}
             </>
           )}
 
@@ -236,17 +246,17 @@ export function CustomizePage() {
           />
         </div>
 
-        {/* Video toggle */}
+        {/* Video Options */}
         {(options.mode === 'model' || options.mode === 'both') && (
           <div className="mt-6 pt-6 border-t border-white/5">
-            <div className="flex items-center justify-between p-4 bg-white/5 rounded-2xl">
+            <div className="flex items-center justify-between p-4 bg-white/5 rounded-2xl mb-4">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-brand-dark/20 rounded-full flex items-center justify-center">
                   <FilmIcon className="w-5 h-5 text-brand" />
                 </div>
                 <div>
-                  <p className="font-bold text-white text-sm">Video Clip</p>
-                  <p className="text-[10px] text-slate-400">Generate a presentation video</p>
+                  <p className="font-bold text-white text-sm">Cinematic Video</p>
+                  <p className="text-[10px] text-slate-400">Animate the best image generated</p>
                 </div>
               </div>
               <button
@@ -258,6 +268,34 @@ export function CustomizePage() {
                   }`} />
               </button>
             </div>
+
+            {options.generateVideo && (
+              <div className="grid grid-cols-1 gap-2">
+                {VIDEO_MODEL_OPTIONS.map((model) => {
+                  const isActive = options.videoModel === model.value
+                  return (
+                    <button
+                      key={model.value}
+                      onClick={() => setOption('videoModel', model.value)}
+                      className={`relative flex flex-col items-start gap-0.5 p-3 rounded-2xl border transition-all text-left ${isActive
+                        ? 'bg-brand/15 border-brand/40 shadow-sm shadow-brand/10'
+                        : 'bg-white/5 border-white/5 hover:border-white/15'
+                        }`}
+                    >
+                      {model.recommended && (
+                        <span className="absolute top-2 right-2 text-[9px] font-bold text-brand uppercase tracking-wider">
+                          ★ Best
+                        </span>
+                      )}
+                      <span className={`text-xs font-bold ${isActive ? 'text-white' : 'text-slate-300'}`}>
+                        {model.label}
+                      </span>
+                      <span className="text-[10px] text-slate-500">{model.sublabel}</span>
+                    </button>
+                  )
+                })}
+              </div>
+            )}
           </div>
         )}
 

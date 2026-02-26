@@ -9,7 +9,9 @@ export function CostEstimator({ mode, generateVideo, outputCount = 4, aiModel })
 
   const imageCount = Math.max(1, Math.min(Number(outputCount || 4), 4))
   const imageCost = imageCount * profile.imageCost
-  const videoCost = generateVideo ? 8 * COST_PER_VIDEO_SECOND : 0
+
+  // Veo 2.0 generate pricing is approx $0.40/second. Default length is 8 seconds.
+  const videoCost = generateVideo ? 8 * 0.40 : 0
 
   const estimatedPromptChars = mode === 'both' ? imageCount * 1100 : imageCount * 900
   const estimatedInputTokens = Math.ceil(estimatedPromptChars / 4)
@@ -31,7 +33,7 @@ export function CostEstimator({ mode, generateVideo, outputCount = 4, aiModel })
       <div className="text-[10px] text-slate-500 text-right">
         <p>${profile.imageCost.toFixed(3)}/image</p>
         {profile.inputTokenCost > 0 && <p>~${tokenCost.toFixed(4)} input tokens</p>}
-        {generateVideo && <p>${COST_PER_VIDEO_SECOND}/s video</p>}
+        {generateVideo && <p>$0.40/s video</p>}
       </div>
     </div>
   )
