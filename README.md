@@ -1,16 +1,76 @@
-# React + Vite
+# FF Studio — AI-Powered Fashion Photography Studio
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+FF Studio is a React + Vite web application backed by an Express API server. It uses the Google Gemini API to generate AI fashion photography.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Prerequisites
 
-## React Compiler
+- **Node.js** v18 or later
+- A **Google Gemini API key** — get one free at <https://aistudio.google.com/app/apikey>
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+---
 
-## Expanding the ESLint configuration
+## Installation
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+```bash
+npm install
+```
+
+---
+
+## Environment variables
+
+Copy the example file and fill in your Gemini API key:
+
+```bash
+cp .env.example .env
+```
+
+Open `.env` and set:
+
+```
+GEMINI_API_KEY=your_gemini_api_key_here
+PORT=3001           # optional, defaults to 3001
+```
+
+---
+
+## Running the app
+
+### Development (recommended)
+
+Starts both the Vite dev server (port 5173) and the Express API server (port 3001) with hot-reloading:
+
+```bash
+npm run dev:all
+```
+
+Then open <http://localhost:5173> in your browser.
+
+You can also start them separately if you prefer:
+
+```bash
+# Frontend only
+npm run dev
+
+# Backend only
+npm run dev:server
+```
+
+### Production
+
+Build the frontend and serve everything from the Express server:
+
+```bash
+npm run build
+npm start
+```
+
+Then open <http://localhost:3001> in your browser.
+
+---
+
+## Deploying to Render
+
+A `render.yaml` file is included. Push your repository to GitHub, connect it in the [Render dashboard](https://dashboard.render.com/), and set the `GEMINI_API_KEY` environment variable manually. Render will run `npm install && npm run build` and then `npm start` automatically.
