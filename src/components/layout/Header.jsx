@@ -44,7 +44,7 @@ export function Header({ title, showBack = false, onBack, rightAction, className
       </div>
 
       <h1 className="text-xs font-bold tracking-[0.2em] text-slate-300 uppercase">
-        {title || 'FF Studio'}
+        {title || 'Fatma Shooting Studio'}
       </h1>
 
       <div className="w-10 flex items-center justify-end">

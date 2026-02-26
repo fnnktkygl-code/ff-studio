@@ -125,7 +125,7 @@ export function SettingsPage() {
               <h3 className="text-xs font-bold text-slate-300 uppercase tracking-widest">Install App</h3>
             </div>
             <p className="text-[11px] text-slate-500">
-              Install FF Studio to your home screen for full-screen experience and quick access.
+              Install Fatma Shooting Studio to your home screen for full-screen experience and quick access.
             </p>
             {canInstall ? (
               <Button size="sm" onClick={promptInstall}>
@@ -174,8 +174,8 @@ export function SettingsPage() {
           <div className="w-12 h-12 mx-auto rounded-xl bg-gradient-to-br from-brand-dark to-brand flex items-center justify-center">
             <span className="text-white font-extrabold text-lg">F</span>
           </div>
-          <p className="text-sm font-bold text-white">FF Studio</p>
-          <p className="text-[11px] text-slate-500">AI-Powered Fashion Photography</p>
+          <p className="text-sm font-bold text-white">Fatma Shooting Studio</p>
+          <p className="text-[11px] text-slate-500">Fashion Photography Studio</p>
           <p className="text-[10px] text-slate-600">Version 1.0.0</p>
         </section>
       </div>
