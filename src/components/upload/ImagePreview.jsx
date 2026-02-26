@@ -17,7 +17,7 @@ export function ImagePreview({ src, onRemove, className }) {
       <img
         src={src}
         alt="Garment"
-        className="w-full h-full object-cover"
+        className="w-full h-full object-contain"
         loading="lazy"
       />
       {onRemove && (
