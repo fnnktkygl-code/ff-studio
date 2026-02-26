@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useGenerationStore } from '../stores/generationStore'
 import { apiPost, directGeminiCall, getClientApiKey } from '../utils/api'
 import { buildAllPrompts } from '../utils/promptBuilder'
-import { COST_PER_IMAGE, COST_PER_VIDEO_SECOND, INPUT_TEXT_COST_PER_TOKEN } from '../utils/constants'
+import { COST_PER_VIDEO_SECOND, getPricingProfile } from '../utils/constants'
 
 const PROGRESS_MESSAGES = [
   'Analyzing your garment...',
@@ -59,6 +59,7 @@ export function useGenerate() {
       // Try proxy server first, fallback to direct API
       let generatedImages = []
       let videoResult = null
+      let modelUsed = null
 
       try {
         // Attempt via proxy server
@@ -76,6 +77,7 @@ export function useGenerate() {
         })
         generatedImages = response.images || []
         videoResult = response.video || null
+        modelUsed = response.modelUsed || null
       } catch (serverErr) {
         // Surface server-side errors directly (auth/config/model/etc.)
         // Only fallback to direct API when the server is unreachable.
@@ -111,6 +113,7 @@ export function useGenerate() {
           )
         }
         generatedImages = results
+        modelUsed = 'gemini-2.5-flash-image-preview'
 
         if (videoPrompt) {
           store.getState().setProgress(88, 'Generating video...')
@@ -130,12 +133,14 @@ export function useGenerate() {
 
       // Calculate cost receipt
       const totalPromptChars = imagePrompts.reduce((a, p) => a + p.length, 0)
+      const pricingProfile = getPricingProfile(modelUsed || import.meta.env.VITE_PRICING_IMAGE_MODEL || 'gemini-2.5-flash-image')
       const receipt = {
+        pricingModel: modelUsed || 'gemini-2.5-flash-image',
         imagesGenerated: validImages.length,
-        imageCost: validImages.length * COST_PER_IMAGE,
+        imageCost: validImages.length * pricingProfile.imageCost,
         videoIncluded: !!videoResult,
         videoCost: videoResult ? 8 * COST_PER_VIDEO_SECOND : 0,
-        tokenCost: Math.ceil(totalPromptChars / 4) * INPUT_TEXT_COST_PER_TOKEN,
+        tokenCost: Math.ceil(totalPromptChars / 4) * pricingProfile.inputTokenCost,
         get total() {
           return this.imageCost + this.videoCost + this.tokenCost
         },
