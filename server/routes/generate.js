@@ -207,21 +207,30 @@ function getApiKey() {
 }
 
 async function getVertexAccessToken() {
-  // If we already have a direct token configured (or for simplicty we rely on the env service account)
-  // Note: True production usually needs GoogleAuth library. 
-  // Since user uses API keys primarily or Vertex via Gen AI SDK, Veo REST API requires OAuth token
-  // Let's use the GoogleAuth from google-auth-library if present, or attempt direct fetch.
   try {
     const { GoogleAuth } = await import('google-auth-library')
-    const auth = new GoogleAuth({
-      scopes: ['https://www.googleapis.com/auth/cloud-platform']
-    });
-    const client = await auth.getClient();
-    const token = await client.getAccessToken();
-    return token.token;
+
+    // Support inline JSON credentials via env var (for Render/Heroku/etc.)
+    const inlineJson = (process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON || '').trim()
+    let authOptions = { scopes: ['https://www.googleapis.com/auth/cloud-platform'] }
+
+    if (inlineJson) {
+      try {
+        const parsed = JSON.parse(inlineJson)
+        authOptions.credentials = parsed
+      } catch {
+        throw new Error('GOOGLE_APPLICATION_CREDENTIALS_JSON is not valid JSON. Paste the full contents of your service account key file.')
+      }
+    }
+
+    const auth = new GoogleAuth(authOptions)
+    const client = await auth.getClient()
+    const token = await client.getAccessToken()
+    return token.token
   } catch (err) {
-    console.error("Could not fetch Vertex OAuth token natively. Trying fallback methods...", err.message);
-    throw new Error('Authentication failed: Veo video generation requires Google Cloud OAuth credentials (service account), not just an API key.');
+    console.error('Could not fetch Vertex OAuth token:', err.message)
+    if (err.message.includes('GOOGLE_APPLICATION_CREDENTIALS_JSON')) throw err
+    throw new Error('Video generation requires a Google Cloud service account. Set GOOGLE_APPLICATION_CREDENTIALS_JSON in your environment variables with the contents of your service account JSON key.')
   }
 }
 
