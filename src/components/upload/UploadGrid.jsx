@@ -22,7 +22,15 @@ export function UploadGrid({ onAddMore }) {
         <h3 className="text-xs font-bold uppercase tracking-widest" style={{ color: 'var(--text-label)' }}>
           Your photos ({images.length}/4)
         </h3>
-        <span className="text-[10px]" style={{ color: 'var(--text-muted)' }}>More angles = better results</span>
+        <div className="flex items-center gap-3">
+          <span className="text-[10px]" style={{ color: 'var(--text-muted)' }}>More angles = better results</span>
+          <button
+            onClick={() => useGenerationStore.getState().clearImages()}
+            className="text-[10px] font-bold text-red-400 hover:text-red-500 transition-colors uppercase tracking-wider"
+          >
+            Clear all
+          </button>
+        </div>
       </div>
 
       <div className={cn(
