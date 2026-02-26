@@ -43,7 +43,7 @@ export function Header({ title, showBack = false, onBack, rightAction, className
         )}
       </div>
 
-      <h1 className="text-xs font-bold tracking-[0.2em] text-slate-300 uppercase">
+      <h1 className="flex-1 text-center text-xs font-bold tracking-[0.2em] text-slate-300 uppercase">
         {title || 'Fatma Shooting Studio'}
       </h1>
 
