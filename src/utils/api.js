@@ -26,7 +26,7 @@ export async function directGeminiCall(apiKey, prompt, imageDataParts) {
       ]
     }],
     generationConfig: {
-      responseModalities: ['IMAGE'],
+      responseModalities: ['TEXT', 'IMAGE'],
     }
   }
 
