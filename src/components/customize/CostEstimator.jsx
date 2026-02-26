@@ -20,17 +20,17 @@ export function CostEstimator({ mode, generateVideo, outputCount = 4, aiModel })
   const total = imageCost + videoCost + tokenCost
 
   return (
-    <div className="flex items-center justify-between px-4 py-3 bg-white/5 rounded-2xl">
+    <div className="flex items-center justify-between px-4 py-3 theme-card theme-border border rounded-2xl mt-4">
       <div>
-        <p className="text-xs text-slate-400">Estimated cost</p>
-        <p className="text-sm font-bold text-slate-200">
+        <p className="text-xs theme-text-muted">Estimated cost</p>
+        <p className="text-sm font-bold theme-text">
           ~${total.toFixed(3)}
-          <span className="text-slate-500 font-normal ml-1">
+          <span className="theme-text-sec font-normal ml-1">
             ({imageCount} image{imageCount > 1 ? 's' : ''}{generateVideo ? ' + video' : ''})
           </span>
         </p>
       </div>
-      <div className="text-[10px] text-slate-500 text-right">
+      <div className="text-[10px] theme-text-muted text-right">
         <p>${profile.imageCost.toFixed(3)}/image</p>
         {profile.inputTokenCost > 0 && <p>~${tokenCost.toFixed(4)} input tokens</p>}
         {generateVideo && <p>$0.40/s video</p>}

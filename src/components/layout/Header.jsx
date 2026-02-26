@@ -43,7 +43,9 @@ export function Header({ title, showBack = false, onBack, rightAction, className
             <ChevronLeftIcon className="w-5 h-5" />
           </button>
         ) : (
-          <span className="text-white font-extrabold text-sm">L</span>
+          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-brand-dark to-brand flex items-center justify-center">
+            <span className="text-white font-extrabold text-sm">L</span>
+          </div>
         )}
       </div>
 
