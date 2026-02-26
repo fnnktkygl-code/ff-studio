@@ -206,6 +206,23 @@ function getApiKey() {
   return key || null
 }
 
+function getVertexProject() {
+  const envProject = (process.env.GOOGLE_CLOUD_PROJECT || '').trim()
+  if (envProject) return envProject
+
+  const inlineJson = (process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON || '').trim()
+  if (inlineJson) {
+    try {
+      const parsed = JSON.parse(inlineJson)
+      if (parsed.project_id) return parsed.project_id
+    } catch {
+      // ignore JSON error, will be thrown in auth
+    }
+  }
+
+  return null
+}
+
 async function getVertexAccessToken() {
   try {
     const { GoogleAuth } = await import('google-auth-library')
@@ -330,7 +347,7 @@ const ALLOWED_CLIENT_MODELS = new Set([
 
 router.post('/generate', validateGenerateRequest, async (req, res) => {
   const apiKey = getApiKey()
-  const vertexProject = (process.env.GOOGLE_CLOUD_PROJECT || '').trim() || null
+  const vertexProject = getVertexProject()
   const useVertexApiKey = isTruthy(process.env.GOOGLE_GENAI_USE_VERTEXAI)
   const vertexLocation = (process.env.GOOGLE_CLOUD_LOCATION || '').trim() || (useVertexApiKey ? 'global' : 'us-central1')
   const envModel = (process.env.GENERATION_MODEL || '').trim() || 'gemini-2.5-flash-image'
