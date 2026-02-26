@@ -256,7 +256,7 @@ async function generateVideoViaVertexVeo(prompt, imageBase64, modelInput, vertex
   const model = modelInput || 'veo-2.0-generate-001';
   // Veo is ONLY available in us-central1 — never 'global'
   const veoLocation = 'us-central1';
-  const url = `https://${veoLocation}-aiplatform.googleapis.com/v1/projects/${vertexProject}/locations/${veoLocation}/publishers/google/models/${model}:predictLongRunning`;
+  const url = `https://${veoLocation}-aiplatform.googleapis.com/v1beta1/projects/${vertexProject}/locations/${veoLocation}/publishers/google/models/${model}:predictLongRunning`;
 
   const payload = {
     instances: [
@@ -298,7 +298,7 @@ async function generateVideoViaVertexVeo(prompt, imageBase64, modelInput, vertex
   }
   console.log(`Veo LRO started: ${operationName}`);
 
-  const pollUrl = `https://${veoLocation}-aiplatform.googleapis.com/v1/${operationName}`;
+  const pollUrl = `https://${veoLocation}-aiplatform.googleapis.com/v1beta1/${operationName}`;
   const maxAttempts = 18; // 18 × 10s = 3 minutes
   for (let attempt = 0; attempt < maxAttempts; attempt++) {
     await sleep(10000);
@@ -308,7 +308,7 @@ async function generateVideoViaVertexVeo(prompt, imageBase64, modelInput, vertex
     const pollResult = await pollRes.json().catch(() => ({}));
     if (!pollRes.ok || pollResult.error) {
       const message = typeof pollResult?.error?.message === 'string'
-        ? pollResult.error.message : `Poll HTTP ${pollRes.status}`;
+        ? pollResult.error.message : `Poll HTTP ${pollRes.status} for ${operationName}`;
       throw new Error(message);
     }
     if (pollResult.done) {
