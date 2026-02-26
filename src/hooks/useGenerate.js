@@ -22,6 +22,10 @@ export function useGenerate() {
     const { images, options } = store.getState()
     if (images.length === 0) return
 
+    const generationController = new AbortController()
+    abortRef.current = generationController
+    store.getState().setAbortController(generationController)
+
     store.getState().setStatus('generating')
     store.getState().setProgress(0, PROGRESS_MESSAGES[0])
 
@@ -66,6 +70,9 @@ export function useGenerate() {
           prompts: imagePrompts,
           videoPrompt,
           options,
+        }, {
+          signal: generationController.signal,
+          timeoutMs: 120000,
         })
         generatedImages = response.images || []
         videoResult = response.video || null
@@ -93,7 +100,10 @@ export function useGenerate() {
         // Generate images one by one with direct API
         const results = []
         for (let i = 0; i < imagePrompts.length; i++) {
-          const img = await directGeminiCall(apiKey, imagePrompts[i], imageDataParts)
+          const img = await directGeminiCall(apiKey, imagePrompts[i], imageDataParts, {
+            signal: generationController.signal,
+            timeoutMs: 120000,
+          })
           results.push(img)
           store.getState().setProgress(
             Math.round(((i + 1) / imagePrompts.length) * 85),
@@ -104,7 +114,10 @@ export function useGenerate() {
 
         if (videoPrompt) {
           store.getState().setProgress(88, 'Generating video...')
-          videoResult = await directGeminiCall(apiKey, videoPrompt, imageDataParts)
+          videoResult = await directGeminiCall(apiKey, videoPrompt, imageDataParts, {
+            signal: generationController.signal,
+            timeoutMs: 120000,
+          })
         }
       }
 
@@ -139,6 +152,9 @@ export function useGenerate() {
       clearInterval(messageInterval)
       store.getState().setError(err.message || 'Generation failed. Please try again.')
       navigate('/customize')
+    } finally {
+      abortRef.current = null
+      store.getState().setAbortController(null)
     }
   }, [navigate])
 
