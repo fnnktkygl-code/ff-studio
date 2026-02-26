@@ -70,24 +70,24 @@ export function useGenerate() {
         generatedImages = response.images || []
         videoResult = response.video || null
       } catch (serverErr) {
-        // If it's an auth error from the server, don't silently fallback
+        // Surface server-side errors directly (auth/config/model/etc.)
+        // Only fallback to direct API when the server is unreachable.
         const isAuthError = serverErr.authError
           || serverErr.status === 401
           || serverErr.status === 403
           || serverErr.message?.includes('Authentication failed')
           || serverErr.message?.includes('Invalid API key')
           || serverErr.message?.includes('API key not valid')
-        if (isAuthError) {
+        const isNetworkError = serverErr.code === 'NETWORK_ERROR' || serverErr.status === 0
+
+        if (isAuthError || !isNetworkError) {
           throw new Error(serverErr.message || 'Server authentication failed. Check your API key configuration.')
         }
 
         // Fallback: direct Gemini API call (settings key or VITE_GEMINI_API_KEY)
         const apiKey = getClientApiKey()
         if (!apiKey) {
-          if (serverErr.code === 'NETWORK_ERROR') {
-            throw new Error('Server unavailable. Start backend with npm run dev:all, or add Gemini API key in Settings.')
-          }
-          throw new Error('No API key found. Add Gemini API key in Settings or set VITE_GEMINI_API_KEY.')
+          throw new Error('Server unavailable. Start backend with npm run dev:all, or add Gemini API key in Settings.')
         }
 
         // Generate images one by one with direct API
