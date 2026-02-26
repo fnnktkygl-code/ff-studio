@@ -11,7 +11,7 @@ import { useGenerate } from '../hooks/useGenerate'
 import { useImageUpload } from '../hooks/useImageUpload'
 import {
   MODEL_TYPES, ETHNICITIES, ENVIRONMENTS, GARMENT_TYPES,
-  PRODUCT_STYLES, BRAND_STYLES, FABRICS, FITS, SIZES, TARGET_MARKETS,
+  PRODUCT_STYLES, BRAND_STYLES, FABRICS, FITS, SIZES, TARGET_MARKETS, OUTPUT_COUNTS,
 } from '../utils/constants'
 
 function SparklesIcon({ className }) {
@@ -100,6 +100,15 @@ export function CustomizePage() {
           <GenerationModeToggle
             value={options.mode}
             onChange={(v) => setOption('mode', v)}
+          />
+        </div>
+
+        <div className="mb-6">
+          <OptionSelector
+            label="Number of Images"
+            options={OUTPUT_COUNTS}
+            value={options.outputCount}
+            onChange={(v) => setOption('outputCount', v)}
           />
         </div>
 
@@ -214,7 +223,11 @@ export function CustomizePage() {
 
         {/* Cost estimator */}
         <div className="mt-6">
-          <CostEstimator mode={options.mode} generateVideo={options.generateVideo} />
+          <CostEstimator
+            mode={options.mode}
+            generateVideo={options.generateVideo}
+            outputCount={Number(options.outputCount || 4)}
+          />
         </div>
       </div>
 

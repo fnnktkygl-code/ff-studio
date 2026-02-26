@@ -90,6 +90,23 @@ export const TARGET_MARKETS = [
   { value: 'west-africa', label: 'West Africa' },
 ]
 
-export const COST_PER_IMAGE = 0.03
+// Vertex AI pricing baseline (Gemini 2.5 Flash image generation)
+// - Image output: $30 / 1M image output tokens
+// - ~1290 tokens per 1024x1024 generated image
+export const IMAGE_OUTPUT_TOKENS_PER_IMAGE = 1290
+export const IMAGE_OUTPUT_COST_PER_MILLION_TOKENS = 30
+export const COST_PER_IMAGE = (IMAGE_OUTPUT_TOKENS_PER_IMAGE / 1_000_000) * IMAGE_OUTPUT_COST_PER_MILLION_TOKENS
+
+// Vertex AI Gemini 2.5 Flash text input pricing: $0.30 / 1M tokens
+export const INPUT_TEXT_COST_PER_MILLION_TOKENS = 0.30
+export const INPUT_TEXT_COST_PER_TOKEN = INPUT_TEXT_COST_PER_MILLION_TOKENS / 1_000_000
+
+// Kept configurable for your video workflow (Veo Fast 720/1080 baseline)
 export const COST_PER_VIDEO_SECOND = 0.10
+
 export const MAX_IMAGES = 4
+
+export const OUTPUT_COUNTS = [1, 2, 3, 4].map((count) => ({
+  value: String(count),
+  label: `${count} image${count > 1 ? 's' : ''}`,
+}))

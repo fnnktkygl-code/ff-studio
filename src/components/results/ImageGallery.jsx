@@ -1,6 +1,6 @@
 import { ImageCard } from './ImageCard'
 
-export function ImageGallery({ images, onImageClick }) {
+export function ImageGallery({ images, onImageClick, onImageDownload, onImageRegenerate }) {
   if (!images?.length) return null
 
   return (
@@ -15,6 +15,8 @@ export function ImageGallery({ images, onImageClick }) {
             src={img}
             index={i}
             onClick={() => onImageClick(i)}
+            onDownload={() => onImageDownload?.(i)}
+            onRegenerate={() => onImageRegenerate?.(i)}
           />
         ))}
       </div>

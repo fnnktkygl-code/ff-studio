@@ -12,6 +12,7 @@ const DEFAULT_OPTIONS = {
   fit: 'regular',
   size: 'm',
   targetMarket: 'global',
+  outputCount: '4',
   generateVideo: false,
 }
 

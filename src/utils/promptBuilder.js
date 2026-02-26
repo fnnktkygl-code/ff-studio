@@ -186,18 +186,54 @@ export function buildVideoPrompt(options) {
 
 export function buildAllPrompts(options) {
   const { mode = 'model', generateVideo = false } = options
+  const requestedCount = Math.min(Math.max(Number(options.outputCount || 4), 1), 4)
   let imagePrompts = []
 
   if (mode === 'model' || mode === 'both') {
-    imagePrompts = [...imagePrompts, ...buildModelPrompts(options)]
+    const modelPrompts = buildModelPrompts(options)
+    if (mode === 'both') {
+      const modelCount = Math.ceil(requestedCount / 2)
+      imagePrompts = [...imagePrompts, ...modelPrompts.slice(0, modelCount)]
+    } else {
+      imagePrompts = [...imagePrompts, ...modelPrompts.slice(0, requestedCount)]
+    }
   }
   if (mode === 'product' || mode === 'both') {
-    imagePrompts = [...imagePrompts, ...buildProductPrompts(options)]
+    const productPrompts = buildProductPrompts(options)
+    if (mode === 'both') {
+      const productCount = Math.floor(requestedCount / 2)
+      imagePrompts = [...imagePrompts, ...productPrompts.slice(0, productCount)]
+    } else {
+      imagePrompts = [...imagePrompts, ...productPrompts.slice(0, requestedCount)]
+    }
   }
+
+  // Safety in case both mode split returns less than requestedCount
+  if (imagePrompts.length < requestedCount) {
+    const modelPrompts = buildModelPrompts(options)
+    const productPrompts = buildProductPrompts(options)
+    const extra = [...modelPrompts, ...productPrompts].slice(0, requestedCount - imagePrompts.length)
+    imagePrompts = [...imagePrompts, ...extra]
+  }
+
+  imagePrompts = imagePrompts.slice(0, requestedCount)
 
   const videoPrompt = generateVideo && (mode === 'model' || mode === 'both')
     ? buildVideoPrompt(options)
     : null
 
   return { imagePrompts, videoPrompt }
+}
+
+export function applyFeedbackToPrompt(prompt, feedback) {
+  const cleanFeedback = (feedback || '').trim()
+  if (!cleanFeedback) return prompt
+
+  return [
+    prompt,
+    '',
+    'REVISION REQUEST:',
+    cleanFeedback,
+    'Keep all other constraints unchanged. Preserve the same garment fidelity and scene quality.',
+  ].join('\n')
 }
