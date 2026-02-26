@@ -34,13 +34,18 @@ const NAV_ITEMS = [
 export function BottomNav() {
   const location = useLocation()
 
-  // Hide on generating and results pages
   if (['/generating'].includes(location.pathname)) {
     return null
   }
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-surface-dark/90 backdrop-blur-xl border-t border-white/5">
+    <nav
+      className="fixed bottom-0 left-0 right-0 z-50 backdrop-blur-xl border-t"
+      style={{
+        background: 'var(--nav-bg)',
+        borderColor: 'var(--nav-border)',
+      }}
+    >
       <div className="max-w-lg mx-auto flex items-center justify-around h-16 pb-safe">
         {NAV_ITEMS.map(({ to, icon: Icon, label }) => (
           <NavLink
@@ -48,14 +53,13 @@ export function BottomNav() {
             to={to}
             className={({ isActive }) => cn(
               'flex flex-col items-center justify-center gap-1 px-4 py-2 rounded-xl transition-all min-w-[64px]',
-              isActive
-                ? 'text-brand'
-                : 'text-slate-500 hover:text-slate-300'
+              isActive ? 'text-brand' : ''
             )}
+            style={({ isActive }) => isActive ? {} : { color: 'var(--nav-inactive)' }}
           >
             {({ isActive }) => (
               <>
-                <Icon className={cn('w-5 h-5', isActive && 'drop-shadow-[0_0_8px_rgba(192,132,252,0.5)]')} />
+                <Icon className={cn('w-5 h-5', isActive && 'drop-shadow-[0_0_8px_rgba(255,107,129,0.4)]')} />
                 <span className="text-[10px] font-semibold">{label}</span>
               </>
             )}

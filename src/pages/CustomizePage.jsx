@@ -322,7 +322,7 @@ export function CustomizePage() {
 
       {/* Generate button */}
       <div className="fixed bottom-20 left-0 right-0 px-5 pb-4 max-w-lg mx-auto">
-        <div className="bg-surface-dark/80 backdrop-blur-xl pt-4">
+        <div className="backdrop-blur-xl pt-4" style={{ background: 'var(--nav-bg)' }}>
           <Button
             onClick={generate}
             disabled={images.length === 0}

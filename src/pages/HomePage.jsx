@@ -40,10 +40,10 @@ export function HomePage() {
             <SparklesIcon className="w-3.5 h-3.5 text-brand" />
             <span className="text-[10px] font-bold text-brand uppercase tracking-widest">Professional</span>
           </div>
-          <h2 className="text-2xl font-extrabold text-slate-900">
+          <h2 className="text-2xl font-extrabold" style={{ color: 'var(--text-primary)' }}>
             Fatma Studio
           </h2>
-          <p className="text-sm text-slate-500 max-w-xs mx-auto">
+          <p className="text-sm max-w-xs mx-auto" style={{ color: 'var(--text-secondary)' }}>
             Upload your garment and generate professional e-commerce photos instantly
           </p>
         </div>
@@ -69,7 +69,7 @@ export function HomePage() {
       {/* Bottom CTA */}
       {images.length > 0 && (
         <div className="fixed bottom-20 left-0 right-0 px-5 pb-4 max-w-lg mx-auto">
-          <div className="bg-surface-dark/80 backdrop-blur-xl pt-4">
+          <div className="backdrop-blur-xl pt-4" style={{ background: 'var(--nav-bg)' }}>
             <Button
               onClick={() => navigate('/customize')}
               className="w-full"

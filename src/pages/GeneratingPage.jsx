@@ -61,19 +61,22 @@ export function GeneratingPage() {
         </div>
 
         {/* Text */}
-        <h2 className="text-xl font-bold text-slate-900 mb-2">Creating your photos</h2>
+        <h2 className="text-xl font-extrabold" style={{ color: 'var(--text-primary)' }}>
+          Creating your photos...
+        </h2>
         <motion.p
           key={progressMessage}
           initial={{ opacity: 0, y: 5 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-sm text-slate-500 mb-8"
+          className="text-sm mb-8"
+          style={{ color: 'var(--text-secondary)' }}
         >
           {progressMessage || 'Starting...'}
         </motion.p>
 
         {/* Progress bar */}
         <div className="w-full max-w-xs">
-          <div className="h-1.5 bg-slate-200 rounded-full overflow-hidden">
+          <div className="h-1.5 rounded-full overflow-hidden" style={{ background: 'var(--bg-elevated)' }}>
             <motion.div
               className="h-full bg-gradient-to-r from-brand-dark to-brand rounded-full"
               initial={{ width: '0%' }}

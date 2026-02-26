@@ -89,11 +89,11 @@ export function HistoryPage() {
           </div>
         ) : generations.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-center">
-            <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mb-4">
-              <ClockIcon className="w-8 h-8 text-slate-600" />
+            <div className="w-16 h-16 rounded-full flex items-center justify-center mb-4" style={{ background: 'var(--bg-elevated)' }}>
+              <ClockIcon className="w-8 h-8" style={{ color: 'var(--text-muted)' }} />
             </div>
-            <h3 className="text-lg font-bold text-slate-400 mb-2">No history yet</h3>
-            <p className="text-sm text-slate-500 max-w-xs">
+            <h3 className="text-lg font-bold mb-2" style={{ color: 'var(--text-secondary)' }}>No history yet</h3>
+            <p className="text-sm max-w-xs" style={{ color: 'var(--text-muted)' }}>
               Your generated fashion photos will appear here
             </p>
             <Button
