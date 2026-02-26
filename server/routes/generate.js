@@ -13,6 +13,7 @@ async function generateImage(ai, prompt, imageDataParts, model) {
       const response = await ai.models.generateContent({
         model,
         contents: [{
+          role: 'user',
           parts: [
             { text: prompt },
             ...imageDataParts,
