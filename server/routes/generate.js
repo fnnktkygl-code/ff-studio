@@ -49,12 +49,17 @@ async function generateImage(ai, prompt, imageDataParts) {
 
 router.post('/generate', validateGenerateRequest, async (req, res) => {
   const apiKey = process.env.GEMINI_API_KEY
-  if (!apiKey) {
-    return res.status(500).json({ error: 'Server API key not configured.' })
+  const vertexProject = process.env.GOOGLE_CLOUD_PROJECT
+  const vertexLocation = process.env.GOOGLE_CLOUD_LOCATION || 'us-central1'
+
+  if (!apiKey && !vertexProject) {
+    return res.status(500).json({ error: 'Server API key or Vertex AI project not configured.' })
   }
 
   try {
-    const ai = new GoogleGenAI({ apiKey })
+    const ai = vertexProject
+      ? new GoogleGenAI({ vertexai: true, project: vertexProject, location: vertexLocation })
+      : new GoogleGenAI({ apiKey })
     const { images, prompts, videoPrompt } = req.body
 
     // Prepare image parts for Gemini
