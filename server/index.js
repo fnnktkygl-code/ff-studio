@@ -40,17 +40,17 @@ app.get('/api/health', (req, res) => {
 })
 
 // In production, serve the built frontend
-if (process.env.NODE_ENV === 'production') {
-  const distPath = join(__dirname, '..', 'dist')
+if (process.env.NODE_ENV === `production`) {
+  const distPath = join(__dirname, `..`, `dist`)
   app.use(express.static(distPath))
-  app.get('*', (req, res) => {
-    res.sendFile(join(distPath, 'index.html'))
+  app.get(/(.*)/, (req, res) => {
+    res.sendFile(join(distPath, `index.html`))
   })
 }
 
 app.listen(PORT, () => {
   console.log(`FF Studio server running on http://localhost:${PORT}`)
   if (!process.env.GEMINI_API_KEY) {
-    console.warn('Warning: GEMINI_API_KEY is not set. Add it to .env file.')
+    console.warn(`Warning: GEMINI_API_KEY is not set. Add it to .env file.`)
   }
 })
