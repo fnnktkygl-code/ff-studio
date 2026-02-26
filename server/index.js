@@ -36,7 +36,10 @@ app.use('/api', generateRouter)
 
 // Health check
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', hasApiKey: !!process.env.GEMINI_API_KEY })
+  res.json({
+    status: 'ok',
+    hasAuth: !!(process.env.GEMINI_API_KEY || process.env.GOOGLE_CLOUD_PROJECT),
+  })
 })
 
 // In production, serve the built frontend
@@ -50,7 +53,7 @@ if (process.env.NODE_ENV === `production`) {
 
 app.listen(PORT, () => {
   console.log(`FF Studio server running on http://localhost:${PORT}`)
-  if (!process.env.GEMINI_API_KEY) {
-    console.warn(`Warning: GEMINI_API_KEY is not set. Add it to .env file.`)
+  if (!process.env.GEMINI_API_KEY && !process.env.GOOGLE_CLOUD_PROJECT) {
+    console.warn(`Warning: Neither GEMINI_API_KEY nor GOOGLE_CLOUD_PROJECT is set. Add one to your .env file.`)
   }
 })
