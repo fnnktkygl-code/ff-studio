@@ -11,3 +11,5 @@ services:
         value: "true"
       - key: GOOGLE_CLOUD_LOCATION
         value: "global"
+      - key: GENERATION_MODEL
+        value: "gemini-3-pro-image-preview"

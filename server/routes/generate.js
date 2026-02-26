@@ -4,14 +4,14 @@ import { validateGenerateRequest } from '../middleware/validate.js'
 
 const router = Router()
 
-async function generateImage(ai, prompt, imageDataParts) {
+async function generateImage(ai, prompt, imageDataParts, model) {
   let retries = 3
   let delay = 2000
 
   while (retries > 0) {
     try {
       const response = await ai.models.generateContent({
-        model: 'gemini-2.5-flash-image-preview',
+        model,
         contents: [{
           parts: [
             { text: prompt },
@@ -62,6 +62,7 @@ router.post('/generate', validateGenerateRequest, async (req, res) => {
   const vertexProject = (process.env.GOOGLE_CLOUD_PROJECT || '').trim() || null
   const useVertexApiKey = isTruthy(process.env.GOOGLE_GENAI_USE_VERTEXAI)
   const vertexLocation = (process.env.GOOGLE_CLOUD_LOCATION || '').trim() || (useVertexApiKey ? 'global' : 'us-central1')
+  const model = (process.env.GENERATION_MODEL || '').trim() || (useVertexApiKey ? 'gemini-3-pro-image-preview' : 'gemini-2.5-flash-image-preview')
 
   if (!apiKey && !vertexProject) {
     return res.status(500).json({ error: 'Server API key not configured. Set GEMINI_API_KEY or GOOGLE_API_KEY in environment variables.' })
@@ -70,7 +71,7 @@ router.post('/generate', validateGenerateRequest, async (req, res) => {
   try {
     const ai = apiKey
       ? new GoogleGenAI(useVertexApiKey
-        ? { vertexai: true, apiKey, location: vertexLocation }
+        ? { vertexai: true, apiKey, location: vertexLocation, apiVersion: 'v1' }
         : { apiKey })
       : new GoogleGenAI({ vertexai: true, project: vertexProject, location: vertexLocation })
     const { images, prompts, videoPrompt } = req.body
@@ -91,7 +92,7 @@ router.post('/generate', validateGenerateRequest, async (req, res) => {
     for (let i = 0; i < prompts.length; i += batchSize) {
       const batch = prompts.slice(i, i + batchSize)
       const batchResults = await Promise.all(
-        batch.map(prompt => generateImage(ai, prompt, imageDataParts).catch(err => {
+        batch.map(prompt => generateImage(ai, prompt, imageDataParts, model).catch(err => {
           console.error('Image generation failed:', err.message)
           errors.push(err.message)
           return null
@@ -115,7 +116,7 @@ router.post('/generate', validateGenerateRequest, async (req, res) => {
     let video = null
     if (videoPrompt) {
       try {
-        const videoResult = await generateImage(ai, videoPrompt, imageDataParts)
+        const videoResult = await generateImage(ai, videoPrompt, imageDataParts, model)
         video = `data:${videoResult.mimeType};base64,${videoResult.data}`
       } catch (err) {
         console.error('Video generation failed:', err.message)
