@@ -26,7 +26,7 @@ export function ImageCard({ src, index, onClick, onDownload, onRegenerate }) {
   return (
     <div
       onClick={onClick}
-      className="relative group rounded-2xl overflow-hidden bg-surface-elevated aspect-[3/4] cursor-pointer active:scale-[0.97] transition-transform"
+      className="relative group rounded-2xl overflow-hidden theme-elevated aspect-[3/4] cursor-pointer active:scale-[0.97] transition-transform"
     >
       <img
         src={src}

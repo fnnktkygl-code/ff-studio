@@ -72,16 +72,16 @@ export function RegenerateModal({ imageIndex, isOpen, onClose, onConfirm, isRege
                         transition={{ type: 'spring', bounce: 0.25, duration: 0.4 }}
                         className="fixed bottom-0 left-0 right-0 z-50 max-w-lg mx-auto px-4 pb-6"
                     >
-                        <div className="bg-surface-dark border border-slate-200 rounded-3xl p-5 shadow-2xl">
+                        <div className="theme-surface border theme-border rounded-3xl p-5 shadow-2xl">
                             {/* Header */}
                             <div className="flex items-center justify-between mb-4">
                                 <div>
-                                    <h3 className="text-sm font-bold text-slate-900">Refine Image {imageIndex + 1}</h3>
-                                    <p className="text-[11px] text-slate-500 mt-0.5">What should be improved?</p>
+                                    <h3 className="text-sm font-bold theme-text">Refine Image {imageIndex + 1}</h3>
+                                    <p className="text-[11px] theme-text-sec mt-0.5">What should be improved?</p>
                                 </div>
                                 <button
                                     onClick={onClose}
-                                    className="w-8 h-8 flex items-center justify-center rounded-xl bg-white border border-slate-200 hover:bg-slate-50 transition-colors text-slate-600"
+                                    className="w-8 h-8 flex items-center justify-center rounded-xl theme-elevated border theme-border hover:opacity-80 transition-opacity theme-text-sec"
                                 >
                                     <XIcon className="w-4 h-4" />
                                 </button>
@@ -93,7 +93,7 @@ export function RegenerateModal({ imageIndex, isOpen, onClose, onConfirm, isRege
                                     <button
                                         key={s}
                                         onClick={() => setFeedback((prev) => prev ? `${prev}, ${s.toLowerCase()}` : s)}
-                                        className="text-[10px] font-medium px-2.5 py-1 rounded-full bg-white hover:bg-brand-light/30 hover:text-brand border border-slate-200 hover:border-brand-light text-slate-600 transition-all"
+                                        className="text-[10px] font-medium px-2.5 py-1 rounded-full theme-elevated hover:bg-brand-light/30 border theme-border hover:border-brand-light theme-text-sec hover:text-brand transition-all"
                                     >
                                         {s}
                                     </button>
@@ -108,7 +108,12 @@ export function RegenerateModal({ imageIndex, isOpen, onClose, onConfirm, isRege
                                 onKeyDown={handleKeyDown}
                                 placeholder="Describe what to improve... (⌘+Enter to confirm)"
                                 rows={3}
-                                className="w-full bg-white border border-slate-200 rounded-2xl px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-brand/40 transition-colors resize-none"
+                                className="w-full rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand/40 transition-colors resize-none"
+                                style={{
+                                    background: 'var(--input-bg)',
+                                    borderColor: 'var(--input-border)',
+                                    color: 'var(--input-text)'
+                                }}
                             />
 
                             {/* Actions */}
@@ -116,7 +121,7 @@ export function RegenerateModal({ imageIndex, isOpen, onClose, onConfirm, isRege
                                 <button
                                     onClick={onClose}
                                     disabled={isRegenerating}
-                                    className="flex-1 py-2.5 rounded-2xl bg-white border border-slate-200 hover:bg-slate-50 text-sm font-medium text-slate-700 transition-colors disabled:opacity-50"
+                                    className="flex-1 py-2.5 rounded-2xl theme-elevated border theme-border hover:opacity-80 text-sm font-medium theme-text transition-opacity disabled:opacity-50"
                                 >
                                     Cancel
                                 </button>
