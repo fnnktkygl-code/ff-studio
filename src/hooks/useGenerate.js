@@ -151,6 +151,9 @@ export function useGenerate() {
       store.getState().setResults(validImages)
       if (videoResult) store.getState().setVideoResult(videoResult)
 
+      // Crucial: reset status to idle so hitting back doesn't trigger the generation loop
+      store.getState().setStatus('idle')
+
       // Navigate to results
       setTimeout(() => navigate('/results'), 300)
     } catch (err) {
