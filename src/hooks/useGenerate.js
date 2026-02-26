@@ -96,11 +96,16 @@ export function useGenerate() {
 
       clearInterval(messageInterval)
 
+      const validImages = generatedImages.filter(Boolean)
+      if (validImages.length === 0) {
+        throw new Error('No photos were generated. Please try again.')
+      }
+
       // Calculate cost receipt
       const totalPromptChars = imagePrompts.reduce((a, p) => a + p.length, 0)
       const receipt = {
-        imagesGenerated: generatedImages.length,
-        imageCost: generatedImages.length * COST_PER_IMAGE,
+        imagesGenerated: validImages.length,
+        imageCost: validImages.length * COST_PER_IMAGE,
         videoIncluded: !!videoResult,
         videoCost: videoResult ? 8 * COST_PER_VIDEO_SECOND : 0,
         tokenCost: Math.ceil(totalPromptChars / 4) * 0.000000075,
@@ -111,7 +116,7 @@ export function useGenerate() {
 
       store.getState().setProgress(100, 'Done!')
       store.getState().setReceipt(receipt)
-      store.getState().setResults(generatedImages.filter(Boolean))
+      store.getState().setResults(validImages)
       if (videoResult) store.getState().setVideoResult(videoResult)
 
       // Navigate to results
