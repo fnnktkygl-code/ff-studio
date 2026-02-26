@@ -38,7 +38,7 @@ export function HomePage() {
         <div className="text-center py-8 space-y-3">
           <div className="inline-flex items-center gap-2 bg-brand-dark/10 px-3 py-1.5 rounded-full">
             <SparklesIcon className="w-3.5 h-3.5 text-brand" />
-            <span className="text-[10px] font-bold text-brand uppercase tracking-widest">AI-Powered</span>
+            <span className="text-[10px] font-bold text-brand uppercase tracking-widest">Professional</span>
           </div>
           <h2 className="text-2xl font-extrabold text-white">
             Fashion Photography
