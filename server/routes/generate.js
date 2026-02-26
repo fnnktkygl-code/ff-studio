@@ -244,8 +244,9 @@ router.post('/generate', validateGenerateRequest, async (req, res) => {
 
     const { images, prompts, videoPrompt } = req.body
 
-    // Default max prompts is 4 (one per image). Override via env if needed.
-    const vertexMaxPrompts = Math.max(1, Number(process.env.VERTEX_MAX_PROMPTS || 4))
+    // If 'both' mode is selected, we need to process 8 prompts.
+    // Allow up to 8 max prompts by default. Override via env if needed.
+    const vertexMaxPrompts = Math.max(1, Number(process.env.VERTEX_MAX_PROMPTS || 8))
     const vertexInterRequestDelayMs = Math.max(0, Number(process.env.VERTEX_INTER_REQUEST_DELAY_MS || 3000))
     const effectivePrompts = useVertexApiKey ? prompts.slice(0, vertexMaxPrompts) : prompts
 
