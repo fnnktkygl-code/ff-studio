@@ -291,14 +291,26 @@ async function generateVideoViaVertexVeo(prompt, imageBase64, modelInput, vertex
     throw err;
   }
 
-  // Step 2: Poll the operation until done (max 3 minutes)
-  const operationName = submitResult.name;
+  // The submitResult.name is the operation name.
+  // Sometimes predictLongRunning returns a name with publishers/google/models/... in it,
+  // but the standard Operations GET endpoint expects: projects/*/locations/*/operations/*
+  // We need to parse out the project, location, and operation ID to construct the correct URL.
+  let operationName = submitResult.name;
   if (!operationName) {
     throw new Error('Veo API did not return an operation name');
   }
-  console.log(`Veo LRO started: ${operationName}`);
 
-  const pollUrl = `https://${veoLocation}-aiplatform.googleapis.com/v1beta1/${operationName}`;
+  // Ensure operationName is in the format: projects/{project}/locations/{location}/operations/{operation}
+  // If it contains publishers/google/models/..., strip it out.
+  const opMatch = operationName.match(/(projects\/[^/]+\/locations\/[^/]+)\/.*(operations\/[^/]+)/);
+  if (opMatch) {
+    operationName = `${opMatch[1]}/${opMatch[2]}`;
+  }
+
+  console.log(`Veo LRO started: ${submitResult.name} -> Polling: ${operationName}`);
+
+  // Use v1 for standard operations polling
+  const pollUrl = `https://${veoLocation}-aiplatform.googleapis.com/v1/${operationName}`;
   const maxAttempts = 18; // 18 × 10s = 3 minutes
   for (let attempt = 0; attempt < maxAttempts; attempt++) {
     await sleep(10000);
