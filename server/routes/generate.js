@@ -210,12 +210,24 @@ function isTruthy(value) {
   return ['1', 'true', 'yes', 'on'].includes((value || '').trim().toLowerCase())
 }
 
+// Allowed model values that clients can request
+const ALLOWED_CLIENT_MODELS = new Set([
+  'gemini-2.5-flash-image',
+  'gemini-2.5-flash-image-preview',
+  'imagen-4-fast',
+  'imagen-4',
+  'imagen-4-ultra',
+])
+
 router.post('/generate', validateGenerateRequest, async (req, res) => {
   const apiKey = getApiKey()
   const vertexProject = (process.env.GOOGLE_CLOUD_PROJECT || '').trim() || null
   const useVertexApiKey = isTruthy(process.env.GOOGLE_GENAI_USE_VERTEXAI)
   const vertexLocation = (process.env.GOOGLE_CLOUD_LOCATION || '').trim() || (useVertexApiKey ? 'global' : 'us-central1')
-  const model = (process.env.GENERATION_MODEL || '').trim() || 'gemini-2.5-flash-image'
+  const envModel = (process.env.GENERATION_MODEL || '').trim() || 'gemini-2.5-flash-image'
+  // Accept model from client request body (options.aiModel) if it's in the allow-list
+  const clientModel = (req.body.options?.aiModel || '').trim()
+  const model = (clientModel && ALLOWED_CLIENT_MODELS.has(clientModel)) ? clientModel : envModel
   const modelCandidates = buildModelCandidates(model)
 
   if (!apiKey && !vertexProject) {
@@ -232,7 +244,8 @@ router.post('/generate', validateGenerateRequest, async (req, res) => {
 
     const { images, prompts, videoPrompt } = req.body
 
-    const vertexMaxPrompts = Math.max(1, Number(process.env.VERTEX_MAX_PROMPTS || 2))
+    // Default max prompts is 4 (one per image). Override via env if needed.
+    const vertexMaxPrompts = Math.max(1, Number(process.env.VERTEX_MAX_PROMPTS || 4))
     const vertexInterRequestDelayMs = Math.max(0, Number(process.env.VERTEX_INTER_REQUEST_DELAY_MS || 3000))
     const effectivePrompts = useVertexApiKey ? prompts.slice(0, vertexMaxPrompts) : prompts
 

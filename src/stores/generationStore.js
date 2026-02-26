@@ -14,6 +14,7 @@ const DEFAULT_OPTIONS = {
   targetMarket: 'global',
   outputCount: '4',
   generateVideo: false,
+  aiModel: 'gemini-2.5-flash-image',
 }
 
 export const useGenerationStore = create((set) => ({

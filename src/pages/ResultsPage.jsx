@@ -7,6 +7,7 @@ import { ImageGallery } from '../components/results/ImageGallery'
 import { FullscreenViewer } from '../components/results/FullscreenViewer'
 import { ReceiptView } from '../components/results/ReceiptView'
 import { VideoPlayer } from '../components/results/VideoPlayer'
+import { RegenerateModal } from '../components/results/RegenerateModal'
 import { useGenerationStore } from '../stores/generationStore'
 import { useDownload } from '../hooks/useDownload'
 import { useShare } from '../hooks/useShare'
@@ -43,6 +44,9 @@ export function ResultsPage() {
   const navigate = useNavigate()
   const [viewerIndex, setViewerIndex] = useState(null)
   const [saved, setSaved] = useState(false)
+  // Regenerate modal state
+  const [regenModal, setRegenModal] = useState({ open: false, index: null })
+  const [isRegenerating, setIsRegenerating] = useState(false)
 
   const results = useGenerationStore((s) => s.results)
   const videoResult = useGenerationStore((s) => s.videoResult)
@@ -94,15 +98,27 @@ export function ResultsPage() {
     toast.success(`Downloading image ${index + 1}`)
   }
 
-  const handleRegenerateOne = async (index) => {
-    const feedback = window.prompt('What should be improved on this image?')
-    if (!feedback || !feedback.trim()) return
+  const handleOpenRegenModal = (index) => {
+    setRegenModal({ open: true, index })
+  }
+
+  const handleCloseRegenModal = () => {
+    if (!isRegenerating) {
+      setRegenModal({ open: false, index: null })
+    }
+  }
+
+  const handleRegenerateOne = async (feedback) => {
+    const index = regenModal.index
+    if (index === null) return
 
     if (sourceImages.length === 0) {
       toast.error('Missing source images. Start a new generation.')
+      setRegenModal({ open: false, index: null })
       return
     }
 
+    setIsRegenerating(true)
     try {
       const { imagePrompts } = buildAllPrompts(options)
       const basePrompt = imagePrompts[index] || imagePrompts[0]
@@ -133,8 +149,11 @@ export function ResultsPage() {
       next[index] = regenerated
       setResults(next)
       toast.success(`Image ${index + 1} regenerated`)
+      setRegenModal({ open: false, index: null })
     } catch (err) {
       toast.error(err.message || 'Failed to regenerate this image')
+    } finally {
+      setIsRegenerating(false)
     }
   }
 
@@ -172,7 +191,7 @@ export function ResultsPage() {
           images={results}
           onImageClick={(index) => setViewerIndex(index)}
           onImageDownload={handleDownloadOne}
-          onImageRegenerate={handleRegenerateOne}
+          onImageRegenerate={handleOpenRegenModal}
         />
       </div>
 
@@ -202,6 +221,15 @@ export function ResultsPage() {
           onClose={() => setViewerIndex(null)}
         />
       )}
+
+      {/* Regeneration modal */}
+      <RegenerateModal
+        imageIndex={regenModal.index ?? 0}
+        isOpen={regenModal.open}
+        onClose={handleCloseRegenModal}
+        onConfirm={handleRegenerateOne}
+        isRegenerating={isRegenerating}
+      />
     </PageTransition>
   )
 }
