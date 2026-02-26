@@ -53,19 +53,25 @@ function getApiKey() {
   return key || null
 }
 
+function isTruthy(value) {
+  return ['1', 'true', 'yes', 'on'].includes((value || '').trim().toLowerCase())
+}
+
 router.post('/generate', validateGenerateRequest, async (req, res) => {
   const apiKey = getApiKey()
   const vertexProject = (process.env.GOOGLE_CLOUD_PROJECT || '').trim() || null
-  const vertexLocation = (process.env.GOOGLE_CLOUD_LOCATION || '').trim() || 'us-central1'
+  const useVertexApiKey = isTruthy(process.env.GOOGLE_GENAI_USE_VERTEXAI)
+  const vertexLocation = (process.env.GOOGLE_CLOUD_LOCATION || '').trim() || (useVertexApiKey ? 'global' : 'us-central1')
 
   if (!apiKey && !vertexProject) {
-    return res.status(500).json({ error: 'Server API key not configured. Set GEMINI_API_KEY in environment variables.' })
+    return res.status(500).json({ error: 'Server API key not configured. Set GEMINI_API_KEY or GOOGLE_API_KEY in environment variables.' })
   }
 
   try {
-    // Prefer API key over Vertex AI (simpler auth, no ADC needed)
     const ai = apiKey
-      ? new GoogleGenAI({ apiKey })
+      ? new GoogleGenAI(useVertexApiKey
+        ? { vertexai: true, apiKey, location: vertexLocation }
+        : { apiKey })
       : new GoogleGenAI({ vertexai: true, project: vertexProject, location: vertexLocation })
     const { images, prompts, videoPrompt } = req.body
 
@@ -129,7 +135,7 @@ router.post('/generate', validateGenerateRequest, async (req, res) => {
     const status = err.status || 500
     const isAuthError = status === 401 || status === 403
     const errorMessage = isAuthError
-      ? `Authentication failed: ${err.message || 'Invalid API key'}. Check your GEMINI_API_KEY.`
+      ? `Authentication failed: ${err.message || 'Invalid API key'}. Check GEMINI_API_KEY/GOOGLE_API_KEY and GOOGLE_GENAI_USE_VERTEXAI.`
       : err.message || 'Generation failed. Please try again.'
 
     res.status(isAuthError ? 401 : 500).json({
