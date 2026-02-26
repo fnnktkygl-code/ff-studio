@@ -101,6 +101,50 @@ export const COST_PER_IMAGE = (IMAGE_OUTPUT_TOKENS_PER_IMAGE / 1_000_000) * IMAG
 export const INPUT_TEXT_COST_PER_MILLION_TOKENS = 0.30
 export const INPUT_TEXT_COST_PER_TOKEN = INPUT_TEXT_COST_PER_MILLION_TOKENS / 1_000_000
 
+export const PRICING_PROFILES = {
+  'gemini-2.5-flash-image': {
+    imageCost: COST_PER_IMAGE,
+    inputTokenCost: INPUT_TEXT_COST_PER_TOKEN,
+    label: 'Gemini 2.5 Flash Image',
+  },
+  'gemini-2.5-flash-image-preview': {
+    imageCost: COST_PER_IMAGE,
+    inputTokenCost: INPUT_TEXT_COST_PER_TOKEN,
+    label: 'Gemini 2.5 Flash Image Preview',
+  },
+  'imagen-4-fast': {
+    imageCost: 0.02,
+    inputTokenCost: 0,
+    label: 'Imagen 4 Fast',
+  },
+  'imagen-4': {
+    imageCost: 0.04,
+    inputTokenCost: 0,
+    label: 'Imagen 4',
+  },
+  'imagen-4-ultra': {
+    imageCost: 0.06,
+    inputTokenCost: 0,
+    label: 'Imagen 4 Ultra',
+  },
+}
+
+export function normalizePricingModel(modelName = '') {
+  const normalized = String(modelName || '').trim().toLowerCase()
+  if (!normalized) return 'gemini-2.5-flash-image'
+  if (normalized.includes('imagen-4-ultra')) return 'imagen-4-ultra'
+  if (normalized.includes('imagen-4-fast')) return 'imagen-4-fast'
+  if (normalized.includes('imagen-4')) return 'imagen-4'
+  if (normalized.includes('gemini-2.5-flash-image-preview')) return 'gemini-2.5-flash-image-preview'
+  if (normalized.includes('gemini-2.5-flash-image')) return 'gemini-2.5-flash-image'
+  return 'gemini-2.5-flash-image'
+}
+
+export function getPricingProfile(modelName = '') {
+  const key = normalizePricingModel(modelName)
+  return PRICING_PROFILES[key]
+}
+
 // Kept configurable for your video workflow (Veo Fast 720/1080 baseline)
 export const COST_PER_VIDEO_SECOND = 0.10
 

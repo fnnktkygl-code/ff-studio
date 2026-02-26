@@ -36,6 +36,12 @@ export function ReceiptView({ receipt }) {
               <h3 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest pb-2 border-b border-white/5">
                 Generation Receipt
               </h3>
+              {receipt.pricingModel && (
+                <div className="flex justify-between text-xs text-slate-400">
+                  <span>Pricing model</span>
+                  <span className="font-mono">{receipt.pricingModel}</span>
+                </div>
+              )}
               <div className="flex justify-between text-xs text-slate-400">
                 <span>Images ({receipt.imagesGenerated}x)</span>
                 <span className="font-mono">${receipt.imageCost.toFixed(4)}</span>
