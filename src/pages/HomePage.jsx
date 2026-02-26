@@ -62,7 +62,6 @@ export function HomePage() {
         type="file"
         accept="image/jpeg,image/png,image/webp"
         multiple
-        capture="environment"
         onChange={handleInputChange}
         className="hidden"
       />

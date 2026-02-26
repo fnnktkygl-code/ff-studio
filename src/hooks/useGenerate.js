@@ -69,6 +69,7 @@ export function useGenerate() {
         })
         generatedImages = response.images || []
         videoResult = response.video || null
+        if (generatedImages.length === 0) throw new Error('No images generated from server')
       } catch {
         // Fallback: direct Gemini API call (if user has API key in settings)
         const apiKey = localStorage.getItem('ff_studio_api_key')
