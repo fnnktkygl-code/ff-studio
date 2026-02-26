@@ -13,3 +13,7 @@ services:
         value: "global"
       - key: GENERATION_MODEL
         value: "gemini-3-pro-image-preview"
+      - key: VERTEX_MAX_PROMPTS
+        value: "2"
+      - key: VERTEX_INTER_REQUEST_DELAY_MS
+        value: "3000"
