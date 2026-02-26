@@ -1,15 +1,38 @@
 const API_BASE = '/api'
 
+export function getClientApiKey() {
+  const localKey = typeof window !== 'undefined'
+    ? (localStorage.getItem('ff_studio_api_key') || '').trim()
+    : ''
+
+  if (localKey) return localKey
+
+  const envKey = (import.meta.env.VITE_GEMINI_API_KEY || '').trim()
+  return envKey || ''
+}
+
 export async function apiPost(path, body) {
-  const res = await fetch(`${API_BASE}${path}`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
-  })
+  let res
+  try {
+    res = await fetch(`${API_BASE}${path}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    })
+  } catch {
+    const error = new Error('Network error: could not reach server.')
+    error.code = 'NETWORK_ERROR'
+    error.status = 0
+    throw error
+  }
 
   if (!res.ok) {
     const err = await res.json().catch(() => ({ error: `HTTP ${res.status}` }))
-    throw new Error(err.error || `Request failed: ${res.status}`)
+    const error = new Error(err.error || `Request failed: ${res.status}`)
+    error.status = res.status
+    error.code = err.code || null
+    error.authError = !!err.authError
+    throw error
   }
 
   return res.json()

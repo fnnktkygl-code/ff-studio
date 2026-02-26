@@ -5,6 +5,7 @@ import { Button } from '../components/common/Button'
 import { usePWAInstall } from '../hooks/usePWAInstall'
 import { useHistory } from '../hooks/useHistory'
 import { useToast } from '../hooks/useToast'
+import { getClientApiKey } from '../utils/api'
 
 function KeyIcon({ className }) {
   return (
@@ -46,7 +47,7 @@ export function SettingsPage() {
   const toast = useToast()
 
   useEffect(() => {
-    setApiKey(localStorage.getItem('ff_studio_api_key') || '')
+    setApiKey(getClientApiKey())
 
     // Check server health
     fetch('/api/health')
