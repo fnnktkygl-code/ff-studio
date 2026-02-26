@@ -41,7 +41,7 @@ export function HomePage() {
             <span className="text-[10px] font-bold text-brand uppercase tracking-widest">Professional</span>
           </div>
           <h2 className="text-2xl font-extrabold text-white">
-            Fashion Photography
+            Lady Vampire Photography
           </h2>
           <p className="text-sm text-slate-400 max-w-xs mx-auto">
             Upload your garment and generate professional e-commerce photos instantly
