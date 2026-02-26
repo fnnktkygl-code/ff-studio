@@ -29,8 +29,17 @@ function isRetriableError(err) {
     || message.includes('too many requests')
 }
 
-async function generateImage(ai, prompt, imageDataParts, model) {
-  let retries = 6
+function isRateLimitError(err) {
+  const status = err?.status || getEmbeddedStatus(normalizeErrorMessage(err))
+  const message = normalizeErrorMessage(err).toLowerCase()
+  return status === 429
+    || message.includes('resource_exhausted')
+    || message.includes('resource exhausted')
+    || message.includes('too many requests')
+}
+
+async function generateImage(ai, prompt, imageDataParts, model, maxRetries = 4) {
+  let retries = maxRetries
   let delay = 2000
 
   while (retries > 0) {
@@ -66,7 +75,7 @@ async function generateImage(ai, prompt, imageDataParts, model) {
       if (isRetriableError(err)) {
         const jitter = Math.floor(Math.random() * 500)
         await new Promise(r => setTimeout(r, delay + jitter))
-        delay = Math.min(delay * 2, 15000)
+        delay = Math.min(delay * 2, 8000)
         continue
       }
       throw err
@@ -113,19 +122,29 @@ router.post('/generate', validateGenerateRequest, async (req, res) => {
 
     // Vertex keys can be heavily rate-limited: use conservative concurrency there.
     const batchSize = useVertexApiKey ? 1 : 4
+    const maxRetries = useVertexApiKey ? 4 : 3
     const allResults = []
     const errors = []
+    let abortForRateLimit = false
 
     for (let i = 0; i < prompts.length; i += batchSize) {
       const batch = prompts.slice(i, i + batchSize)
       const batchResults = await Promise.all(
-        batch.map(prompt => generateImage(ai, prompt, imageDataParts, model).catch(err => {
+        batch.map(prompt => generateImage(ai, prompt, imageDataParts, model, maxRetries).catch(err => {
           console.error('Image generation failed:', err.message)
           errors.push(err.message)
+          if (isRateLimitError(err)) {
+            abortForRateLimit = true
+          }
           return null
         }))
       )
       allResults.push(...batchResults)
+
+      // Avoid proxy timeouts: stop early when Vertex is actively rate-limiting.
+      if (abortForRateLimit) {
+        break
+      }
     }
 
     const generatedImages = allResults
