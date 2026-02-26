@@ -1,7 +1,7 @@
 import { useCallback, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useGenerationStore } from '../stores/generationStore'
-import { apiPost, directGeminiCall } from '../utils/api'
+import { apiPost, directGeminiCall, getClientApiKey } from '../utils/api'
 import { buildAllPrompts } from '../utils/promptBuilder'
 import { COST_PER_IMAGE, COST_PER_VIDEO_SECOND } from '../utils/constants'
 
@@ -71,17 +71,23 @@ export function useGenerate() {
         videoResult = response.video || null
       } catch (serverErr) {
         // If it's an auth error from the server, don't silently fallback
-        const isAuthError = serverErr.message?.includes('Authentication failed')
+        const isAuthError = serverErr.authError
+          || serverErr.status === 401
+          || serverErr.status === 403
+          || serverErr.message?.includes('Authentication failed')
           || serverErr.message?.includes('Invalid API key')
           || serverErr.message?.includes('API key not valid')
         if (isAuthError) {
           throw new Error(serverErr.message || 'Server authentication failed. Check your API key configuration.')
         }
 
-        // Fallback: direct Gemini API call (if user has API key in settings)
-        const apiKey = localStorage.getItem('ff_studio_api_key')
+        // Fallback: direct Gemini API call (settings key or VITE_GEMINI_API_KEY)
+        const apiKey = getClientApiKey()
         if (!apiKey) {
-          throw new Error('Server unavailable. Please add your Gemini API key in Settings.')
+          if (serverErr.code === 'NETWORK_ERROR') {
+            throw new Error('Server unavailable. Start backend with npm run dev:all, or add Gemini API key in Settings.')
+          }
+          throw new Error('No API key found. Add Gemini API key in Settings or set VITE_GEMINI_API_KEY.')
         }
 
         // Generate images one by one with direct API
