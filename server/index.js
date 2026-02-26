@@ -49,7 +49,7 @@ if (process.env.NODE_ENV === `production`) {
 }
 
 app.listen(PORT, () => {
-  console.log(`FF Studio server running on http://localhost:${PORT}`)
+  console.log(`Fatma Shooting Studio server running on http://localhost:${PORT}`)
   if (!process.env.GEMINI_API_KEY) {
     console.warn(`Warning: GEMINI_API_KEY is not set. Add it to .env file.`)
   }
