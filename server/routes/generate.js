@@ -38,6 +38,10 @@ function isRateLimitError(err) {
     || message.includes('too many requests')
 }
 
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms))
+}
+
 async function generateImage(ai, prompt, imageDataParts, model, maxRetries = 4) {
   let retries = maxRetries
   let delay = 2000
@@ -112,6 +116,10 @@ router.post('/generate', validateGenerateRequest, async (req, res) => {
       : new GoogleGenAI({ vertexai: true, project: vertexProject, location: vertexLocation })
     const { images, prompts, videoPrompt } = req.body
 
+    const vertexMaxPrompts = Math.max(1, Number(process.env.VERTEX_MAX_PROMPTS || 2))
+    const vertexInterRequestDelayMs = Math.max(0, Number(process.env.VERTEX_INTER_REQUEST_DELAY_MS || 3000))
+    const effectivePrompts = useVertexApiKey ? prompts.slice(0, vertexMaxPrompts) : prompts
+
     // Prepare image parts for Gemini
     const imageDataParts = images.map((img) => ({
       inlineData: {
@@ -127,8 +135,12 @@ router.post('/generate', validateGenerateRequest, async (req, res) => {
     const errors = []
     let abortForRateLimit = false
 
-    for (let i = 0; i < prompts.length; i += batchSize) {
-      const batch = prompts.slice(i, i + batchSize)
+    for (let i = 0; i < effectivePrompts.length; i += batchSize) {
+      if (useVertexApiKey && i > 0 && vertexInterRequestDelayMs > 0) {
+        await sleep(vertexInterRequestDelayMs)
+      }
+
+      const batch = effectivePrompts.slice(i, i + batchSize)
       const batchResults = await Promise.all(
         batch.map(prompt => generateImage(ai, prompt, imageDataParts, model, maxRetries).catch(err => {
           console.error('Image generation failed:', err.message)
@@ -189,6 +201,7 @@ router.post('/generate', validateGenerateRequest, async (req, res) => {
       images: generatedImages,
       video,
       count: generatedImages.length,
+      limitedByQuota: useVertexApiKey && effectivePrompts.length < prompts.length,
     })
   } catch (err) {
     console.error('Generation error:', err)
