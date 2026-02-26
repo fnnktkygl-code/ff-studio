@@ -15,6 +15,8 @@ const FOCUS_INSTRUCTIONS = {
   shoes: 'EXTREME CLOSE-UP on the FEET and lower legs only. The footwear is the main subject. Do NOT show the upper body.',
   sweater: 'Frame the UPPER BODY from waist up. The sweater is the main subject — do NOT crop it.',
   jacket: 'Frame UPPER BODY or 3/4 body. The jacket/coat is the main subject — show it fully open or styled naturally.',
+  guandura: 'Frame the FULL BODY to capture the entire flowing guandura length, showing the traditional cut.',
+  abaya: 'Frame the FULL BODY to capture the loose flowing abaya length, from head to shoes.',
 }
 
 const GARMENT_NAMES = {
@@ -24,6 +26,8 @@ const GARMENT_NAMES = {
   shoes: 'shoes/sneakers',
   sweater: 'sweater/knitwear',
   jacket: 'jacket/coat',
+  guandura: 'guandura/gandoura traditional dress',
+  abaya: 'modest abaya dress',
 }
 
 const MODEL_POSES = [
@@ -77,10 +81,17 @@ export function buildModelPrompts(options) {
     fit = 'regular',
     size = 'm',
     targetMarket = 'global',
+    headwear = 'none',
   } = options
+
+  const isSkirtOrShorts = ['skirt', 'shorts'].includes(garmentType)
+  const actualHeadwear = isSkirtOrShorts ? 'none' : headwear
 
   const modelText = modelType === 'female' ? 'female fashion model' : modelType === 'male' ? 'male fashion model' : 'child fashion model'
   const ethText = ethnicity !== 'any' ? `${ethnicity} ` : ''
+  const hijabText = actualHeadwear === 'hijab' ? 'wearing a stylish modest hijab coordinated with the outfit' : ''
+  const subjectDescription = [ethText, modelText, hijabText].filter(Boolean).join(' ')
+
   const envDesc = ENVIRONMENT_DESCRIPTIONS[environment] || ENVIRONMENT_DESCRIPTIONS['studio-white']
   const garmentName = GARMENT_NAMES[garmentType] || garmentType
   const focusText = FOCUS_INSTRUCTIONS[garmentType] || ''
@@ -95,7 +106,7 @@ export function buildModelPrompts(options) {
     ISOLATION_INSTRUCTION,
     FIDELITY_INSTRUCTION,
     `Generate a completely new, photorealistic fashion photograph.`,
-    `Subject: A ${ethText}${modelText} wearing the exact ${garmentName}${fabricText}${sizeText}${fitText} from the reference image(s).`,
+    `Subject: ${subjectDescription} wearing the exact ${garmentName}${fabricText}${sizeText}${fitText} from the reference image(s).`,
     `Environment: ${envDesc}`,
     `Framing: ${focusText}`,
     `Pose: ${pose}`,
@@ -152,14 +163,23 @@ export function buildVideoPrompt(options) {
     environment = 'studio-white',
     garmentType = 'top',
     fit = 'regular',
+    headwear = 'none',
+    brandStyle = 'generic',
   } = options
+
+  const isSkirtOrShorts = ['skirt', 'shorts'].includes(garmentType)
+  const actualHeadwear = isSkirtOrShorts ? 'none' : headwear
 
   const modelText = modelType === 'female' ? 'female fashion model' : modelType === 'male' ? 'male fashion model' : 'child fashion model'
   const ethText = ethnicity !== 'any' ? `${ethnicity} ` : ''
+  const hijabText = actualHeadwear === 'hijab' ? 'wearing a stylish modest hijab' : ''
+  const subjectDescription = [ethText, modelText, hijabText].filter(Boolean).join(' ')
+
   const envDesc = ENVIRONMENT_DESCRIPTIONS[environment] || ENVIRONMENT_DESCRIPTIONS['studio-white']
   const garmentName = GARMENT_NAMES[garmentType] || garmentType
   const fitText = fit !== 'regular' ? `, ${fit} fit` : ''
   const focusText = FOCUS_INSTRUCTIONS[garmentType] || ''
+  const brandText = brandStyle !== 'generic' ? ` Cinematic style matching the ${brandStyle} brand aesthetic.` : ''
 
   const actions = {
     top: 'Model walks toward camera, pauses, and naturally adjusts the collar. Smooth, confident movement.',
@@ -174,11 +194,11 @@ export function buildVideoPrompt(options) {
     `CINEMATIC FASHION VIDEO`,
     ISOLATION_INSTRUCTION,
     FIDELITY_INSTRUCTION,
-    `Vertical 4K video (9:16 aspect ratio), shot on 35mm lens, cinematic quality.`,
-    `A ${ethText}${modelText} wearing the exact ${garmentName}${fitText} from the reference image(s).`,
+    `Video Prompt: Create a realistic, high quality, cinematic video.`,
+    `Subject: ${subjectDescription} wearing the exact ${garmentName}${fitText} shown in the provided image.`,
     `${focusText}`,
     `Action: ${actions[garmentType] || actions.top}`,
-    `Environment: ${envDesc}`,
+    `Setting: ${envDesc}.${brandText}`,
     MODESTY_INSTRUCTION,
     `Professional e-commerce fashion video, soft cinematic lighting, smooth fluid motion, ultra-detailed, photorealistic.`,
   ].filter(Boolean).join('\n\n')
