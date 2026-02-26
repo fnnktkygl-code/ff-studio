@@ -48,27 +48,38 @@ export function UploadZone({ onOpenPicker, onFiles }) {
       onDrop={handleDrop}
       className={cn(
         'w-full aspect-[4/5] rounded-3xl border-2 border-dashed flex flex-col items-center justify-center gap-6 transition-all active:scale-[0.98]',
-        isDragging
-          ? 'border-brand bg-brand-light/50 scale-[1.02]'
-          : 'border-brand-light bg-white/60 hover:border-brand/40 hover:bg-white/80'
+        isDragging ? 'border-brand scale-[1.02]' : 'border-brand/30 hover:border-brand/60'
       )}
+      style={{
+        background: isDragging ? 'rgba(255,107,129,0.08)' : 'var(--bg-card)',
+      }}
     >
+      {/* Camera icon */}
       <div className="relative">
-        <div className="w-20 h-20 rounded-full bg-brand-light/40 flex items-center justify-center">
-          <div className="w-14 h-14 rounded-full bg-white flex items-center justify-center shadow-lg shadow-brand-light/50 border border-brand-light bg-gradient-to-br from-white to-brand-light/20">
+        <div
+          className="w-20 h-20 rounded-full flex items-center justify-center"
+          style={{ background: 'rgba(255,107,129,0.12)' }}
+        >
+          <div
+            className="w-14 h-14 rounded-full flex items-center justify-center shadow-lg"
+            style={{
+              background: 'var(--bg-elevated)',
+              border: '1px solid var(--border)',
+            }}
+          >
             <CameraIcon className="w-6 h-6 text-brand" />
           </div>
         </div>
       </div>
 
       <div className="text-center space-y-2 px-6">
-        <p className="font-bold text-slate-900 text-lg">Add your garment</p>
-        <p className="text-sm text-slate-500">
+        <p className="font-bold text-lg" style={{ color: 'var(--text-primary)' }}>Add your garment</p>
+        <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
           Take a photo or drag & drop up to 4 images
         </p>
       </div>
 
-      <div className="flex items-center gap-2 text-xs text-slate-500">
+      <div className="flex items-center gap-2 text-xs" style={{ color: 'var(--text-muted)' }}>
         <UploadIcon className="w-4 h-4" />
         <span>JPG, PNG, WebP up to 10MB</span>
       </div>
