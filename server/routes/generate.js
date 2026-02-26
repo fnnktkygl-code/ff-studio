@@ -19,7 +19,7 @@ async function generateImage(ai, prompt, imageDataParts) {
           ]
         }],
         config: {
-          responseModalities: ['IMAGE'],
+          responseModalities: ['TEXT', 'IMAGE'],
         }
       })
 
@@ -68,12 +68,14 @@ router.post('/generate', validateGenerateRequest, async (req, res) => {
     // Generate all images in parallel (max 4 concurrent)
     const batchSize = 4
     const allResults = []
+    const errors = []
 
     for (let i = 0; i < prompts.length; i += batchSize) {
       const batch = prompts.slice(i, i + batchSize)
       const batchResults = await Promise.all(
         batch.map(prompt => generateImage(ai, prompt, imageDataParts).catch(err => {
           console.error('Image generation failed:', err.message)
+          errors.push(err.message)
           return null
         }))
       )
@@ -83,6 +85,13 @@ router.post('/generate', validateGenerateRequest, async (req, res) => {
     const generatedImages = allResults
       .filter(Boolean)
       .map(r => `data:${r.mimeType};base64,${r.data}`)
+
+    if (generatedImages.length === 0) {
+      const errorMsg = errors.length > 0
+        ? `All ${errors.length} image generation(s) failed: ${errors[0]}`
+        : 'No images were generated'
+      return res.status(500).json({ error: errorMsg })
+    }
 
     // Generate video if requested
     let video = null
