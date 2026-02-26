@@ -102,7 +102,7 @@ router.post('/generate', validateGenerateRequest, async (req, res) => {
   const vertexProject = (process.env.GOOGLE_CLOUD_PROJECT || '').trim() || null
   const useVertexApiKey = isTruthy(process.env.GOOGLE_GENAI_USE_VERTEXAI)
   const vertexLocation = (process.env.GOOGLE_CLOUD_LOCATION || '').trim() || (useVertexApiKey ? 'global' : 'us-central1')
-  const model = (process.env.GENERATION_MODEL || '').trim() || (useVertexApiKey ? 'gemini-3-pro-image-preview' : 'gemini-2.5-flash-image-preview')
+  const model = (process.env.GENERATION_MODEL || '').trim() || 'gemini-2.5-flash-image-preview'
 
   if (!apiKey && !vertexProject) {
     return res.status(500).json({ error: 'Server API key not configured. Set GEMINI_API_KEY or GOOGLE_API_KEY in environment variables.' })
