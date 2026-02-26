@@ -4,6 +4,7 @@ import { useGenerationStore } from '../stores/generationStore'
 import { apiPost, directGeminiCall, getClientApiKey } from '../utils/api'
 import { buildAllPrompts } from '../utils/promptBuilder'
 import { COST_PER_VIDEO_SECOND, getPricingProfile } from '../utils/constants'
+import { useToast } from './useToast'
 
 const PROGRESS_MESSAGES = [
   'Analyzing your garment...',
@@ -17,6 +18,7 @@ export function useGenerate() {
   const navigate = useNavigate()
   const abortRef = useRef(null)
   const store = useGenerationStore
+  const toast = useToast()
 
   const generate = useCallback(async () => {
     const { images, options } = store.getState()
@@ -73,11 +75,16 @@ export function useGenerate() {
           options,
         }, {
           signal: generationController.signal,
-          timeoutMs: 120000,
+          timeoutMs: 300000, // 5 min to accommodate Veo LRO polling (up to 3 min)
         })
         generatedImages = response.images || []
         videoResult = response.video || null
         modelUsed = response.modelUsed || null
+
+        // Show toast if video was requested but failed server-side
+        if (videoPrompt && !videoResult && response.videoError) {
+          toast.error(`Video: ${response.videoError}`)
+        }
       } catch (serverErr) {
         // Surface server-side errors directly (auth/config/model/etc.)
         // Only fallback to direct API when the server is unreachable.

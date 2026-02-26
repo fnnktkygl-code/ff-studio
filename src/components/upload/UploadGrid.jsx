@@ -19,10 +19,10 @@ export function UploadGrid({ onAddMore }) {
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between px-1">
-        <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest">
+        <h3 className="text-xs font-bold text-slate-500 uppercase tracking-widest">
           Your photos ({images.length}/4)
         </h3>
-        <span className="text-[10px] text-slate-500">More angles = better results</span>
+        <span className="text-[10px] text-slate-400">More angles = better results</span>
       </div>
 
       <div className={cn(
@@ -44,7 +44,7 @@ export function UploadGrid({ onAddMore }) {
           <button
             onClick={onAddMore}
             className={cn(
-              'rounded-2xl border-2 border-dashed border-white/10 flex flex-col items-center justify-center gap-2 text-slate-500 hover:border-white/20 hover:text-slate-400 transition-all active:scale-95',
+              'rounded-2xl border-2 border-dashed border-brand-light bg-white/60 flex flex-col items-center justify-center gap-2 text-brand hover:border-brand-dark hover:text-brand-dark transition-all active:scale-95',
               images.length === 1 ? 'aspect-square' : 'aspect-square'
             )}
           >

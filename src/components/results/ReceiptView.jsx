@@ -18,7 +18,7 @@ export function ReceiptView({ receipt }) {
     <div>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 px-3 py-1.5 bg-white/5 rounded-full text-xs font-bold text-slate-400 hover:bg-white/10 transition-colors"
+        className="flex items-center gap-2 px-3 py-1.5 bg-white border border-slate-200 rounded-full text-xs font-bold text-slate-600 hover:bg-slate-50 transition-colors"
       >
         <ReceiptIcon className="w-3.5 h-3.5" />
         <span>${receipt.total.toFixed(3)}</span>
@@ -32,17 +32,17 @@ export function ReceiptView({ receipt }) {
             exit={{ opacity: 0, height: 0 }}
             className="overflow-hidden"
           >
-            <div className="mt-3 p-4 bg-white/5 rounded-2xl border border-white/5 space-y-2">
-              <h3 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest pb-2 border-b border-white/5">
+            <div className="mt-3 p-4 bg-white rounded-2xl border border-slate-200 shadow-sm space-y-2">
+              <h3 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest pb-2 border-b border-slate-100">
                 Generation Receipt
               </h3>
               {receipt.pricingModel && (
-                <div className="flex justify-between text-xs text-slate-400">
+                <div className="flex justify-between text-xs text-slate-500">
                   <span>Pricing model</span>
                   <span className="font-mono">{receipt.pricingModel}</span>
                 </div>
               )}
-              <div className="flex justify-between text-xs text-slate-400">
+              <div className="flex justify-between text-xs text-slate-500">
                 <span>Images ({receipt.imagesGenerated}x)</span>
                 <span className="font-mono">${receipt.imageCost.toFixed(4)}</span>
               </div>
@@ -52,11 +52,11 @@ export function ReceiptView({ receipt }) {
                   <span className="font-mono">${receipt.videoCost.toFixed(3)}</span>
                 </div>
               )}
-              <div className="flex justify-between text-xs text-slate-400">
+              <div className="flex justify-between text-xs text-slate-500">
                 <span>Tokens</span>
                 <span className="font-mono">${receipt.tokenCost.toFixed(5)}</span>
               </div>
-              <div className="flex justify-between text-sm font-bold text-white pt-2 border-t border-white/5">
+              <div className="flex justify-between text-sm font-bold text-slate-900 pt-2 border-t border-slate-100">
                 <span>Total</span>
                 <span className="font-mono">${receipt.total.toFixed(3)}</span>
               </div>

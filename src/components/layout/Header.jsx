@@ -25,14 +25,14 @@ export function Header({ title, showBack = false, onBack, rightAction, className
 
   return (
     <header className={cn(
-      'sticky top-0 z-40 flex items-center justify-between px-5 h-14 bg-surface-dark/80 backdrop-blur-xl border-b border-white/5',
+      'sticky top-0 z-40 flex items-center justify-between px-5 h-14 bg-surface-dark/80 backdrop-blur-xl border-b border-slate-200',
       className
     )}>
       <div className="w-10 flex items-center">
         {(showBack || !isHome) && !isHome ? (
           <button
             onClick={handleBack}
-            className="p-2 -ml-2 rounded-full text-slate-400 hover:text-white hover:bg-white/10 active:scale-95 transition-all"
+            className="p-2 -ml-2 rounded-full text-slate-500 hover:text-slate-900 hover:bg-slate-200/50 active:scale-95 transition-all"
           >
             <ChevronLeftIcon className="w-5 h-5" />
           </button>
@@ -43,8 +43,8 @@ export function Header({ title, showBack = false, onBack, rightAction, className
         )}
       </div>
 
-      <h1 className="flex-1 text-center text-xs font-bold tracking-[0.2em] text-slate-300 uppercase">
-        {title || 'Fatma Shooting Studio'}
+      <h1 className="flex-1 text-center text-xs font-bold tracking-[0.2em] text-slate-800 uppercase">
+        {title || 'Fatma Studio'}
       </h1>
 
       <div className="w-10 flex items-center justify-end">
