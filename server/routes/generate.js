@@ -71,7 +71,7 @@ router.post('/generate', validateGenerateRequest, async (req, res) => {
   try {
     const ai = apiKey
       ? new GoogleGenAI(useVertexApiKey
-        ? { vertexai: true, apiKey, location: vertexLocation, apiVersion: 'v1' }
+        ? { vertexai: true, apiKey, apiVersion: 'v1' }
         : { apiKey })
       : new GoogleGenAI({ vertexai: true, project: vertexProject, location: vertexLocation })
     const { images, prompts, videoPrompt } = req.body
