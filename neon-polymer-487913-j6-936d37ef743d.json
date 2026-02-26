@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "neon-polymer-487913-j6",
+  "private_key_id": "936d37ef743dfc7705e445bd4e31cc885d355a5d",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCWOwijLI4zAvHF\nfAflt7VTDm+BmIyrl8yaK6Q+3OvmXdN3l+ppw+FhaeWkQBbXnE6zqokWhDXI0kxr\nvApBZEKwR1CNxA9/6mYa9kXmr+PVFscik8rulghnhIjnFZKoyl++QaYhtq1cp+y/\nyd1Z970I+2RwLLeNbXDBncli7+ucUpixa5fnmLuzUMmnssRVr9NgroBMhJrceZdl\nZ2aIYShnDBNkenxw450DF+E+G0v0qh84IrIDiTeVFJ/5ONR0YhCsO1vEJaRigOnW\n4u2WkUhBxA7nP/U02czGQ9noTESyg1KBmftwEMwkEmHBYGb1dCm0ywUWPsiiA0HM\nTNJpf8r9AgMBAAECggEAF1JBQEF7rrATk7ZyLGdVIvhf94SUu9OUG8/QDsExbsDc\ngdmHtpUFsR9lGpcnZJ+7ePktkF0EU3FQEz5s8iNMFfzwJJ3N0Sv0X1WhWtMtwWfo\nkHXUgC6yzc0dipAHBSRrcgfTcDLhXTulTU2bSuriQdlyyVYrxWz6ntftiioYD5tm\n/PAsC0RFwlFDOrQsHIgWhzy6zOQtU33w0fzB70caOvGd9DZoiRqG2P9iFiltzGGC\nW0C1WnIgqBiWRuxCjp3V94MQxitg5mM3/yTuFbP5gyyKoaADvvRrmuwy94ublHSb\nMYF2zrI4B0c8Tk0CvIXS/uh9ALKsYPZ335wbTEm4wQKBgQDExWcjAPd0OabmryUC\n/E2nuDLWhpYjUPk9fEq4eOuQEj5UbkM/yL3SOtEGIfGPPILh3EOSwHE8mNAsEnno\nPU6qj8vOtKQIR2ADHr6Bfm+Zx2PhlSqlz3xBiYV+ZAqfIMz3O4qlOyq6vbSU27Q/\nn93Jo4zwDsEG3MIkox+9QOG3PQKBgQDDc1uW7cflq+aNjOQRfM7D72kV9r92tDoY\nWcoA04OsZb36TMkZdCp/sIx6r18NRssedwbiCYC3zSmtKlNqSKrR+Ayt34xnI0wS\nKPfCQS7klKG3618PKy9RfhvfGwlMPVsMsZhvRWLOj67xJkhWk55ThJH++2ItMxzY\nijkk7QGewQKBgFDyJAtySlm1ncMoKcGgqRFl5QP7Oagtl1qD1vksRTtvRdTVxzRm\nEDB7oaE0NXsHGZBwXBvyrqKO+pQmxZ+UGNhxbxYJmbEOK6Ec9KGwsZhBPgV+p5yu\nTh9nw1LLNNNhWvAZvl9ah6lqgO77spq52TMp5MCcUSvRhMwtjtD7797BAoGBAJEX\ncteBHxLtYJKWE7yzpR6o/J7UdN/e/P2UsjOY0TfKs5Q7KlJd/SqbWj29MFe/xQuR\nmqd0HHzVremh8RiGZ2DFvkvZFvZ9qnwUs5AeKXyApejNrtyo11CsyG4AOQ/CwHOU\n5y87GBV1bo4QOEUlArTHRkY+QWyCdBh/y9oQo1JBAoGAQGqynXNJ4RGuKZnG5yNd\nYBP1AdzQz7wuCPqsjCsAPqxDTdQO+TEVUFYtwuMPT+/ma1ggsVvMmHZJE8DWqrBq\nEYgxQB1F2CY2G0HuPVfnIFvt37euREXyygUK17KgawUG8HdUzUYid6cciQ8+z9SI\nkkYoo4BXy5U02+VHgCLH9Fw=\n-----END PRIVATE KEY-----\n",
+  "client_email": "vertex-express@neon-polymer-487913-j6.iam.gserviceaccount.com",
+  "client_id": "109526040059318385853",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/vertex-express%40neon-polymer-487913-j6.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}
