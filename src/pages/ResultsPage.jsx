@@ -12,6 +12,8 @@ import { useDownload } from '../hooks/useDownload'
 import { useShare } from '../hooks/useShare'
 import { useHistory } from '../hooks/useHistory'
 import { useToast } from '../hooks/useToast'
+import { apiPost } from '../utils/api'
+import { buildAllPrompts, applyFeedbackToPrompt } from '../utils/promptBuilder'
 
 function DownloadIcon({ className }) {
   return (
@@ -46,9 +48,11 @@ export function ResultsPage() {
   const videoResult = useGenerationStore((s) => s.videoResult)
   const receipt = useGenerationStore((s) => s.receipt)
   const options = useGenerationStore((s) => s.options)
+  const sourceImages = useGenerationStore((s) => s.images)
+  const setResults = useGenerationStore((s) => s.setResults)
   const reset = useGenerationStore((s) => s.reset)
 
-  const { downloadAll } = useDownload()
+  const { downloadAll, downloadImage } = useDownload()
   const { canShare, shareAll } = useShare()
   const { saveToHistory } = useHistory()
   const toast = useToast()
@@ -85,6 +89,55 @@ export function ResultsPage() {
     toast.success(`Downloading ${results.length} photos`)
   }
 
+  const handleDownloadOne = (index) => {
+    downloadImage(results[index], `ff-studio-${index + 1}.jpg`)
+    toast.success(`Downloading image ${index + 1}`)
+  }
+
+  const handleRegenerateOne = async (index) => {
+    const feedback = window.prompt('What should be improved on this image?')
+    if (!feedback || !feedback.trim()) return
+
+    if (sourceImages.length === 0) {
+      toast.error('Missing source images. Start a new generation.')
+      return
+    }
+
+    try {
+      const { imagePrompts } = buildAllPrompts(options)
+      const basePrompt = imagePrompts[index] || imagePrompts[0]
+      if (!basePrompt) {
+        toast.error('No base prompt found for regeneration.')
+        return
+      }
+
+      const revisedPrompt = applyFeedbackToPrompt(basePrompt, feedback)
+      const response = await apiPost('/generate', {
+        images: sourceImages.map((img) => ({
+          data: img.base64.split(',')[1],
+          mimeType: 'image/jpeg',
+        })),
+        prompts: [revisedPrompt],
+        videoPrompt: null,
+        options,
+      }, {
+        timeoutMs: 120000,
+      })
+
+      const regenerated = response.images?.[0]
+      if (!regenerated) {
+        throw new Error('No regenerated image returned')
+      }
+
+      const next = [...results]
+      next[index] = regenerated
+      setResults(next)
+      toast.success(`Image ${index + 1} regenerated`)
+    } catch (err) {
+      toast.error(err.message || 'Failed to regenerate this image')
+    }
+  }
+
   const handleShareAll = async () => {
     try {
       await shareAll(results)
@@ -118,6 +171,8 @@ export function ResultsPage() {
         <ImageGallery
           images={results}
           onImageClick={(index) => setViewerIndex(index)}
+          onImageDownload={handleDownloadOne}
+          onImageRegenerate={handleRegenerateOne}
         />
       </div>
 

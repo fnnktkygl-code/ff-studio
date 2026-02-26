@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useGenerationStore } from '../stores/generationStore'
 import { apiPost, directGeminiCall, getClientApiKey } from '../utils/api'
 import { buildAllPrompts } from '../utils/promptBuilder'
-import { COST_PER_IMAGE, COST_PER_VIDEO_SECOND } from '../utils/constants'
+import { COST_PER_IMAGE, COST_PER_VIDEO_SECOND, INPUT_TEXT_COST_PER_TOKEN } from '../utils/constants'
 
 const PROGRESS_MESSAGES = [
   'Analyzing your garment...',
@@ -135,7 +135,7 @@ export function useGenerate() {
         imageCost: validImages.length * COST_PER_IMAGE,
         videoIncluded: !!videoResult,
         videoCost: videoResult ? 8 * COST_PER_VIDEO_SECOND : 0,
-        tokenCost: Math.ceil(totalPromptChars / 4) * 0.000000075,
+        tokenCost: Math.ceil(totalPromptChars / 4) * INPUT_TEXT_COST_PER_TOKEN,
         get total() {
           return this.imageCost + this.videoCost + this.tokenCost
         },
