@@ -69,7 +69,15 @@ export function useGenerate() {
         })
         generatedImages = response.images || []
         videoResult = response.video || null
-      } catch {
+      } catch (serverErr) {
+        // If it's an auth error from the server, don't silently fallback
+        const isAuthError = serverErr.message?.includes('Authentication failed')
+          || serverErr.message?.includes('Invalid API key')
+          || serverErr.message?.includes('API key not valid')
+        if (isAuthError) {
+          throw new Error(serverErr.message || 'Server authentication failed. Check your API key configuration.')
+        }
+
         // Fallback: direct Gemini API call (if user has API key in settings)
         const apiKey = localStorage.getItem('ff_studio_api_key')
         if (!apiKey) {

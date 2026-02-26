@@ -36,9 +36,11 @@ app.use('/api', generateRouter)
 
 // Health check
 app.get('/api/health', (req, res) => {
+  const apiKey = (process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY || '').trim()
+  const project = (process.env.GOOGLE_CLOUD_PROJECT || '').trim()
   res.json({
     status: 'ok',
-    hasAuth: !!(process.env.GEMINI_API_KEY || process.env.GOOGLE_CLOUD_PROJECT),
+    hasAuth: !!(apiKey || project),
   })
 })
 
@@ -53,7 +55,11 @@ if (process.env.NODE_ENV === `production`) {
 
 app.listen(PORT, () => {
   console.log(`FF Studio server running on http://localhost:${PORT}`)
-  if (!process.env.GEMINI_API_KEY && !process.env.GOOGLE_CLOUD_PROJECT) {
-    console.warn(`Warning: Neither GEMINI_API_KEY nor GOOGLE_CLOUD_PROJECT is set. Add one to your .env file.`)
+  const apiKey = (process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY || '').trim()
+  const project = (process.env.GOOGLE_CLOUD_PROJECT || '').trim()
+  if (!apiKey && !project) {
+    console.warn(`Warning: No API key configured. Set GEMINI_API_KEY or GOOGLE_API_KEY in your .env file.`)
+  } else {
+    console.log(`Authentication: ${apiKey ? 'API Key' : 'Vertex AI Project'} configured`)
   }
 })
