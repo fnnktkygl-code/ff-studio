@@ -173,8 +173,8 @@ export function ResultsPage() {
         {/* Header */}
         <div className="flex items-end justify-between mb-6">
           <div>
-            <h2 className="text-2xl font-extrabold text-white">Looking great!</h2>
-            <p className="text-sm text-slate-400 mt-1">Your photos are ready</p>
+            <h2 className="text-2xl font-extrabold text-slate-900">Looking great!</h2>
+            <p className="text-sm text-slate-500 mt-1">Your photos are ready</p>
           </div>
           <ReceiptView receipt={receipt} />
         </div>

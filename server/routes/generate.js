@@ -228,15 +228,9 @@ async function getVertexAccessToken() {
 async function generateVideoViaVertexVeo(prompt, imageBase64, modelInput, vertexProject, vertexLocation) {
   const token = await getVertexAccessToken();
   const model = modelInput || 'veo-2.0-generate-001';
-  const url = `https://${vertexLocation}-aiplatform.googleapis.com/v1/projects/${vertexProject}/locations/${vertexLocation}/publishers/google/models/${model}:predict`;
-
-  const instances = {
-    prompt: prompt,
-  };
-
-  // Although Veo 2.0 supports conditional image input, the base API format for REST text-to-video takes prompt in instances.
-  // We'll provide the image if possible, but Veo is primarily text-to-video in REST predict.
-  // Per documentation, video generation takes instances with `prompt` and optionally `input_image_bytes` 
+  // Veo is ONLY available in us-central1 — never 'global'
+  const veoLocation = 'us-central1';
+  const url = `https://${veoLocation}-aiplatform.googleapis.com/v1/projects/${vertexProject}/locations/${veoLocation}/publishers/google/models/${model}:predictLongRunning`;
 
   const payload = {
     instances: [
@@ -245,12 +239,14 @@ async function generateVideoViaVertexVeo(prompt, imageBase64, modelInput, vertex
       }
     ],
     parameters: {
-      aspectRatio: "9:16",
-      personGeneration: "allow_adult",
+      aspectRatio: '9:16',
+      personGeneration: 'allow_adult',
+      durationSeconds: 8,
     }
   };
 
-  const response = await fetch(url, {
+  // Step 1: Submit long-running operation
+  const submitRes = await fetch(url, {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${token}`,
@@ -259,26 +255,55 @@ async function generateVideoViaVertexVeo(prompt, imageBase64, modelInput, vertex
     body: JSON.stringify(payload),
   });
 
-  const result = await response.json().catch(() => ({}));
-  if (!response.ok || result.error) {
-    const message = typeof result?.error?.message === 'string'
-      ? result.error.message
-      : `HTTP ${response.status}`;
+  const submitResult = await submitRes.json().catch(() => ({}));
+  if (!submitRes.ok || submitResult.error) {
+    const message = typeof submitResult?.error?.message === 'string'
+      ? submitResult.error.message
+      : `HTTP ${submitRes.status}`;
     const err = new Error(message);
-    err.status = result?.error?.code || response.status;
+    err.status = submitResult?.error?.code || submitRes.status;
     throw err;
   }
 
-  const generatedVideoBytes = result.predictions?.[0]?.bytesBase64;
-  if (!generatedVideoBytes) {
-    throw new Error('No video bytes returned from Veo API');
+  // Step 2: Poll the operation until done (max 3 minutes)
+  const operationName = submitResult.name;
+  if (!operationName) {
+    throw new Error('Veo API did not return an operation name');
   }
+  console.log(`Veo LRO started: ${operationName}`);
 
-  return {
-    data: generatedVideoBytes,
-    mimeType: 'video/mp4',
-    modelUsed: model,
+  const pollUrl = `https://${veoLocation}-aiplatform.googleapis.com/v1/${operationName}`;
+  const maxAttempts = 18; // 18 × 10s = 3 minutes
+  for (let attempt = 0; attempt < maxAttempts; attempt++) {
+    await sleep(10000);
+    const pollRes = await fetch(pollUrl, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    const pollResult = await pollRes.json().catch(() => ({}));
+    if (!pollRes.ok || pollResult.error) {
+      const message = typeof pollResult?.error?.message === 'string'
+        ? pollResult.error.message : `Poll HTTP ${pollRes.status}`;
+      throw new Error(message);
+    }
+    if (pollResult.done) {
+      if (pollResult.error) {
+        throw new Error(`Veo operation failed: ${JSON.stringify(pollResult.error)}`);
+      }
+      // Video bytes are in response.predictions[0].bytesBase64 or .videoBytes
+      const videoBytes = pollResult.response?.predictions?.[0]?.bytesBase64
+        || pollResult.response?.predictions?.[0]?.videoBytes;
+      if (!videoBytes) {
+        throw new Error('Veo returned done but no video bytes found');
+      }
+      return {
+        data: videoBytes,
+        mimeType: 'video/mp4',
+        modelUsed: model,
+      };
+    }
+    console.log(`Veo LRO attempt ${attempt + 1}/${maxAttempts} — still running...`);
   }
+  throw new Error('Video generation timed out after 3 minutes');
 }
 
 function isTruthy(value) {
@@ -400,30 +425,27 @@ router.post('/generate', validateGenerateRequest, async (req, res) => {
     }
 
     let video = null
+    let videoError = null
     if (videoPrompt && generatedImages.length > 0) {
       console.log('Generating video via Veo 2.0...')
       try {
         if (!vertexProject) {
-          throw new Error("GOOGLE_CLOUD_PROJECT must be set to use Veo Video Generation API.")
+          throw new Error('GOOGLE_CLOUD_PROJECT must be set to use Veo Video Generation API. Add it in your environment variables.')
         }
 
-        // Strip the base64 prefix if needed
         const base64Ref = generatedImages[0].split(',')[1] || generatedImages[0];
-
-        // Let's pass the prompt to Veo
-        // We append the prompt with an instruction to use the reference style (this is standard prompt passing)
-        const fullVideoPrompt = videoPrompt;
-
         const videoResult = await generateVideoViaVertexVeo(
-          fullVideoPrompt,
+          videoPrompt,
           base64Ref,
           videoModelReq,
           vertexProject,
           vertexLocation
         );
         video = `data:${videoResult.mimeType};base64,${videoResult.data}`
+        console.log('Video generated successfully.')
       } catch (err) {
         console.error('Video generation failed:', err.message)
+        videoError = err.message || 'Video generation failed'
       }
     }
 
@@ -431,6 +453,7 @@ router.post('/generate', validateGenerateRequest, async (req, res) => {
       success: true,
       images: generatedImages,
       video,
+      videoError,
       count: generatedImages.length,
       limitedByQuota: useVertexApiKey && effectivePrompts.length < prompts.length,
       modelUsed: modelUsed || model,

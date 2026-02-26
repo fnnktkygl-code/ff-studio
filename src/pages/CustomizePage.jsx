@@ -92,7 +92,7 @@ export function CustomizePage() {
             {images.length < 4 && (
               <button
                 onClick={openPicker}
-                className="w-20 h-20 shrink-0 rounded-2xl border-2 border-dashed border-white/10 flex flex-col items-center justify-center text-slate-500 hover:border-white/20 transition-colors"
+                className="w-20 h-20 shrink-0 rounded-2xl border-2 border-dashed border-brand-light bg-white/60 flex flex-col items-center justify-center text-brand hover:border-brand-dark hover:text-brand-dark transition-colors"
               >
                 <PlusIcon className="w-4 h-4" />
                 <span className="text-[9px] font-bold mt-1">Add</span>
@@ -115,8 +115,8 @@ export function CustomizePage() {
                   key={model.value}
                   onClick={() => setOption('aiModel', model.value)}
                   className={`relative flex flex-col items-start gap-0.5 p-3 rounded-2xl border transition-all text-left ${isActive
-                    ? 'bg-brand/15 border-brand/40 shadow-sm shadow-brand/10'
-                    : 'bg-white/5 border-white/5 hover:border-white/15'
+                    ? 'bg-brand/10 border-brand/40 shadow-sm shadow-brand/10'
+                    : 'bg-white border-slate-200 hover:border-brand-light'
                     }`}
                 >
                   {model.recommended && (
@@ -124,10 +124,10 @@ export function CustomizePage() {
                       ★ Best
                     </span>
                   )}
-                  <span className={`text-xs font-bold ${isActive ? 'text-white' : 'text-slate-300'}`}>
+                  <span className={`text-xs font-bold ${isActive ? 'text-brand-dark' : 'text-slate-700'}`}>
                     {model.label}
                   </span>
-                  <span className="text-[10px] text-slate-500">{model.sublabel}</span>
+                  <span className={`text-[10px] ${isActive ? 'text-brand-dark/70' : 'text-slate-500'}`}>{model.sublabel}</span>
                 </button>
               )
             })}
@@ -208,10 +208,10 @@ export function CustomizePage() {
         </div>
 
         {/* Advanced Options */}
-        <div className="mt-8 pt-6 border-t border-white/5 space-y-5">
+        <div className="mt-8 pt-6 border-t border-slate-200 space-y-5">
           <div className="flex items-center gap-2 px-1 mb-2">
             <SparklesIcon className="w-4 h-4 text-brand" />
-            <h3 className="text-xs font-bold text-slate-300 uppercase tracking-widest">Advanced</h3>
+            <h3 className="text-xs font-bold text-slate-500 uppercase tracking-widest">Advanced</h3>
           </div>
 
           <OptionSelector
@@ -248,20 +248,20 @@ export function CustomizePage() {
 
         {/* Video Options */}
         {(options.mode === 'model' || options.mode === 'both') && (
-          <div className="mt-6 pt-6 border-t border-white/5">
-            <div className="flex items-center justify-between p-4 bg-white/5 rounded-2xl mb-4">
+          <div className="mt-6 pt-6 border-t border-slate-200">
+            <div className="flex items-center justify-between p-4 bg-white border border-slate-100 shadow-sm rounded-2xl mb-4">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-brand-dark/20 rounded-full flex items-center justify-center">
+                <div className="w-10 h-10 bg-brand-light/30 rounded-full flex items-center justify-center">
                   <FilmIcon className="w-5 h-5 text-brand" />
                 </div>
                 <div>
-                  <p className="font-bold text-white text-sm">Cinematic Video</p>
-                  <p className="text-[10px] text-slate-400">Animate the best image generated</p>
+                  <p className="font-bold text-slate-900 text-sm">Cinematic Video</p>
+                  <p className="text-[10px] text-slate-500">Animate the best image generated</p>
                 </div>
               </div>
               <button
                 onClick={() => setOption('generateVideo', !options.generateVideo)}
-                className={`w-12 h-7 rounded-full transition-colors relative ${options.generateVideo ? 'bg-brand' : 'bg-white/10'
+                className={`w-12 h-7 rounded-full transition-colors relative ${options.generateVideo ? 'bg-gradient-to-r from-brand-dark to-brand' : 'bg-slate-200'
                   }`}
               >
                 <div className={`w-5 h-5 bg-white rounded-full absolute top-1 transition-transform shadow ${options.generateVideo ? 'translate-x-6' : 'translate-x-1'
@@ -278,8 +278,8 @@ export function CustomizePage() {
                       key={model.value}
                       onClick={() => setOption('videoModel', model.value)}
                       className={`relative flex flex-col items-start gap-0.5 p-3 rounded-2xl border transition-all text-left ${isActive
-                        ? 'bg-brand/15 border-brand/40 shadow-sm shadow-brand/10'
-                        : 'bg-white/5 border-white/5 hover:border-white/15'
+                        ? 'bg-brand/10 border-brand/40 shadow-sm shadow-brand/10'
+                        : 'bg-white border-slate-200 hover:border-brand-light'
                         }`}
                     >
                       {model.recommended && (
@@ -287,10 +287,10 @@ export function CustomizePage() {
                           ★ Best
                         </span>
                       )}
-                      <span className={`text-xs font-bold ${isActive ? 'text-white' : 'text-slate-300'}`}>
+                      <span className={`text-xs font-bold ${isActive ? 'text-brand-dark' : 'text-slate-700'}`}>
                         {model.label}
                       </span>
-                      <span className="text-[10px] text-slate-500">{model.sublabel}</span>
+                      <span className={`text-[10px] ${isActive ? 'text-brand-dark/70' : 'text-slate-500'}`}>{model.sublabel}</span>
                     </button>
                   )
                 })}

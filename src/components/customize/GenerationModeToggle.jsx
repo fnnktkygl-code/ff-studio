@@ -34,7 +34,7 @@ const MODES = [
 
 export function GenerationModeToggle({ value, onChange }) {
   return (
-    <div className="relative flex bg-white/5 p-1 rounded-2xl">
+    <div className="relative flex bg-slate-200/50 p-1 rounded-2xl">
       {MODES.map((mode) => {
         const isActive = value === mode.value
         const Icon = mode.icon
@@ -45,7 +45,7 @@ export function GenerationModeToggle({ value, onChange }) {
             onClick={() => onChange(mode.value)}
             className={cn(
               'relative flex-1 flex flex-col items-center justify-center gap-1 py-3 rounded-xl text-[10px] font-bold transition-colors z-10',
-              isActive ? 'text-white' : 'text-slate-500 hover:text-slate-300'
+              isActive ? 'text-white' : 'text-slate-500 hover:text-slate-700'
             )}
           >
             {isActive && (

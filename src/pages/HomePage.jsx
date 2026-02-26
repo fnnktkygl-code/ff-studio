@@ -40,10 +40,10 @@ export function HomePage() {
             <SparklesIcon className="w-3.5 h-3.5 text-brand" />
             <span className="text-[10px] font-bold text-brand uppercase tracking-widest">Professional</span>
           </div>
-          <h2 className="text-2xl font-extrabold text-white">
-            Lady Vampire Photography
+          <h2 className="text-2xl font-extrabold text-slate-900">
+            Fatma Studio
           </h2>
-          <p className="text-sm text-slate-400 max-w-xs mx-auto">
+          <p className="text-sm text-slate-500 max-w-xs mx-auto">
             Upload your garment and generate professional e-commerce photos instantly
           </p>
         </div>

@@ -14,8 +14,8 @@ export function OptionSelector({ label, options, value, onChange }) {
             className={cn(
               'whitespace-nowrap px-4 py-2.5 rounded-full text-xs font-semibold transition-all shrink-0 active:scale-95',
               value === opt.value
-                ? 'bg-gradient-to-r from-brand-dark to-brand text-white shadow-md shadow-brand-dark/20'
-                : 'bg-white/5 text-slate-400 hover:bg-white/10 hover:text-slate-300'
+                ? 'bg-gradient-to-r from-brand-dark to-brand text-white shadow-md shadow-brand/25'
+                : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-900'
             )}
           >
             {opt.label}

@@ -41,12 +41,12 @@ export function GeneratingPage() {
         {/* Animated orb */}
         <div className="relative mb-10">
           <motion.div
-            className="w-28 h-28 rounded-full bg-brand/10 absolute inset-0"
+            className="w-28 h-28 rounded-full bg-brand-light/30 absolute inset-0"
             animate={{ scale: [1, 1.3, 1], opacity: [0.3, 0.1, 0.3] }}
             transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
           />
           <motion.div
-            className="w-28 h-28 rounded-full bg-brand-dark/20 absolute inset-0"
+            className="w-28 h-28 rounded-full bg-brand-light/20 absolute inset-0"
             animate={{ scale: [1, 1.2, 1], opacity: [0.5, 0.2, 0.5] }}
             transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut', delay: 0.3 }}
           />
@@ -61,19 +61,19 @@ export function GeneratingPage() {
         </div>
 
         {/* Text */}
-        <h2 className="text-xl font-bold text-white mb-2">Creating your photos</h2>
+        <h2 className="text-xl font-bold text-slate-900 mb-2">Creating your photos</h2>
         <motion.p
           key={progressMessage}
           initial={{ opacity: 0, y: 5 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-sm text-slate-400 mb-8"
+          className="text-sm text-slate-500 mb-8"
         >
           {progressMessage || 'Starting...'}
         </motion.p>
 
         {/* Progress bar */}
         <div className="w-full max-w-xs">
-          <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
+          <div className="h-1.5 bg-slate-200 rounded-full overflow-hidden">
             <motion.div
               className="h-full bg-gradient-to-r from-brand-dark to-brand rounded-full"
               initial={{ width: '0%' }}
