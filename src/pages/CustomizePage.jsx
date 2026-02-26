@@ -12,6 +12,7 @@ import { useImageUpload } from '../hooks/useImageUpload'
 import {
   MODEL_TYPES, ETHNICITIES, ENVIRONMENTS, GARMENT_TYPES,
   PRODUCT_STYLES, BRAND_STYLES, FABRICS, FITS, SIZES, TARGET_MARKETS, OUTPUT_COUNTS,
+  AI_MODEL_OPTIONS,
 } from '../utils/constants'
 
 function SparklesIcon({ className }) {
@@ -34,6 +35,14 @@ function PlusIcon({ className }) {
   return (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
       <path d="M5 12h14" /><path d="M12 5v14" />
+    </svg>
+  )
+}
+
+function CpuIcon({ className }) {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+      <rect x="4" y="4" width="16" height="16" rx="2" /><rect x="9" y="9" width="6" height="6" /><path d="M15 2v2" /><path d="M15 20v2" /><path d="M2 15h2" /><path d="M2 9h2" /><path d="M20 15h2" /><path d="M20 9h2" /><path d="M9 2v2" /><path d="M9 20v2" />
     </svg>
   )
 }
@@ -89,6 +98,39 @@ export function CustomizePage() {
                 <span className="text-[9px] font-bold mt-1">Add</span>
               </button>
             )}
+          </div>
+        </div>
+
+        {/* AI Model Selection */}
+        <div className="mb-6">
+          <div className="flex items-center gap-2 px-1 mb-3">
+            <CpuIcon className="w-4 h-4 text-brand" />
+            <h3 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">AI Model</h3>
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            {AI_MODEL_OPTIONS.map((model) => {
+              const isActive = options.aiModel === model.value
+              return (
+                <button
+                  key={model.value}
+                  onClick={() => setOption('aiModel', model.value)}
+                  className={`relative flex flex-col items-start gap-0.5 p-3 rounded-2xl border transition-all text-left ${isActive
+                      ? 'bg-brand/15 border-brand/40 shadow-sm shadow-brand/10'
+                      : 'bg-white/5 border-white/5 hover:border-white/15'
+                    }`}
+                >
+                  {model.recommended && (
+                    <span className="absolute top-2 right-2 text-[9px] font-bold text-brand uppercase tracking-wider">
+                      ★ Best
+                    </span>
+                  )}
+                  <span className={`text-xs font-bold ${isActive ? 'text-white' : 'text-slate-300'}`}>
+                    {model.label}
+                  </span>
+                  <span className="text-[10px] text-slate-500">{model.sublabel}</span>
+                </button>
+              )
+            })}
           </div>
         </div>
 
@@ -209,13 +251,11 @@ export function CustomizePage() {
               </div>
               <button
                 onClick={() => setOption('generateVideo', !options.generateVideo)}
-                className={`w-12 h-7 rounded-full transition-colors relative ${
-                  options.generateVideo ? 'bg-brand' : 'bg-white/10'
-                }`}
+                className={`w-12 h-7 rounded-full transition-colors relative ${options.generateVideo ? 'bg-brand' : 'bg-white/10'
+                  }`}
               >
-                <div className={`w-5 h-5 bg-white rounded-full absolute top-1 transition-transform shadow ${
-                  options.generateVideo ? 'translate-x-6' : 'translate-x-1'
-                }`} />
+                <div className={`w-5 h-5 bg-white rounded-full absolute top-1 transition-transform shadow ${options.generateVideo ? 'translate-x-6' : 'translate-x-1'
+                  }`} />
               </button>
             </div>
           </div>
@@ -227,6 +267,7 @@ export function CustomizePage() {
             mode={options.mode}
             generateVideo={options.generateVideo}
             outputCount={Number(options.outputCount || 4)}
+            aiModel={options.aiModel}
           />
         </div>
       </div>

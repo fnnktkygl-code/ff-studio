@@ -3,9 +3,9 @@ import {
   getPricingProfile,
 } from '../../utils/constants'
 
-export function CostEstimator({ mode, generateVideo, outputCount = 4 }) {
-  const pricingModel = import.meta.env.VITE_PRICING_IMAGE_MODEL || import.meta.env.VITE_GENERATION_MODEL || 'gemini-2.5-flash-image'
-  const profile = getPricingProfile(pricingModel)
+export function CostEstimator({ mode, generateVideo, outputCount = 4, aiModel }) {
+  const modelKey = aiModel || 'gemini-2.5-flash-image'
+  const profile = getPricingProfile(modelKey)
 
   const imageCount = Math.max(1, Math.min(Number(outputCount || 4), 4))
   const imageCost = imageCount * profile.imageCost
@@ -22,14 +22,14 @@ export function CostEstimator({ mode, generateVideo, outputCount = 4 }) {
       <div>
         <p className="text-xs text-slate-400">Estimated cost</p>
         <p className="text-sm font-bold text-slate-200">
-          ~${total.toFixed(2)}
+          ~${total.toFixed(3)}
           <span className="text-slate-500 font-normal ml-1">
-            ({imageCount} images{generateVideo ? ' + video' : ''})
+            ({imageCount} image{imageCount > 1 ? 's' : ''}{generateVideo ? ' + video' : ''})
           </span>
         </p>
       </div>
       <div className="text-[10px] text-slate-500 text-right">
-        <p>${profile.imageCost.toFixed(4)}/image</p>
+        <p>${profile.imageCost.toFixed(3)}/image</p>
         {profile.inputTokenCost > 0 && <p>~${tokenCost.toFixed(4)} input tokens</p>}
         {generateVideo && <p>${COST_PER_VIDEO_SECOND}/s video</p>}
       </div>
