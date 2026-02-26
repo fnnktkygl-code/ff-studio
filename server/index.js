@@ -38,9 +38,11 @@ app.use('/api', generateRouter)
 app.get('/api/health', (req, res) => {
   const apiKey = (process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY || '').trim()
   const project = (process.env.GOOGLE_CLOUD_PROJECT || '').trim()
+  const useVertexApiKey = ['1', 'true', 'yes', 'on'].includes((process.env.GOOGLE_GENAI_USE_VERTEXAI || '').trim().toLowerCase())
   res.json({
     status: 'ok',
     hasAuth: !!(apiKey || project),
+    authMode: apiKey ? (useVertexApiKey ? 'vertex-api-key' : 'gemini-api-key') : (project ? 'vertex-project' : 'none'),
   })
 })
 
@@ -57,9 +59,13 @@ app.listen(PORT, () => {
   console.log(`FF Studio server running on http://localhost:${PORT}`)
   const apiKey = (process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY || '').trim()
   const project = (process.env.GOOGLE_CLOUD_PROJECT || '').trim()
+  const useVertexApiKey = ['1', 'true', 'yes', 'on'].includes((process.env.GOOGLE_GENAI_USE_VERTEXAI || '').trim().toLowerCase())
   if (!apiKey && !project) {
     console.warn(`Warning: No API key configured. Set GEMINI_API_KEY or GOOGLE_API_KEY in your .env file.`)
   } else {
-    console.log(`Authentication: ${apiKey ? 'API Key' : 'Vertex AI Project'} configured`)
+    const mode = apiKey
+      ? (useVertexApiKey ? 'Vertex API Key' : 'Gemini API Key')
+      : 'Vertex AI Project'
+    console.log(`Authentication: ${mode} configured`)
   }
 })

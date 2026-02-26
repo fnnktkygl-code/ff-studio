@@ -7,3 +7,7 @@ services:
     envVars:
       - key: GEMINI_API_KEY
         sync: false  # Enter this manually in the Render dashboard
+      - key: GOOGLE_GENAI_USE_VERTEXAI
+        value: "true"
+      - key: GOOGLE_CLOUD_LOCATION
+        value: "global"
