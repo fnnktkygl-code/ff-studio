@@ -89,7 +89,7 @@ function buildModelCandidates(primaryModel) {
     .filter((model, index, arr) => arr.indexOf(model) === index)
 }
 
-async function generateImage(ai, prompt, imageDataParts, models, maxRetries = 4) {
+async function generateImage(ai, prompt, imageDataParts, models, maxRetries = 4, options = {}) {
   let lastErr = null
 
   for (const model of models) {
@@ -98,6 +98,18 @@ async function generateImage(ai, prompt, imageDataParts, models, maxRetries = 4)
 
     while (retries > 0) {
       try {
+        const config = {
+          responseModalities: ['TEXT', 'IMAGE'],
+        }
+
+        if (options.useSearchGrounding) {
+          config.tools = [{ googleSearch: {} }]
+        }
+
+        if (model.includes('pro')) {
+          config.thinkingConfig = { includeThoughts: true }
+        }
+
         const response = await ai.models.generateContent({
           model,
           contents: [{
@@ -107,10 +119,7 @@ async function generateImage(ai, prompt, imageDataParts, models, maxRetries = 4)
               ...imageDataParts,
             ],
           }],
-          config: {
-            responseModalities: ['TEXT', 'IMAGE'],
-            // Passed implicitly in the full options if required, assuming it's supported
-          },
+          config,
         })
 
         const imagePart = response.candidates?.[0]?.content?.parts?.find((p) => p.inlineData)
@@ -148,7 +157,7 @@ async function generateImage(ai, prompt, imageDataParts, models, maxRetries = 4)
   throw lastErr || new Error('All candidate models failed')
 }
 
-async function generateImageViaVertexApiKey(apiKey, prompt, imageDataParts, models, maxRetries = 4) {
+async function generateImageViaVertexApiKey(apiKey, prompt, imageDataParts, models, maxRetries = 4, options = {}) {
   let lastErr = null
 
   for (const model of models) {
@@ -169,6 +178,14 @@ async function generateImageViaVertexApiKey(apiKey, prompt, imageDataParts, mode
           generationConfig: {
             responseModalities: ['TEXT', 'IMAGE'],
           },
+        }
+
+        if (options.useSearchGrounding) {
+          payload.tools = [{ googleSearch: {} }]
+        }
+
+        if (model.includes('pro')) {
+          payload.generationConfig.thinkingConfig = { includeThoughts: true }
         }
 
         const response = await fetch(url, {
@@ -451,9 +468,10 @@ router.post('/generate', validateGenerateRequest, async (req, res) => {
 
           console.log(`Cache MISS for prompt: ${prompt.slice(0, 30)}... Generating...`)
           try {
+            const reqOptions = req.body.options || {}
             const result = await (useDirectVertexApiKey
-              ? generateImageViaVertexApiKey(apiKey, prompt, imageDataParts, modelCandidates, maxRetries)
-              : generateImage(ai, prompt, imageDataParts, modelCandidates, maxRetries))
+              ? generateImageViaVertexApiKey(apiKey, prompt, imageDataParts, modelCandidates, maxRetries, reqOptions)
+              : generateImage(ai, prompt, imageDataParts, modelCandidates, maxRetries, reqOptions))
 
             // Store in cache
             if (result) {

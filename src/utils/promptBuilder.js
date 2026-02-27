@@ -1,12 +1,7 @@
-const ENVIRONMENT_DESCRIPTIONS = {
-  'studio-white': 'Clean white cyclorama studio background with soft diffused softbox lighting, no shadows, professional fashion photography setup',
-  'studio-gray': 'Neutral gray studio background with controlled directional lighting, subtle gradient, professional editorial setup',
-  'cozy-indoor': 'Warm cozy indoor setting with soft natural window light, earth-toned decor, lifestyle photography aesthetic',
-  'urban-street': 'Modern urban street setting, concrete and glass architecture, natural daylight, street fashion editorial vibe',
-  'nature': 'Beautiful outdoor natural setting, soft golden hour lighting, greenery and organic textures, lifestyle photography',
-  'luxury-interior': 'High-end luxury interior with marble and warm metallic accents, elegant ambient lighting, premium brand aesthetic',
-  'beach': 'Sandy beach setting with ocean background, soft warm sunlight, relaxed resort photography style',
-}
+import {
+  ENVIRONMENT_DESCRIPTIONS,
+  TECHNICAL_CONFIG,
+} from './constants'
 
 const FOCUS_INSTRUCTIONS = {
   top: 'Frame the UPPER BODY from waist up. The shirt/top is the main subject — do NOT crop it. Do NOT show legs or feet.',
@@ -64,11 +59,23 @@ const PRODUCT_SHOTS = {
   ],
 }
 
-const ISOLATION_INSTRUCTION = `CRITICAL BACKGROUND REPLACEMENT: The reference image(s) may show the garment on any surface (carpet, floor, bed, table, mannequin, or person). You MUST completely ignore and erase that original background/surface. Extract ONLY the garment design. The final image must be set ENTIRELY in the new environment described below. Do NOT carry over any textures, colors, or elements from the reference background.`
+const ISOLATION_INSTRUCTION = `
+<TECHNICAL_SPECS>
+  CRITICAL BACKGROUND REPLACEMENT: Erase original background entirely.
+  Extract ONLY the garment.
+  Negative Semantic: floating garment in a neutral empty space, perfectly outlined.
+  Do NOT carry over any textures, colors, or lighting from the original reference surface.
+</TECHNICAL_SPECS>`.trim()
 
-const FIDELITY_INSTRUCTION = `GARMENT FIDELITY: The garment in the output MUST EXACTLY match the reference image(s) in every detail — identical color, pattern, print, texture, stitching, buttons, zippers, logos, labels, and proportions. Do NOT alter, simplify, or reimagine any design element. If multiple reference angles are provided, use them all to ensure accuracy.`
+const FIDELITY_INSTRUCTION = (refCount = 1) => `
+<CONTEXT>
+  GARMENT FIDELITY: Reference image count: ${refCount}.
+  Match EXACTLY color, pattern, print, texture, stitching, buttons, zippers, logos, labels, and proportions.
+  Do NOT alter, simplify, or reimagine any design element. 
+  Ensure absolute 1:1 design reproduction.
+</CONTEXT>`.trim()
 
-const MODESTY_INSTRUCTION = `Strictly professional and modest posture. No suggestive poses, no bare skin on torso, no inappropriate styling.`
+const MODESTY_INSTRUCTION = `Strictly professional and modest posture. No suggestive poses, no bare skin on torso.`
 
 export function buildModelPrompts(options) {
   const {
@@ -82,6 +89,8 @@ export function buildModelPrompts(options) {
     size = 'm',
     targetMarket = 'global',
     headwear = 'none',
+    referenceImages = 1,
+    useSearchGrounding = false,
   } = options
 
   const isSkirtOrShorts = ['skirt', 'shorts'].includes(garmentType)
@@ -95,27 +104,41 @@ export function buildModelPrompts(options) {
   const envDesc = ENVIRONMENT_DESCRIPTIONS[environment] || ENVIRONMENT_DESCRIPTIONS['studio-white']
   const garmentName = GARMENT_NAMES[garmentType] || garmentType
   const focusText = FOCUS_INSTRUCTIONS[garmentType] || ''
-  const fabricText = fabric !== 'any' ? `, made of ${fabric} fabric` : ''
-  const fitText = fit !== 'regular' ? `, ${fit} fit` : ''
-  const sizeText = size !== 'm' ? `, size ${size.toUpperCase()}` : ''
-  const marketText = targetMarket !== 'global' ? `\nTarget market: ${targetMarket}. Adapt the model's styling, pose, and overall vibe to resonate with this market's fashion aesthetic.` : ''
-  const brandText = brandStyle !== 'generic' ? `\nPhotography style: Match the iconic e-commerce catalog look of ${brandStyle} — their typical lighting, composition, and visual aesthetic.` : ''
+  const fabricText = fabric !== 'any' ? ` made of ${fabric} fabric` : ''
+  const fitText = fit !== 'regular' ? `${fit} fit` : ''
+  const sizeText = size !== 'm' ? `size ${size.toUpperCase()}` : ''
 
-  return MODEL_POSES.map(pose => [
-    `VIRTUAL FASHION PHOTOGRAPHY`,
-    ISOLATION_INSTRUCTION,
-    FIDELITY_INSTRUCTION,
-    `Generate a completely new, photorealistic fashion photograph.`,
-    `Subject: ${subjectDescription} wearing the exact ${garmentName}${fabricText}${sizeText}${fitText} from the reference image(s).`,
-    `Environment: ${envDesc}`,
-    `Framing: ${focusText}`,
-    `Pose: ${pose}`,
-    MODESTY_INSTRUCTION,
-    brandText,
-    marketText,
-    `Technical: Photorealistic, 8K resolution, portrait orientation (3:4 aspect ratio), shallow depth of field on garment details, color-accurate, premium e-commerce quality.`,
-    `Do NOT change the garment color, pattern, or design. Do NOT add accessories not in the reference.`,
-  ].filter(Boolean).join('\n\n'))
+  const garmentDetails = [garmentName, fabricText, fitText, sizeText].filter(Boolean).join(', ')
+
+  const marketText = targetMarket !== 'global' ? `Target market: ${targetMarket}. Adapt styling to resonate with this market.` : ''
+  const brandText = brandStyle !== 'generic' ? `Photography style: Match the iconic e-commerce look of ${brandStyle}.` : ''
+  const searchContext = useSearchGrounding ? 'Use Google Search grounding to match current architectural and lighting trends for the background.' : ''
+
+  return MODEL_POSES.map(pose => {
+    return `
+<INSTRUCTIONS>
+  ROLE: Expert Fashion Photographer
+  TASK: Generate a photorealistic fashion photograph.
+  SUBJECT: ${subjectDescription} wearing the exact ${garmentDetails} from the reference image(s).
+  POSE: ${pose}
+  FRAMING: ${focusText}
+  ENVIRONMENT: ${envDesc}
+  ${brandText}
+  ${marketText}
+  ${searchContext}
+  ${MODESTY_INSTRUCTION}
+</INSTRUCTIONS>
+
+${ISOLATION_INSTRUCTION}
+${FIDELITY_INSTRUCTION(referenceImages)}
+
+<OUTPUT_FORMAT>
+  Resolution: ${TECHNICAL_CONFIG.imageSize || '2K'}
+  Aspect Ratio: ${TECHNICAL_CONFIG.aspectRatio || '3:4'}
+  Style: Premium e-commerce quality, 8K, color-accurate, photorealistic.
+</OUTPUT_FORMAT>
+    `.trim()
+  })
 }
 
 export function buildProductPrompts(options) {
@@ -129,31 +152,49 @@ export function buildProductPrompts(options) {
     fit = 'regular',
     size = 'm',
     targetMarket = 'global',
+    referenceImages = 1,
+    useSearchGrounding = false,
   } = options
 
   const envDesc = ENVIRONMENT_DESCRIPTIONS[environment] || ENVIRONMENT_DESCRIPTIONS['studio-white']
   const garmentName = GARMENT_NAMES[garmentType] || garmentType
   const shots = PRODUCT_SHOTS[productStyle] || PRODUCT_SHOTS['ghost-mannequin']
-  const fabricText = fabric !== 'any' ? `, made of ${fabric} fabric` : ''
-  const fitText = fit !== 'regular' ? `, ${fit} fit` : ''
-  const sizeText = size !== 'm' ? `, size ${size.toUpperCase()}` : ''
-  const bodyShape = `. Shaped for a ${modelType} body silhouette`
-  const brandText = brandStyle !== 'generic' ? `\nPhotography style: Match the product photography aesthetic of ${brandStyle}.` : ''
-  const marketText = targetMarket !== 'global' ? `\nOptimized for ${targetMarket} e-commerce market.` : ''
+  const fabricText = fabric !== 'any' ? ` made of ${fabric} fabric` : ''
+  const fitText = fit !== 'regular' ? `${fit} fit` : ''
+  const sizeText = size !== 'm' ? `size ${size.toUpperCase()}` : ''
 
-  return shots.map(shot => [
-    `E-COMMERCE PRODUCT PHOTOGRAPHY`,
-    ISOLATION_INSTRUCTION,
-    FIDELITY_INSTRUCTION,
-    `Generate a completely new, photorealistic product photograph of the exact ${garmentName}${fabricText}${sizeText}${fitText} from the reference image(s)${bodyShape}.`,
-    `Presentation: ${shot}`,
-    `Environment: ${envDesc}`,
-    brandText,
-    marketText,
-    `Technical: Photorealistic, 8K resolution, portrait orientation (3:4 aspect ratio), sharp focus on garment details, color-calibrated, premium e-commerce product photography.`,
-    `NO PEOPLE in the image — clothing/product only.`,
-    `Do NOT change the garment color, pattern, or design.`,
-  ].filter(Boolean).join('\n\n'))
+  const garmentDetails = [garmentName, fabricText, fitText, sizeText].filter(Boolean).join(', ')
+  const bodyShape = `Shaped for a ${modelType} body silhouette.`
+
+  const brandText = brandStyle !== 'generic' ? `Photography style: Match the product photography aesthetic of ${brandStyle}.` : ''
+  const marketText = targetMarket !== 'global' ? `Optimized for ${targetMarket} e-commerce market.` : ''
+  const searchContext = useSearchGrounding ? 'Use Google Search grounding to match current architectural and lighting trends for the background.' : ''
+
+  return shots.map(shot => {
+    return `
+<INSTRUCTIONS>
+  ROLE: Expert Product Photographer
+  TASK: Generate a photorealistic product photograph. NO PEOPLE in the image.
+  SUBJECT: Exact ${garmentDetails} from the reference image(s). ${bodyShape}
+  STYLE: ${productStyle.toUpperCase()}
+  PRESENTATION: ${shot}
+  REQUIREMENT: Floating effect, natural fabric drape, showing interior lining where applicable.
+  ENVIRONMENT: ${envDesc}
+  ${brandText}
+  ${marketText}
+  ${searchContext}
+</INSTRUCTIONS>
+
+${ISOLATION_INSTRUCTION}
+${FIDELITY_INSTRUCTION(referenceImages)}
+
+<OUTPUT_FORMAT>
+  Resolution: ${TECHNICAL_CONFIG.imageSize || '2K'}
+  Aspect Ratio: ${TECHNICAL_CONFIG.aspectRatio || '3:4'}
+  Style: Sharp focus on garment details, color-calibrated, premium e-commerce product photography.
+</OUTPUT_FORMAT>
+    `.trim()
+  })
 }
 
 export function buildVideoPrompt(options) {
@@ -195,7 +236,7 @@ export function buildVideoPrompt(options) {
   return [
     `CINEMATIC FASHION VIDEO`,
     ISOLATION_INSTRUCTION,
-    FIDELITY_INSTRUCTION,
+    FIDELITY_INSTRUCTION(),
     `Video Prompt: Create a realistic, high quality, cinematic video.`,
     `Subject: ${subjectDescription} wearing the exact ${garmentName}${fitText} shown in the provided image.`,
     `${focusText}`,
@@ -213,14 +254,24 @@ export function buildAllPrompts(options) {
 
   if (mode === 'model' || mode === 'both') {
     const modelPrompts = buildModelPrompts(options)
-    imagePrompts = [...imagePrompts, ...modelPrompts.slice(0, requestedCount)]
+    if (mode === 'both') {
+      const modelCount = Math.ceil(requestedCount / 2)
+      imagePrompts = [...imagePrompts, ...modelPrompts.slice(0, modelCount)]
+    } else {
+      imagePrompts = [...imagePrompts, ...modelPrompts.slice(0, requestedCount)]
+    }
   }
   if (mode === 'product' || mode === 'both') {
     const productPrompts = buildProductPrompts(options)
-    imagePrompts = [...imagePrompts, ...productPrompts.slice(0, requestedCount)]
+    if (mode === 'both') {
+      const productCount = Math.floor(requestedCount / 2)
+      imagePrompts = [...imagePrompts, ...productPrompts.slice(0, productCount)]
+    } else {
+      imagePrompts = [...imagePrompts, ...productPrompts.slice(0, requestedCount)]
+    }
   }
 
-  // Safety in case the slice returns less than requestedCount
+  // Safety in case both mode split returns less than requestedCount
   if (imagePrompts.length < requestedCount) {
     const modelPrompts = buildModelPrompts(options)
     const productPrompts = buildProductPrompts(options)
@@ -228,10 +279,7 @@ export function buildAllPrompts(options) {
     imagePrompts = [...imagePrompts, ...extra]
   }
 
-  // If mode is both, the total count should be 2 * requestedCount.
-  // We do not cap it at `requestedCount` overall if mode is both.
-  const maxTotal = (mode === 'both') ? requestedCount * 2 : requestedCount
-  imagePrompts = imagePrompts.slice(0, maxTotal)
+  imagePrompts = imagePrompts.slice(0, requestedCount)
 
   const videoPrompt = generateVideo && (mode === 'model' || mode === 'both')
     ? buildVideoPrompt(options)

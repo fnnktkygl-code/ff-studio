@@ -25,6 +25,16 @@ export const ENVIRONMENTS = [
   { value: 'beach', label: 'Beach' },
 ]
 
+export const ENVIRONMENT_DESCRIPTIONS = {
+  'studio-white': 'Clean white cyclorama studio background with soft diffused softbox lighting, no shadows, professional fashion photography setup',
+  'studio-gray': 'Neutral gray studio background with controlled directional lighting, subtle gradient, professional editorial setup',
+  'cozy-indoor': 'Warm cozy indoor setting with soft natural window light, earth-toned decor, lifestyle photography aesthetic',
+  'urban-street': 'Modern urban street setting, concrete and glass architecture, natural daylight, street fashion editorial vibe',
+  'nature': 'Beautiful outdoor natural setting, soft golden hour lighting, greenery and organic textures, lifestyle photography',
+  'luxury-interior': 'High-end luxury interior with marble and warm metallic accents, elegant ambient lighting, premium brand aesthetic',
+  'beach': 'Sandy beach setting with ocean background, soft warm sunlight, relaxed resort photography style',
+}
+
 export const GARMENT_TYPES = [
   { value: 'top', label: 'Shirt / Top' },
   { value: 'dress', label: 'Dress' },
@@ -109,6 +119,12 @@ export const AI_MODEL_OPTIONS = [
     recommended: true,
   },
   {
+    value: 'gemini-3.0-pro-preview',
+    label: 'Gemini 3 Pro Image',
+    sublabel: '🧠 Nano Banana Pro · ~$0.134/img',
+    recommended: false,
+  },
+  {
     value: 'gemini-2.5-flash-image',
     label: 'Gemini 1.5 Pro (Gen 2.5)',
     sublabel: 'Nano Banana · ~$0.134/img',
@@ -180,6 +196,14 @@ export const IMAGE_OUTPUT_TOKENS = {
   '4K': 2000,
 }
 
+export const TECHNICAL_CONFIG = {
+  aspectRatio: "3:4",
+  imageSize: "2K",
+  responseModalities: ["IMAGE"],
+  safetySettings: "BLOCK_ONLY_HIGH",
+  thinkingLevel: "High"
+}
+
 export const TOKEN_COST_PER_MILLION = 120 // $120 per 1M output tokens
 export const INPUT_TEXT_COST_PER_MILLION_TOKENS = 2.00   // $2.00/1M input tokens
 
@@ -188,6 +212,11 @@ export const PRICING_PROFILES = {
     outputTokenCostMillion: TOKEN_COST_PER_MILLION,
     inputTokenCostMillion: INPUT_TEXT_COST_PER_MILLION_TOKENS,
     label: 'Nano Banana 2 (Gemini 3.1 Flash Image)',
+  },
+  'gemini-3.0-pro-preview': {
+    outputTokenCostMillion: TOKEN_COST_PER_MILLION,
+    inputTokenCostMillion: INPUT_TEXT_COST_PER_MILLION_TOKENS,
+    label: 'Nano Banana Pro (Gemini 3 Pro Image)',
   },
   'gemini-2.5-flash-image': {
     outputTokenCostMillion: TOKEN_COST_PER_MILLION,

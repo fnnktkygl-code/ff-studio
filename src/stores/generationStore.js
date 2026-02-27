@@ -18,6 +18,7 @@ const DEFAULT_OPTIONS = {
   videoModel: 'veo-2.0-generate-001',
   aiModel: 'gemini-3.1-flash-image-preview',
   imageResolution: '1K',
+  useSearchGrounding: false,
   useCache: true,
 }
 

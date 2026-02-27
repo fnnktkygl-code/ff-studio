@@ -263,6 +263,26 @@ export function CustomizePage() {
           <div className="flex items-center justify-between p-4 theme-card border theme-border shadow-sm rounded-2xl">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-brand-light/30 rounded-full flex items-center justify-center">
+                <SparklesIcon className="w-5 h-5 text-brand" />
+              </div>
+              <div>
+                <p className="font-bold theme-text text-sm">Google Search Grounding</p>
+                <p className="text-[10px] theme-text-sec">Anchor environment to current architectural trends</p>
+              </div>
+            </div>
+            <button
+              onClick={() => setOption('useSearchGrounding', !options.useSearchGrounding)}
+              className={`w-12 h-7 rounded-full transition-colors relative ${options.useSearchGrounding ? 'bg-gradient-to-r from-brand-dark to-brand' : 'bg-slate-200'
+                }`}
+            >
+              <div className={`w-5 h-5 bg-white rounded-full absolute top-1 transition-transform shadow ${options.useSearchGrounding ? 'translate-x-6' : 'translate-x-1'
+                }`} />
+            </button>
+          </div>
+
+          <div className="flex items-center justify-between p-4 theme-card border theme-border shadow-sm rounded-2xl">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-brand-light/30 rounded-full flex items-center justify-center">
                 <CpuIcon className="w-5 h-5 text-brand" />
               </div>
               <div>
