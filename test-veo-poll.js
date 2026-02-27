@@ -1,59 +1,53 @@
+import 'dotenv/config';
+import fetch from 'node-fetch';
 import { GoogleAuth } from 'google-auth-library';
 
 async function run() {
-    const auth = new GoogleAuth({ scopes: ['https://www.googleapis.com/auth/cloud-platform'] });
+    const inlineJson = (process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON || '').trim();
+    let authOptions = { scopes: ['https://www.googleapis.com/auth/cloud-platform'] };
+    if (inlineJson) {
+        authOptions.credentials = JSON.parse(inlineJson);
+    } else {
+        console.log("No CREDENTIALS_JSON found in env");
+        return;
+    }
+    const auth = new GoogleAuth(authOptions);
     const client = await auth.getClient();
     const tokenObj = await client.getAccessToken();
     const token = tokenObj.token;
-    const project = await auth.getProjectId();
+    const project = authOptions.credentials.project_id;
 
     const veoLocation = 'us-central1';
-    const url = `https://${veoLocation}-aiplatform.googleapis.com/v1beta1/projects/${project}/locations/${veoLocation}/publishers/google/models/veo-2.0-generate-001:predictLongRunning`;
-
-    console.log('Sending predictLongRunning request...');
-    const submitRes = await fetch(url, {
+    let url = `https://${veoLocation}-aiplatform.googleapis.com/v1beta1/projects/${project}/locations/${veoLocation}/publishers/google/models/veo-2.0-generate-001:predictLongRunning`;
+    let res = await fetch(url, {
         method: 'POST',
-        headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            instances: [{ prompt: 'A cinematic shot of a testing script' }],
-            parameters: { aspectRatio: '9:16', personGeneration: 'allow_adult', durationSeconds: 5 }
-        }),
+        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ instances: [{ prompt: 'Testing veo api polling' }], parameters: { aspectRatio: '9:16', durationSeconds: 5 } })
     });
+    let data = await res.json();
+    console.log("predictLongRunning response:", JSON.stringify(data, null, 2));
 
-    const submitResult = await submitRes.json();
-    console.log('Submit result:', JSON.stringify(submitResult, null, 2));
+    let opName = data.name;
+    if (!opName) return;
 
-    if (!submitResult.name) return;
+    const opMatch = opName.match(/(projects\/[^/]+\/locations\/[^/]+)\/.*(operations\/[^/]+)/);
+    const strippedOpName = opMatch ? `${opMatch[1]}/${opMatch[2]}` : null;
 
-    const rawOperationName = submitResult.name;
+    const testPoll = async (label, url) => {
+        let pres = await fetch(url, { headers: { 'Authorization': `Bearer ${token}` } });
+        let pdata = await pres.json();
+        console.log(`\n--- ${label} ---`);
+        console.log(`URL: ${url}`);
+        console.log(`Status: ${pres.status}`);
+        console.log(`Response: ${JSON.stringify(pdata)}`);
+    };
 
-    // Format 1: raw name with v1beta1
-    let poll1 = `https://${veoLocation}-aiplatform.googleapis.com/v1beta1/${rawOperationName}`;
-    let res1 = await fetch(poll1, { headers: { 'Authorization': `Bearer ${token}` } });
-    console.log('Poll Format 1 (v1beta1 raw):', res1.status, await res1.text());
-
-    // Format 2: raw name with v1
-    let poll2 = `https://${veoLocation}-aiplatform.googleapis.com/v1/${rawOperationName}`;
-    let res2 = await fetch(poll2, { headers: { 'Authorization': `Bearer ${token}` } });
-    console.log('Poll Format 2 (v1 raw):', res2.status, await res2.text());
-
-    // stripped name: 
-    const opMatch = rawOperationName.match(/(projects\/[^/]+\/locations\/[^/]+)\/.*(operations\/[^/]+)/);
-    const strippedOpName = `${opMatch[1]}/${opMatch[2]}`;
-
-    // Format 3: stripped name with v1beta1
-    let poll3 = `https://${veoLocation}-aiplatform.googleapis.com/v1beta1/${strippedOpName}`;
-    let res3 = await fetch(poll3, { headers: { 'Authorization': `Bearer ${token}` } });
-    console.log('Poll Format 3 (v1beta1 stripped):', res3.status, await res3.text());
-
-    // Format 4: stripped name with v1
-    let poll4 = `https://${veoLocation}-aiplatform.googleapis.com/v1/${strippedOpName}`;
-    let res4 = await fetch(poll4, { headers: { 'Authorization': `Bearer ${token}` } });
-    console.log('Poll Format 4 (v1 stripped):', res4.status, await res4.text());
-
+    await testPoll("Format 1 (raw v1beta1)", `https://${veoLocation}-aiplatform.googleapis.com/v1beta1/${opName}`);
+    await testPoll("Format 2 (raw v1)", `https://${veoLocation}-aiplatform.googleapis.com/v1/${opName}`);
+    if (strippedOpName) {
+        await testPoll("Format 3 (stripped v1beta1)", `https://${veoLocation}-aiplatform.googleapis.com/v1beta1/${strippedOpName}`);
+        await testPoll("Format 4 (stripped v1)", `https://${veoLocation}-aiplatform.googleapis.com/v1/${strippedOpName}`);
+    }
 }
 
 run().catch(console.error);

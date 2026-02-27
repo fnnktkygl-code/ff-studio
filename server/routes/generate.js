@@ -271,86 +271,90 @@ async function getVertexAccessToken() {
   }
 }
 
-async function generateVideoViaVertexVeo(prompt, imageBase64, modelInput, vertexProject, vertexLocation) {
-  const token = await getVertexAccessToken();
+async function generateVideoViaVertexVeo(prompt, imageBase64, modelInput, vertexProject) {
   const model = modelInput || 'veo-2.0-generate-001';
   // Veo is ONLY available in us-central1 — never 'global'
   const veoLocation = 'us-central1';
-  const url = `https://${veoLocation}-aiplatform.googleapis.com/v1beta1/projects/${vertexProject}/locations/${veoLocation}/publishers/google/models/${model}:predictLongRunning`;
 
-  const payload = {
-    instances: [
-      {
-        prompt: prompt,
-      }
-    ],
-    parameters: {
+  // Build an SDK client authenticated with service-account credentials
+  const inlineJson = (process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON || '').trim();
+  if (!inlineJson) {
+    throw new Error('Video generation requires GOOGLE_APPLICATION_CREDENTIALS_JSON to be set in your environment variables.');
+  }
+
+  let credentials;
+  try {
+    credentials = JSON.parse(inlineJson);
+  } catch {
+    throw new Error('GOOGLE_APPLICATION_CREDENTIALS_JSON is not valid JSON.');
+  }
+
+  // The @google/genai SDK handles auth via GOOGLE_APPLICATION_CREDENTIALS_JSON
+  // when we set the env var. We temporarily set it as a path workaround OR
+  // pass it via the vertexai options.
+  const ai = new GoogleGenAI({
+    vertexai: true,
+    project: vertexProject,
+    location: veoLocation,
+    googleAuthOptions: { credentials },
+  });
+
+  // Step 1: submit the generation request (returns an Operation object)
+  const params = {
+    model,
+    prompt,
+    config: {
       aspectRatio: '9:16',
       personGeneration: 'allow_adult',
       durationSeconds: 8,
-    }
+      numberOfVideos: 1,
+    },
   };
 
-  // Step 1: Submit long-running operation
-  const submitRes = await fetch(url, {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(payload),
-  });
-
-  const submitResult = await submitRes.json().catch(() => ({}));
-  if (!submitRes.ok || submitResult.error) {
-    const message = typeof submitResult?.error?.message === 'string'
-      ? submitResult.error.message
-      : `HTTP ${submitRes.status}`;
-    const err = new Error(message);
-    err.status = submitResult?.error?.code || submitRes.status;
-    throw err;
+  if (imageBase64) {
+    params.image = {
+      imageBytes: imageBase64,
+      mimeType: 'image/jpeg',
+    };
   }
 
-  const operationName = submitResult.name;
-  if (!operationName) {
-    throw new Error('Veo API did not return an operation name');
-  }
+  console.log(`Veo starting generation with model: ${model}`);
+  let operation = await ai.models.generateVideos(params);
+  console.log(`Veo LRO started: ${operation.name}`);
 
-  console.log(`Veo LRO started: ${operationName}`);
-
-  // Use v1beta1 for predictLongRunning polling, which expects the full path including publisher
-  const pollUrl = `https://${veoLocation}-aiplatform.googleapis.com/v1beta1/${operationName}`;
+  // Step 2: poll until done (max 3 minutes)
   const maxAttempts = 18; // 18 × 10s = 3 minutes
   for (let attempt = 0; attempt < maxAttempts; attempt++) {
     await sleep(10000);
-    const pollRes = await fetch(pollUrl, {
-      headers: { 'Authorization': `Bearer ${token}` }
-    });
-    const pollResult = await pollRes.json().catch(() => ({}));
-    if (!pollRes.ok || pollResult.error) {
-      const message = typeof pollResult?.error?.message === 'string'
-        ? pollResult.error.message : `Poll HTTP ${pollRes.status} for ${operationName}`;
-      throw new Error(message);
-    }
-    if (pollResult.done) {
-      if (pollResult.error) {
-        throw new Error(`Veo operation failed: ${JSON.stringify(pollResult.error)}`);
-      }
-      // Video bytes are in response.predictions[0].bytesBase64 or .videoBytes
-      const videoBytes = pollResult.response?.predictions?.[0]?.bytesBase64
-        || pollResult.response?.predictions?.[0]?.videoBytes;
-      if (!videoBytes) {
-        throw new Error('Veo returned done but no video bytes found');
-      }
-      return {
-        data: videoBytes,
-        mimeType: 'video/mp4',
-        modelUsed: model,
-      };
-    }
-    console.log(`Veo LRO attempt ${attempt + 1}/${maxAttempts} — still running...`);
+    operation = await ai.operations.getVideosOperation({ operation });
+    console.log(`Veo LRO attempt ${attempt + 1}/${maxAttempts} — done: ${operation.done}`);
+    if (operation.done) break;
   }
-  throw new Error('Video generation timed out after 3 minutes');
+
+  if (!operation.done) {
+    throw new Error('Video generation timed out after 3 minutes');
+  }
+  if (operation.error) {
+    throw new Error(`Veo operation failed: ${JSON.stringify(operation.error)}`);
+  }
+
+  // The SDK returns a GCS URI or base64 bytes depending on config
+  const generatedVideo = operation.response?.generatedVideos?.[0];
+  if (!generatedVideo) {
+    throw new Error('Veo returned done but no video found in response');
+  }
+
+  // If GCS URI is returned, we'd need to download it — but Vertex inline returns videoBytes
+  const videoBytes = generatedVideo.video?.videoBytes || generatedVideo.videoBytes;
+  if (!videoBytes) {
+    throw new Error('Veo returned done but no video bytes in response. The video may have been stored to GCS instead.');
+  }
+
+  return {
+    data: videoBytes,
+    mimeType: 'video/mp4',
+    modelUsed: model,
+  };
 }
 
 function isTruthy(value) {
