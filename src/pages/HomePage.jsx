@@ -52,8 +52,8 @@ export function HomePage() {
         {/* Upload area */}
         {images.length === 0 ? (
           <>
-            <UploadZone onOpenPicker={openPicker} onFiles={handleFiles} />
             <UploadGuidelines />
+            <UploadZone onOpenPicker={openPicker} onFiles={handleFiles} />
           </>
         ) : (
           <UploadGrid onAddMore={openPicker} />
