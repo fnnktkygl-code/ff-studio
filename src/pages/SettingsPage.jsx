@@ -7,6 +7,7 @@ import { useHistory } from '../hooks/useHistory'
 import { useToast } from '../hooks/useToast'
 import { useThemeStore } from '../stores/themeStore'
 import { getClientApiKey } from '../utils/api'
+import { Switch } from '../components/common/Switch'
 
 function KeyIcon({ className }) {
   return (
@@ -120,12 +121,11 @@ export function SettingsPage() {
                 </p>
               </div>
             </div>
-            <button
-              onClick={toggleTheme}
-              className={`w-12 h-7 rounded-full transition-colors relative ${isDark ? 'bg-slate-700' : 'bg-gradient-to-r from-brand-dark to-brand'}`}
-            >
-              <div className={`w-5 h-5 bg-white rounded-full absolute top-1 transition-transform shadow ${isDark ? 'translate-x-1' : 'translate-x-6'}`} />
-            </button>
+            <Switch
+              checked={isDark}
+              onChange={toggleTheme}
+              label="Theme Toggle"
+            />
           </div>
         </div>
 

@@ -11,6 +11,7 @@ import { ImagePreview } from '../components/upload/ImagePreview'
 import { useGenerationStore } from '../stores/generationStore'
 import { useGenerate } from '../hooks/useGenerate'
 import { useImageUpload } from '../hooks/useImageUpload'
+import { Switch } from '../components/common/Switch'
 import {
   MODEL_TYPES, ETHNICITIES, ENVIRONMENTS,
   PRODUCT_STYLES, BRAND_STYLES, FABRICS, FITS, SIZES, TARGET_MARKETS, OUTPUT_COUNTS,
@@ -299,14 +300,11 @@ export function CustomizePage() {
                 <p className="text-[10px] theme-text-sec">Anchor environment to current architectural trends</p>
               </div>
             </div>
-            <button
-              onClick={() => setOption('useSearchGrounding', !options.useSearchGrounding)}
-              className={`w-12 h-7 rounded-full transition-colors relative ${options.useSearchGrounding ? 'bg-gradient-to-r from-brand-dark to-brand' : 'bg-slate-200'
-                }`}
-            >
-              <div className={`w-5 h-5 bg-white rounded-full absolute top-1 transition-transform shadow ${options.useSearchGrounding ? 'translate-x-6' : 'translate-x-1'
-                }`} />
-            </button>
+            <Switch
+              checked={options.useSearchGrounding}
+              onChange={(v) => setOption('useSearchGrounding', v)}
+              label="Google Search Grounding"
+            />
           </div>
 
           <div className="flex items-center justify-between p-4 theme-card border theme-border shadow-sm rounded-2xl">
@@ -319,14 +317,11 @@ export function CustomizePage() {
                 <p className="text-[10px] theme-text-sec">Reuse recent identical results instantly</p>
               </div>
             </div>
-            <button
-              onClick={() => setOption('useCache', !options.useCache)}
-              className={`w-12 h-7 rounded-full transition-colors relative ${options.useCache !== false ? 'bg-gradient-to-r from-brand-dark to-brand' : 'bg-slate-200'
-                }`}
-            >
-              <div className={`w-5 h-5 bg-white rounded-full absolute top-1 transition-transform shadow ${options.useCache !== false ? 'translate-x-6' : 'translate-x-1'
-                }`} />
-            </button>
+            <Switch
+              checked={options.useCache !== false}
+              onChange={(v) => setOption('useCache', v)}
+              label="Use Cache"
+            />
           </div>
         </div>
 
