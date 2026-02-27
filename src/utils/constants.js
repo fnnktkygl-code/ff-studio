@@ -115,7 +115,7 @@ export const AI_MODEL_OPTIONS = [
   {
     value: 'gemini-3.1-flash-image-preview',
     label: 'Gemini 3.1 Flash Image',
-    sublabel: '🔥 Nano Banana 2 · ~$0.134/img',
+    sublabel: '🔥 Nano Banana 2 · ~$0.067/img',
     recommended: true,
   },
   {
@@ -127,7 +127,7 @@ export const AI_MODEL_OPTIONS = [
   {
     value: 'gemini-2.5-flash-image',
     label: 'Gemini 2.5 Flash Image',
-    sublabel: 'Nano Banana · ~$0.134/img',
+    sublabel: 'Nano Banana · ~$0.034/img',
     recommended: false,
   },
 ]
@@ -209,18 +209,18 @@ export const INPUT_TEXT_COST_PER_MILLION_TOKENS = 2.00   // $2.00/1M input token
 
 export const PRICING_PROFILES = {
   'gemini-3.1-flash-image-preview': {
-    outputTokenCostMillion: TOKEN_COST_PER_MILLION,
-    inputTokenCostMillion: INPUT_TEXT_COST_PER_MILLION_TOKENS,
+    outputTokenCostMillion: 60, // $60/1M tokens = ~$0.067/img
+    inputTokenCostMillion: 0.15,
     label: 'Nano Banana 2 (Gemini 3.1 Flash Image)',
   },
   'gemini-3.0-pro-preview': {
-    outputTokenCostMillion: TOKEN_COST_PER_MILLION,
-    inputTokenCostMillion: INPUT_TEXT_COST_PER_MILLION_TOKENS,
+    outputTokenCostMillion: 120, // $120/1M tokens = ~$0.134/img
+    inputTokenCostMillion: 2.00,
     label: 'Nano Banana Pro (Gemini 3 Pro Image)',
   },
   'gemini-2.5-flash-image': {
-    outputTokenCostMillion: TOKEN_COST_PER_MILLION,
-    inputTokenCostMillion: 0.15, // $0.15/1M input tokens
+    outputTokenCostMillion: 30, // $30/1M tokens = ~$0.034/img
+    inputTokenCostMillion: 0.15,
     label: 'Nano Banana (Gemini 2.5 Flash Image)',
   },
 }
@@ -228,6 +228,7 @@ export const PRICING_PROFILES = {
 export function normalizePricingModel(modelName = '') {
   const normalized = String(modelName || '').trim().toLowerCase()
   if (!normalized) return 'gemini-3.1-flash-image-preview'
+  if (normalized.includes('gemini-3.0-pro')) return 'gemini-3.0-pro-preview'
   if (normalized.includes('gemini-3.1')) return 'gemini-3.1-flash-image-preview'
   if (normalized.includes('gemini-2.5') || normalized.includes('gemini')) return 'gemini-2.5-flash-image'
   return 'gemini-3.1-flash-image-preview'
