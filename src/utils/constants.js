@@ -103,27 +103,27 @@ export const TARGET_MARKETS = [
 
 export const AI_MODEL_OPTIONS = [
   {
-    value: 'gemini-2.5-flash-image',
-    label: 'Gemini 2.5 Flash',
-    sublabel: 'Best quality · $0.134/img',
+    value: 'gemini-3.1-pro-preview',
+    label: 'Gemini 3.1 Pro Preview',
+    sublabel: '🔥 Nano Banana 2 · ~$0.134/img',
     recommended: true,
   },
   {
-    value: 'imagen-4-fast',
-    label: 'Imagen 4 Fast',
-    sublabel: 'Fastest · $0.02/img',
+    value: 'gemini-3.0-pro-preview',
+    label: 'Gemini 3 Pro Preview',
+    sublabel: 'Latest Pro · ~$0.134/img',
+    recommended: false,
+  },
+  {
+    value: 'gemini-2.5-flash-image',
+    label: 'Gemini 1.5 Pro (Gen 2.5)',
+    sublabel: 'Balanced · ~$0.134/img',
     recommended: false,
   },
   {
     value: 'imagen-4',
     label: 'Imagen 4',
-    sublabel: 'Balanced · $0.04/img',
-    recommended: false,
-  },
-  {
-    value: 'imagen-4-ultra',
-    label: 'Imagen 4 Ultra',
-    sublabel: 'Ultra quality · $0.06/img',
+    sublabel: 'Creative · $0.04/img',
     recommended: false,
   },
 ]
@@ -163,68 +163,60 @@ export const VIDEO_MODEL_OPTIONS = [
 ]
 
 // ─── Vertex AI Pricing (official rates) ────────────────────────────────────────
-// Source: https://cloud.google.com/vertex-ai/generative-ai/pricing
+// Source: User provided Gemini 3.1 pricing table
 //
-// Gemini 2.5 Flash — image generation (image output tokens):
+// Gemini 3.1 Pro Preview — image generation (image output tokens):
 //   1 024×1 024 output image = 1 120 tokens
-//   Image output token rate = $0.12 / 1M tokens
+//   Image output token rate = $120 / 1M tokens
 //   → $0.1344 per image ≈ $0.134/image
 //
-// Gemini 2.5 Flash — text input tokens:
-//   ≤200K context: $0.15 / 1M input tokens
+//   4 096×4 096 output image = 2 000 tokens
+//   Image output token rate = $120 / 1M tokens
+//   → $0.24 per image
 //
-// Imagen 4 per-image pricing (flat rate, no token math):
-//   Imagen 4 Fast : $0.02/image
+// Gemini 3.1 Pro Preview — text input tokens:
+//   ≤200K context: $2.00 / 1M input tokens
+//
+// Imagen 4 per-image pricing (flat rate):
 //   Imagen 4      : $0.04/image
-//   Imagen 4 Ultra: $0.06/image
 
-// Vertex AI pricing page explicitly states:
-// "Une image de sortie 1K (1024×1024) consomme 1 120 jetons de sortie d'image,
-//  soit l'équivalent de 0,134 $ par image générée."
-// → We use $0.134/image directly for Gemini 2.5 Flash image output.
 export const IMAGE_OUTPUT_TOKENS_PER_IMAGE = 1120
 export const COST_PER_GEMINI_IMAGE = 0.134
 
-export const INPUT_TEXT_COST_PER_MILLION_TOKENS = 0.15   // $0.15/1M input tokens (≤200K ctx)
+export const INPUT_TEXT_COST_PER_MILLION_TOKENS = 2.00   // $2.00/1M input tokens (≤200K ctx)
 export const INPUT_TEXT_COST_PER_TOKEN = INPUT_TEXT_COST_PER_MILLION_TOKENS / 1_000_000
 
 export const PRICING_PROFILES = {
+  'gemini-3.1-pro-preview': {
+    imageCost: 0.134,
+    inputTokenCost: 0.000002, // $2 / 1M tokens
+    label: 'Gemini 3.1 Pro Preview',
+  },
+  'gemini-3.0-pro-preview': {
+    imageCost: 0.134,
+    inputTokenCost: 0.000002, // $2 / 1M tokens
+    label: 'Gemini 3 Pro Preview',
+  },
   'gemini-2.5-flash-image': {
-    imageCost: COST_PER_GEMINI_IMAGE,
-    inputTokenCost: INPUT_TEXT_COST_PER_TOKEN,
+    imageCost: 0.134,
+    inputTokenCost: 0.00000015, // $0.15 / 1M tokens
     label: 'Gemini 2.5 Flash Image',
-  },
-  'gemini-2.5-flash-image-preview': {
-    imageCost: COST_PER_GEMINI_IMAGE,
-    inputTokenCost: INPUT_TEXT_COST_PER_TOKEN,
-    label: 'Gemini 2.5 Flash Image Preview',
-  },
-  'imagen-4-fast': {
-    imageCost: 0.02,
-    inputTokenCost: 0,
-    label: 'Imagen 4 Fast',
   },
   'imagen-4': {
     imageCost: 0.04,
     inputTokenCost: 0,
     label: 'Imagen 4',
   },
-  'imagen-4-ultra': {
-    imageCost: 0.06,
-    inputTokenCost: 0,
-    label: 'Imagen 4 Ultra',
-  },
 }
 
 export function normalizePricingModel(modelName = '') {
   const normalized = String(modelName || '').trim().toLowerCase()
-  if (!normalized) return 'gemini-2.5-flash-image'
-  if (normalized.includes('imagen-4-ultra')) return 'imagen-4-ultra'
-  if (normalized.includes('imagen-4-fast')) return 'imagen-4-fast'
+  if (!normalized) return 'gemini-3.1-pro-preview'
   if (normalized.includes('imagen-4')) return 'imagen-4'
-  if (normalized.includes('gemini-2.5-flash-image-preview')) return 'gemini-2.5-flash-image-preview'
-  if (normalized.includes('gemini-2.5-flash-image') || normalized.includes('gemini')) return 'gemini-2.5-flash-image'
-  return 'gemini-2.5-flash-image'
+  if (normalized.includes('gemini-3.1')) return 'gemini-3.1-pro-preview'
+  if (normalized.includes('gemini-3.0') || normalized.includes('gemini-3-pro')) return 'gemini-3.0-pro-preview'
+  if (normalized.includes('gemini-2.5') || normalized.includes('gemini')) return 'gemini-2.5-flash-image'
+  return 'gemini-3.1-pro-preview'
 }
 
 export function getPricingProfile(modelName = '') {

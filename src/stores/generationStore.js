@@ -16,6 +16,7 @@ const DEFAULT_OPTIONS = {
   generateVideo: false,
   headwear: 'none',
   videoModel: 'veo-2.0-generate-001',
+  aiModel: 'gemini-3.1-pro-preview',
   useCache: true,
 }
 
