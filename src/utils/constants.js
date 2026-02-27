@@ -135,25 +135,25 @@ export const HEADWEAR_OPTIONS = [
 
 export const VIDEO_MODEL_OPTIONS = [
   {
-    value: 'veo-3.1-generate-fast-001',
-    label: 'Veo 3.1 Fast',
-    sublabel: 'Best value · ~$0.80/8s video',
+    value: 'veo-3.1-generate-fast-001:1080p',
+    label: 'Veo 3.1 Fast · 1080p',
+    sublabel: '⭐ Best value — $0.10/sec (~$0.80/8s clip)',
     recommended: true,
   },
   {
-    value: 'veo-3.1-generate-001',
-    label: 'Veo 3.1',
-    sublabel: 'Latest & highest quality · ~$1.60/8s video',
+    value: 'veo-3.1-generate-fast-001:4k',
+    label: 'Veo 3.1 Fast · 4K',
+    sublabel: 'Ultra-HD fast · $0.30/sec (~$2.40/8s clip)',
   },
   {
-    value: 'veo-3.0-generate-001',
-    label: 'Veo 3 (with audio)',
-    sublabel: 'Cinematic + sync sound · ~$3.20/8s video',
+    value: 'veo-3.1-generate-001:1080p',
+    label: 'Veo 3.1 · 1080p',
+    sublabel: 'Max quality Full HD · $0.20/sec (~$1.60/8s clip)',
   },
   {
-    value: 'veo-2.0-generate-001',
-    label: 'Veo 2',
-    sublabel: 'Stable baseline · ~$4.00/8s video',
+    value: 'veo-3.1-generate-001:4k',
+    label: 'Veo 3.1 · 4K',
+    sublabel: 'Absolute maximum · $0.40/sec (~$3.20/8s clip)',
   },
 ]
 
