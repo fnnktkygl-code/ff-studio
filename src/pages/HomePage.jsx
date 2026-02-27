@@ -3,6 +3,7 @@ import { Header } from '../components/layout/Header'
 import { PageTransition } from '../components/layout/PageTransition'
 import { UploadZone } from '../components/upload/UploadZone'
 import { UploadGrid } from '../components/upload/UploadGrid'
+import { UploadGuidelines } from '../components/upload/UploadGuidelines'
 import { Button } from '../components/common/Button'
 import { useImageUpload } from '../hooks/useImageUpload'
 import { useGenerationStore } from '../stores/generationStore'
@@ -50,7 +51,10 @@ export function HomePage() {
 
         {/* Upload area */}
         {images.length === 0 ? (
-          <UploadZone onOpenPicker={openPicker} onFiles={handleFiles} />
+          <>
+            <UploadZone onOpenPicker={openPicker} onFiles={handleFiles} />
+            <UploadGuidelines />
+          </>
         ) : (
           <UploadGrid onAddMore={openPicker} />
         )}
