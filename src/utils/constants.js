@@ -103,27 +103,15 @@ export const TARGET_MARKETS = [
 
 export const AI_MODEL_OPTIONS = [
   {
-    value: 'gemini-3.1-pro-preview',
-    label: 'Gemini 3.1 Pro Preview',
+    value: 'gemini-3.1-flash-image-preview',
+    label: 'Gemini 3.1 Flash Image',
     sublabel: '🔥 Nano Banana 2 · ~$0.134/img',
     recommended: true,
   },
   {
-    value: 'gemini-3.0-pro-preview',
-    label: 'Gemini 3 Pro Preview',
-    sublabel: 'Latest Pro · ~$0.134/img',
-    recommended: false,
-  },
-  {
     value: 'gemini-2.5-flash-image',
     label: 'Gemini 1.5 Pro (Gen 2.5)',
-    sublabel: 'Balanced · ~$0.134/img',
-    recommended: false,
-  },
-  {
-    value: 'imagen-4',
-    label: 'Imagen 4',
-    sublabel: 'Creative · $0.04/img',
+    sublabel: 'Nano Banana · ~$0.134/img',
     recommended: false,
   },
 ]
@@ -180,43 +168,40 @@ export const VIDEO_MODEL_OPTIONS = [
 // Imagen 4 per-image pricing (flat rate):
 //   Imagen 4      : $0.04/image
 
-export const IMAGE_OUTPUT_TOKENS_PER_IMAGE = 1120
-export const COST_PER_GEMINI_IMAGE = 0.134
+export const IMAGE_RESOLUTION_OPTIONS = [
+  { value: '1K', label: '1K (1024x1024)', summary: '~0.13$/img' },
+  { value: '2K', label: '2K (2048x2048)', summary: '~0.13$/img' },
+  { value: '4K', label: '4K (4096x4096)', summary: '~0.24$/img' },
+]
 
-export const INPUT_TEXT_COST_PER_MILLION_TOKENS = 2.00   // $2.00/1M input tokens (≤200K ctx)
-export const INPUT_TEXT_COST_PER_TOKEN = INPUT_TEXT_COST_PER_MILLION_TOKENS / 1_000_000
+export const IMAGE_OUTPUT_TOKENS = {
+  '1K': 1120,
+  '2K': 1120, // Billed the same as 1K conceptually, but you can adjust if needed
+  '4K': 2000,
+}
+
+export const TOKEN_COST_PER_MILLION = 120 // $120 per 1M output tokens
+export const INPUT_TEXT_COST_PER_MILLION_TOKENS = 2.00   // $2.00/1M input tokens
 
 export const PRICING_PROFILES = {
-  'gemini-3.1-pro-preview': {
-    imageCost: 0.134,
-    inputTokenCost: 0.000002, // $2 / 1M tokens
-    label: 'Gemini 3.1 Pro Preview',
-  },
-  'gemini-3.0-pro-preview': {
-    imageCost: 0.134,
-    inputTokenCost: 0.000002, // $2 / 1M tokens
-    label: 'Gemini 3 Pro Preview',
+  'gemini-3.1-flash-image-preview': {
+    outputTokenCostMillion: TOKEN_COST_PER_MILLION,
+    inputTokenCostMillion: INPUT_TEXT_COST_PER_MILLION_TOKENS,
+    label: 'Nano Banana 2 (Gemini 3.1 Flash Image)',
   },
   'gemini-2.5-flash-image': {
-    imageCost: 0.134,
-    inputTokenCost: 0.00000015, // $0.15 / 1M tokens
-    label: 'Gemini 2.5 Flash Image',
-  },
-  'imagen-4': {
-    imageCost: 0.04,
-    inputTokenCost: 0,
-    label: 'Imagen 4',
+    outputTokenCostMillion: TOKEN_COST_PER_MILLION,
+    inputTokenCostMillion: 0.15, // $0.15/1M input tokens
+    label: 'Nano Banana (Gemini 2.5 Flash Image)',
   },
 }
 
 export function normalizePricingModel(modelName = '') {
   const normalized = String(modelName || '').trim().toLowerCase()
-  if (!normalized) return 'gemini-3.1-pro-preview'
-  if (normalized.includes('imagen-4')) return 'imagen-4'
-  if (normalized.includes('gemini-3.1')) return 'gemini-3.1-pro-preview'
-  if (normalized.includes('gemini-3.0') || normalized.includes('gemini-3-pro')) return 'gemini-3.0-pro-preview'
+  if (!normalized) return 'gemini-3.1-flash-image-preview'
+  if (normalized.includes('gemini-3.1')) return 'gemini-3.1-flash-image-preview'
   if (normalized.includes('gemini-2.5') || normalized.includes('gemini')) return 'gemini-2.5-flash-image'
-  return 'gemini-3.1-pro-preview'
+  return 'gemini-3.1-flash-image-preview'
 }
 
 export function getPricingProfile(modelName = '') {
