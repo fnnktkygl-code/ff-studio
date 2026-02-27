@@ -135,10 +135,25 @@ export const HEADWEAR_OPTIONS = [
 
 export const VIDEO_MODEL_OPTIONS = [
   {
-    value: 'veo-2.0-generate-001',
-    label: 'Veo 2.0 (DeepMind)',
-    sublabel: 'Cinematic HD · ~$0.40/sec',
+    value: 'veo-3.1-generate-fast-001',
+    label: 'Veo 3.1 Fast',
+    sublabel: 'Best value · ~$0.80/8s video',
     recommended: true,
+  },
+  {
+    value: 'veo-3.1-generate-001',
+    label: 'Veo 3.1',
+    sublabel: 'Latest & highest quality · ~$1.60/8s video',
+  },
+  {
+    value: 'veo-3.0-generate-001',
+    label: 'Veo 3 (with audio)',
+    sublabel: 'Cinematic + sync sound · ~$3.20/8s video',
+  },
+  {
+    value: 'veo-2.0-generate-001',
+    label: 'Veo 2',
+    sublabel: 'Stable baseline · ~$4.00/8s video',
   },
 ]
 
