@@ -1,3 +1,8 @@
+import {
+  IconDiverse, IconAsian, IconBlack, IconCaucasian, IconHispanic,
+  IconMiddleEastern, IconSouthAsian, IconNorthAfrican
+} from '../components/icons/EthnicityIcons'
+
 export const MODEL_TYPES = [
   { value: 'female', label: 'Female', emoji: '👩', desc: 'Female fashion model' },
   { value: 'male', label: 'Male', emoji: '👨', desc: 'Male fashion model' },
@@ -5,14 +10,14 @@ export const MODEL_TYPES = [
 ]
 
 export const ETHNICITIES = [
-  { value: 'any', label: 'Any / Diverse', emoji: '🌍', desc: 'Diverse representation' },
-  { value: 'asian', label: 'Asian', emoji: '🇯🇵', desc: 'East & Southeast Asian' },
-  { value: 'black', label: 'Black', emoji: '🌟', desc: 'African / Afro-descent' },
-  { value: 'caucasian', label: 'Caucasian', emoji: '🌿', desc: 'European features' },
-  { value: 'hispanic', label: 'Hispanic', emoji: '🇧🇷', desc: 'Latin American features' },
-  { value: 'middle-eastern', label: 'Middle Eastern', emoji: '🌙', desc: 'Middle Eastern features' },
-  { value: 'south-asian', label: 'South Asian', emoji: '🇮🇳', desc: 'Indian / Pakistani features' },
-  { value: 'algerian', label: 'Algerian / N. African', emoji: '🇩🇿', desc: 'North African Maghreb look' },
+  { value: 'any', label: 'Any / Diverse', emoji: <IconDiverse />, desc: 'Diverse representation' },
+  { value: 'asian', label: 'Asian', emoji: <IconAsian />, desc: 'East & Southeast Asian' },
+  { value: 'black', label: 'Black', emoji: <IconBlack />, desc: 'African / Afro-descent' },
+  { value: 'caucasian', label: 'Caucasian', emoji: <IconCaucasian />, desc: 'European features' },
+  { value: 'hispanic', label: 'Hispanic', emoji: <IconHispanic />, desc: 'Latin American features' },
+  { value: 'middle-eastern', label: 'Middle Eastern', emoji: <IconMiddleEastern />, desc: 'Middle Eastern features' },
+  { value: 'south-asian', label: 'South Asian', emoji: <IconSouthAsian />, desc: 'Indian / Pakistani features' },
+  { value: 'algerian', label: 'Algerian / N. African', emoji: <IconNorthAfrican />, desc: 'North African Maghreb look' },
 ]
 
 export const ENVIRONMENTS = [

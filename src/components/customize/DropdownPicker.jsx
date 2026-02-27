@@ -66,7 +66,11 @@ export function DropdownPicker({ label, options, value, onChange, disabledValues
                     style={{ boxShadow: open ? '0 0 0 2px var(--brand)' : undefined }}
                 >
                     <span className="flex items-center gap-2">
-                        {selected?.emoji && <span className="text-base">{selected.emoji}</span>}
+                        {selected?.emoji && (
+                            typeof selected.emoji === 'string'
+                                ? <span className="text-base">{selected.emoji}</span>
+                                : <span className="w-5 h-5 flex-shrink-0">{selected.emoji}</span>
+                        )}
                         <span className="text-sm font-semibold theme-text">{selected?.label ?? '—'}</span>
                     </span>
                     <ChevronDownIcon className="w-4 h-4 text-brand flex-shrink-0" />
@@ -109,13 +113,19 @@ export function DropdownPicker({ label, options, value, onChange, disabledValues
                                             disabled={isDisabled}
                                             title={isDisabled ? 'Not available with current selection' : undefined}
                                             className={`flex flex-col items-start gap-1 p-3 rounded-2xl border text-left transition-all active:scale-95 ${isDisabled
-                                                    ? 'opacity-30 cursor-not-allowed theme-card theme-border'
-                                                    : isSelected
-                                                        ? 'bg-brand/10 border-brand/50 shadow-sm shadow-brand/10'
-                                                        : 'theme-card theme-border hover:opacity-80'
+                                                ? 'opacity-30 cursor-not-allowed theme-card theme-border'
+                                                : isSelected
+                                                    ? 'bg-brand/10 border-brand/50 shadow-sm shadow-brand/10'
+                                                    : 'theme-card theme-border hover:opacity-80'
                                                 }`}
                                         >
-                                            {opt.emoji && <span className="text-xl">{opt.emoji}</span>}
+                                            {opt.emoji && (
+                                                typeof opt.emoji === 'string'
+                                                    ? <span className="text-xl">{opt.emoji}</span>
+                                                    : <div className={`w-6 h-6 mb-1 ${isSelected ? 'text-brand' : 'theme-text-sec'}`}>
+                                                        {opt.emoji}
+                                                    </div>
+                                            )}
                                             <p className={`text-xs font-bold ${isSelected ? 'text-brand-dark' : 'theme-text'}`}>
                                                 {opt.label}
                                             </p>
