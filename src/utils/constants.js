@@ -79,7 +79,6 @@ export const GARMENT_TYPES = [
   { value: 'abaya', label: 'Abaya', emoji: '🌍', category: 'traditional', desc: 'Full-length outer garment' },
   { value: 'kaftan', label: 'Kaftan', emoji: '🌍', category: 'traditional', desc: 'Long flowing robe' },
   { value: 'djellaba', label: 'Djellaba', emoji: '🌍', category: 'traditional', desc: 'Hooded robe' },
-  { value: 'boubou', label: 'Boubou', emoji: '🌍', category: 'traditional', desc: 'West African grand boubou' },
   // Footwear
   { value: 'shoes', label: 'Sneakers', emoji: '👟', category: 'footwear', desc: 'Athletic or casual shoes' },
   { value: 'heels', label: 'Heels', emoji: '👠', category: 'footwear', desc: 'Elevated formal shoes' },
