@@ -1,5 +1,6 @@
 import { useNavigate, useLocation } from 'react-router-dom'
 import { cn } from '../../utils/cn'
+import { useGenerationStore } from '../../stores/generationStore'
 
 function ChevronLeftIcon({ className }) {
   return (
@@ -12,6 +13,7 @@ function ChevronLeftIcon({ className }) {
 export function Header({ title, showBack = false, onBack, rightAction, className }) {
   const navigate = useNavigate()
   const location = useLocation()
+  const reset = useGenerationStore((s) => s.reset)
 
   const isHome = location.pathname === '/'
 
@@ -21,6 +23,11 @@ export function Header({ title, showBack = false, onBack, rightAction, className
     } else {
       navigate(-1)
     }
+  }
+
+  const handleLogoClick = () => {
+    reset()
+    navigate('/')
   }
 
   return (
@@ -43,9 +50,12 @@ export function Header({ title, showBack = false, onBack, rightAction, className
             <ChevronLeftIcon className="w-5 h-5" />
           </button>
         ) : (
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-brand-dark to-brand flex items-center justify-center">
+          <button
+            onClick={handleLogoClick}
+            className="w-8 h-8 rounded-lg bg-gradient-to-br from-brand-dark to-brand flex items-center justify-center hover:opacity-90 transition-opacity"
+          >
             <span className="text-white font-extrabold text-sm">L</span>
-          </div>
+          </button>
         )}
       </div>
 
