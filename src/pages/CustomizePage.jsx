@@ -4,6 +4,7 @@ import { PageTransition } from '../components/layout/PageTransition'
 import { Button } from '../components/common/Button'
 import { OptionSelector } from '../components/customize/OptionSelector'
 import { GarmentPicker } from '../components/customize/GarmentPicker'
+import { DropdownPicker } from '../components/customize/DropdownPicker'
 import { GenerationModeToggle } from '../components/customize/GenerationModeToggle'
 import { CostEstimator } from '../components/customize/CostEstimator'
 import { ImagePreview } from '../components/upload/ImagePreview'
@@ -199,45 +200,50 @@ export function CustomizePage() {
 
           {(options.mode === 'model' || options.mode === 'both') && (
             <>
-              <OptionSelector
+              <DropdownPicker
                 label="Model"
                 options={MODEL_TYPES}
                 value={options.modelType}
                 onChange={(v) => setOption('modelType', v)}
+                columns={2}
               />
-              <OptionSelector
+              <DropdownPicker
                 label="Ethnicity / Origin"
                 options={ETHNICITIES}
                 value={options.ethnicity}
                 onChange={(v) => setOption('ethnicity', v)}
+                columns={2}
               />
 
               {/* Hijab / Headwear: Hide or disable for skirts and shorts */}
               {!['skirt', 'shorts'].includes(options.garmentType) && (
-                <OptionSelector
+                <DropdownPicker
                   label="Headwear (Modesty)"
                   options={HEADWEAR_OPTIONS}
                   value={options.headwear}
                   onChange={(v) => setOption('headwear', v)}
+                  columns={2}
                 />
               )}
             </>
           )}
 
           {(options.mode === 'product' || options.mode === 'both') && (
-            <OptionSelector
+            <DropdownPicker
               label="Product Style"
               options={PRODUCT_STYLES}
               value={options.productStyle}
               onChange={(v) => setOption('productStyle', v)}
+              columns={2}
             />
           )}
 
-          <OptionSelector
+          <DropdownPicker
             label="Environment"
             options={ENVIRONMENTS}
             value={options.environment}
             onChange={(v) => setOption('environment', v)}
+            columns={2}
           />
         </div>
 
@@ -248,23 +254,26 @@ export function CustomizePage() {
             <h3 className="text-xs font-bold uppercase tracking-widest theme-text-muted">Advanced</h3>
           </div>
 
-          <OptionSelector
+          <DropdownPicker
             label="Brand Inspiration"
             options={BRAND_STYLES}
             value={options.brandStyle}
             onChange={(v) => setOption('brandStyle', v)}
+            columns={2}
           />
-          <OptionSelector
+          <DropdownPicker
             label="Fabric"
             options={FABRICS}
             value={options.fabric}
             onChange={(v) => setOption('fabric', v)}
+            columns={2}
           />
-          <OptionSelector
+          <DropdownPicker
             label="Fit"
             options={FITS}
             value={options.fit}
             onChange={(v) => setOption('fit', v)}
+            columns={2}
           />
           <OptionSelector
             label="Size"
@@ -272,11 +281,12 @@ export function CustomizePage() {
             value={options.size}
             onChange={(v) => setOption('size', v)}
           />
-          <OptionSelector
+          <DropdownPicker
             label="Target Market"
             options={TARGET_MARKETS}
             value={options.targetMarket}
             onChange={(v) => setOption('targetMarket', v)}
+            columns={2}
           />
 
           <div className="flex items-center justify-between p-4 theme-card border theme-border shadow-sm rounded-2xl">

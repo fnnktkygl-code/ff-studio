@@ -1,28 +1,28 @@
 export const MODEL_TYPES = [
-  { value: 'female', label: 'Female' },
-  { value: 'male', label: 'Male' },
-  { value: 'kids', label: 'Kids' },
+  { value: 'female', label: 'Female', emoji: '👩', desc: 'Female fashion model' },
+  { value: 'male', label: 'Male', emoji: '👨', desc: 'Male fashion model' },
+  { value: 'kids', label: 'Kids', emoji: '🧒', desc: "Children's fashion" },
 ]
 
 export const ETHNICITIES = [
-  { value: 'any', label: 'Any / Diverse' },
-  { value: 'asian', label: 'Asian' },
-  { value: 'black', label: 'Black' },
-  { value: 'caucasian', label: 'Caucasian' },
-  { value: 'hispanic', label: 'Hispanic' },
-  { value: 'middle-eastern', label: 'Middle Eastern' },
-  { value: 'south-asian', label: 'South Asian' },
-  { value: 'algerian', label: 'Algerian / North African' },
+  { value: 'any', label: 'Any / Diverse', emoji: '🌍', desc: 'Diverse representation' },
+  { value: 'asian', label: 'Asian', emoji: '🇯🇵', desc: 'East & Southeast Asian' },
+  { value: 'black', label: 'Black', emoji: '🌟', desc: 'African / Afro-descent' },
+  { value: 'caucasian', label: 'Caucasian', emoji: '🌿', desc: 'European features' },
+  { value: 'hispanic', label: 'Hispanic', emoji: '🇧🇷', desc: 'Latin American features' },
+  { value: 'middle-eastern', label: 'Middle Eastern', emoji: '🌙', desc: 'Middle Eastern features' },
+  { value: 'south-asian', label: 'South Asian', emoji: '🇮🇳', desc: 'Indian / Pakistani features' },
+  { value: 'algerian', label: 'Algerian / N. African', emoji: '🇩🇿', desc: 'North African Maghreb look' },
 ]
 
 export const ENVIRONMENTS = [
-  { value: 'studio-white', label: 'White Studio' },
-  { value: 'studio-gray', label: 'Gray Studio' },
-  { value: 'cozy-indoor', label: 'Cozy Indoor' },
-  { value: 'urban-street', label: 'Urban Street' },
-  { value: 'nature', label: 'Nature' },
-  { value: 'luxury-interior', label: 'Luxury Interior' },
-  { value: 'beach', label: 'Beach' },
+  { value: 'studio-white', label: 'White Studio', emoji: '⬜', desc: 'Clean white cyclorama' },
+  { value: 'studio-gray', label: 'Gray Studio', emoji: '🩶', desc: 'Neutral gray backdrop' },
+  { value: 'cozy-indoor', label: 'Cozy Indoor', emoji: '🛋️', desc: 'Warm lifestyle interior' },
+  { value: 'urban-street', label: 'Urban Street', emoji: '🏙️', desc: 'City street editorial' },
+  { value: 'nature', label: 'Nature', emoji: '🌿', desc: 'Golden hour outdoors' },
+  { value: 'luxury-interior', label: 'Luxury Interior', emoji: '✨', desc: 'Marble & metallic decor' },
+  { value: 'beach', label: 'Beach', emoji: '🏖️', desc: 'Coastal resort vibes' },
 ]
 
 export const ENVIRONMENT_DESCRIPTIONS = {
@@ -95,39 +95,39 @@ export const GARMENT_TYPES = [
 
 
 export const PRODUCT_STYLES = [
-  { value: 'ghost-mannequin', label: 'Ghost Mannequin' },
-  { value: 'flat-lay', label: 'Flat Lay' },
-  { value: 'hanging', label: 'Hanging' },
-  { value: 'folded', label: 'Folded' },
+  { value: 'ghost-mannequin', label: 'Ghost Mannequin', emoji: '👻', desc: 'Invisible mannequin effect' },
+  { value: 'flat-lay', label: 'Flat Lay', emoji: '🛏️', desc: 'Garment laid on flat surface' },
+  { value: 'hanging', label: 'Hanging', emoji: '🪝', desc: 'Product on hanger' },
+  { value: 'folded', label: 'Folded', emoji: '📦', desc: 'Neatly folded garment' },
 ]
 
 export const BRAND_STYLES = [
-  { value: 'generic', label: 'Modern Generic' },
-  { value: 'zara', label: 'Zara' },
-  { value: 'ralph-lauren', label: 'Ralph Lauren' },
-  { value: 'hm', label: 'H&M' },
-  { value: 'nike', label: 'Nike' },
-  { value: 'asos', label: 'ASOS' },
-  { value: 'gucci', label: 'Gucci' },
+  { value: 'generic', label: 'Modern Generic', emoji: '✨', desc: 'Clean editorial style' },
+  { value: 'zara', label: 'Zara', emoji: '🏷️', desc: 'Minimalist European chic' },
+  { value: 'ralph-lauren', label: 'Ralph Lauren', emoji: '🐎', desc: 'Preppy American classic' },
+  { value: 'hm', label: 'H&M', emoji: '♻️', desc: 'Affordable fast fashion' },
+  { value: 'nike', label: 'Nike', emoji: '✔️', desc: 'Athletic sportswear' },
+  { value: 'asos', label: 'ASOS', emoji: '🌐', desc: 'Trendy online fashion' },
+  { value: 'gucci', label: 'Gucci', emoji: '🐍', desc: 'Luxury italic fashion' },
 ]
 
 export const FABRICS = [
-  { value: 'any', label: 'Any' },
-  { value: 'cotton', label: 'Cotton' },
-  { value: 'silk', label: 'Silk / Satin' },
-  { value: 'denim', label: 'Denim' },
-  { value: 'wool', label: 'Wool / Knit' },
-  { value: 'linen', label: 'Linen' },
-  { value: 'leather', label: 'Leather' },
-  { value: 'activewear', label: 'Activewear' },
+  { value: 'any', label: 'Any', emoji: '🔀', desc: 'Auto-detect from image' },
+  { value: 'cotton', label: 'Cotton', emoji: '🌿', desc: 'Soft breathable fabric' },
+  { value: 'silk', label: 'Silk / Satin', emoji: '✨', desc: 'Smooth lustrous fabric' },
+  { value: 'denim', label: 'Denim', emoji: '👖', desc: 'Classic woven cotton' },
+  { value: 'wool', label: 'Wool / Knit', emoji: '🧶', desc: 'Warm textured weave' },
+  { value: 'linen', label: 'Linen', emoji: '🌾', desc: 'Lightweight natural fabric' },
+  { value: 'leather', label: 'Leather', emoji: '🐄', desc: 'Genuine or faux leather' },
+  { value: 'activewear', label: 'Activewear', emoji: '🏃', desc: 'Stretch performance fabric' },
 ]
 
 export const FITS = [
-  { value: 'regular', label: 'Regular' },
-  { value: 'tight', label: 'Fitted / Tight' },
-  { value: 'oversized', label: 'Oversized' },
-  { value: 'cropped', label: 'Cropped' },
-  { value: 'longline', label: 'Longline' },
+  { value: 'regular', label: 'Regular', emoji: '📐', desc: 'Standard everyday cut' },
+  { value: 'tight', label: 'Fitted / Tight', emoji: '💪', desc: 'Body-hugging silhouette' },
+  { value: 'oversized', label: 'Oversized', emoji: '🌊', desc: 'Relaxed loose silhouette' },
+  { value: 'cropped', label: 'Cropped', emoji: '✂️', desc: 'Shortened above waist' },
+  { value: 'longline', label: 'Longline', emoji: '📏', desc: 'Extended below the hip' },
 ]
 
 export const SIZES = [
@@ -140,16 +140,16 @@ export const SIZES = [
 ]
 
 export const TARGET_MARKETS = [
-  { value: 'global', label: 'Global' },
-  { value: 'usa', label: 'USA' },
-  { value: 'japan', label: 'Japan' },
-  { value: 'france', label: 'France' },
-  { value: 'brazil', label: 'Brazil' },
-  { value: 'uk', label: 'UK' },
-  { value: 'south-korea', label: 'South Korea' },
-  { value: 'north-africa', label: 'North Africa' },
-  { value: 'algeria', label: 'Algeria' },
-  { value: 'west-africa', label: 'West Africa' },
+  { value: 'global', label: 'Global', emoji: '🌍', desc: 'Universal multi-market' },
+  { value: 'usa', label: 'USA', emoji: '🇺🇸', desc: 'North American market' },
+  { value: 'japan', label: 'Japan', emoji: '🇯🇵', desc: 'East Asian market' },
+  { value: 'france', label: 'France', emoji: '🇫🇷', desc: 'West European market' },
+  { value: 'brazil', label: 'Brazil', emoji: '🇧🇷', desc: 'Latin American market' },
+  { value: 'uk', label: 'UK', emoji: '🇬🇧', desc: 'British market' },
+  { value: 'south-korea', label: 'South Korea', emoji: '🇰🇷', desc: 'K-fashion forward market' },
+  { value: 'north-africa', label: 'North Africa', emoji: '🌙', desc: 'MENA region market' },
+  { value: 'algeria', label: 'Algeria', emoji: '🇩🇿', desc: 'Algerian e-commerce' },
+  { value: 'west-africa', label: 'West Africa', emoji: '🌍', desc: 'West African market' },
 ]
 
 // ─── AI Model Selection ────────────────────────────────────────────────────────
@@ -179,8 +179,8 @@ export const AI_MODEL_OPTIONS = [
 ]
 
 export const HEADWEAR_OPTIONS = [
-  { value: 'none', label: 'No Headwear' },
-  { value: 'hijab', label: 'Hijab / Modest Cover' },
+  { value: 'none', label: 'No Headwear', emoji: '👤', desc: 'Natural hair display' },
+  { value: 'hijab', label: 'Hijab / Modest Cover', emoji: '🧕', desc: 'Secure modest head cover' },
 ]
 
 export const VIDEO_MODEL_OPTIONS = [
@@ -231,9 +231,9 @@ export const VIDEO_MODEL_OPTIONS = [
 //   Imagen 4      : $0.04/image
 
 export const IMAGE_RESOLUTION_OPTIONS = [
-  { value: '1K', label: '1K (1024x1024)', summary: '~0.13$/img' },
-  { value: '2K', label: '2K (2048x2048)', summary: '~0.13$/img' },
-  { value: '4K', label: '4K (4096x4096)', summary: '~0.24$/img' },
+  { value: '1K', label: '1K (1024x1024)', emoji: '🖼️', desc: 'Optimal speed & cost' },
+  { value: '2K', label: '2K (2048x2048)', emoji: '🌟', desc: 'High fidelity sharpness' },
+  { value: '4K', label: '4K (4096x4096)', emoji: '💎', desc: 'Maximum print quality' },
 ]
 
 export const IMAGE_OUTPUT_TOKENS = {
