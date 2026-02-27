@@ -1,8 +1,28 @@
 import { Router } from 'express'
 import { GoogleGenAI } from '@google/genai'
+import crypto from 'crypto'
 import { validateGenerateRequest } from '../middleware/validate.js'
 
 const router = Router()
+
+// Simple in-memory cache for generated images
+// Stores up to 100 recent generations
+const imageCache = new Map()
+const MAX_CACHE_SIZE = 100
+
+function generateCacheKey(prompt, images, model) {
+  const hash = crypto.createHash('sha256')
+  hash.update(prompt)
+  hash.update(model || '')
+  if (images && images.length) {
+    images.forEach(img => {
+      // Just hash a chunk of the base64 or exactly the base64 to be strict
+      // We hash the full base64 data to ensure it's the exact same image
+      hash.update(img.data || img.url || '')
+    })
+  }
+  return hash.digest('hex')
+}
 
 function normalizeErrorMessage(err) {
   if (!err) return ''
@@ -410,18 +430,40 @@ router.post('/generate', validateGenerateRequest, async (req, res) => {
 
       const batch = effectivePrompts.slice(i, i + batchSize)
       const batchResults = await Promise.all(
-        batch.map((prompt) => (
-          useDirectVertexApiKey
-            ? generateImageViaVertexApiKey(apiKey, prompt, imageDataParts, modelCandidates, maxRetries)
-            : generateImage(ai, prompt, imageDataParts, modelCandidates, maxRetries)
-        ).catch((err) => {
-          console.error('Image generation failed:', err.message)
-          errors.push(err.message)
-          if (isRateLimitError(err)) {
-            abortForRateLimit = true
+        batch.map(async (prompt) => {
+          const cacheKey = generateCacheKey(prompt, images, modelCandidates[0])
+          const useCache = req.body.options?.useCache !== false
+
+          if (useCache && imageCache.has(cacheKey)) {
+            console.log(`Cache HIT for prompt: ${prompt.slice(0, 30)}...`)
+            return imageCache.get(cacheKey)
           }
-          return null
-        }))
+
+          console.log(`Cache MISS for prompt: ${prompt.slice(0, 30)}... Generating...`)
+          try {
+            const result = await (useDirectVertexApiKey
+              ? generateImageViaVertexApiKey(apiKey, prompt, imageDataParts, modelCandidates, maxRetries)
+              : generateImage(ai, prompt, imageDataParts, modelCandidates, maxRetries))
+
+            // Store in cache
+            if (result) {
+              imageCache.set(cacheKey, result)
+              if (imageCache.size > MAX_CACHE_SIZE) {
+                // Remove oldest entry (first key in Map)
+                const firstKey = imageCache.keys().next().value
+                imageCache.delete(firstKey)
+              }
+            }
+            return result
+          } catch (err) {
+            console.error('Image generation failed:', err.message)
+            errors.push(err.message)
+            if (isRateLimitError(err)) {
+              abortForRateLimit = true
+            }
+            return null
+          }
+        })
       )
 
       const firstSuccess = batchResults.find(Boolean)

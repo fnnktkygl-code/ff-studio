@@ -127,7 +127,7 @@ export function ResultsPage() {
         return
       }
 
-      const revisedPrompt = applyFeedbackToPrompt(basePrompt, feedback)
+      const revisedPrompt = feedback ? applyFeedbackToPrompt(basePrompt, feedback) : basePrompt
       const response = await apiPost('/generate', {
         images: sourceImages.map((img) => ({
           data: img.base64.split(',')[1],

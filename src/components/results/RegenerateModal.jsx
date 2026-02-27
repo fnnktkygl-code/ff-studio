@@ -35,9 +35,7 @@ export function RegenerateModal({ imageIndex, isOpen, onClose, onConfirm, isRege
             setTimeout(() => textareaRef.current?.focus(), 100)
         }
     }, [isOpen])
-
     const handleConfirm = () => {
-        if (!feedback.trim()) return
         onConfirm(feedback.trim())
     }
 
@@ -76,8 +74,8 @@ export function RegenerateModal({ imageIndex, isOpen, onClose, onConfirm, isRege
                             {/* Header */}
                             <div className="flex items-center justify-between mb-4">
                                 <div>
-                                    <h3 className="text-sm font-bold theme-text">Refine Image {imageIndex + 1}</h3>
-                                    <p className="text-[11px] theme-text-sec mt-0.5">What should be improved?</p>
+                                    <h3 className="text-sm font-bold theme-text">Refine or Retry Image {imageIndex + 1}</h3>
+                                    <p className="text-[11px] theme-text-sec mt-0.5">Leave blank to just retry</p>
                                 </div>
                                 <button
                                     onClick={onClose}
@@ -106,7 +104,7 @@ export function RegenerateModal({ imageIndex, isOpen, onClose, onConfirm, isRege
                                 value={feedback}
                                 onChange={(e) => setFeedback(e.target.value)}
                                 onKeyDown={handleKeyDown}
-                                placeholder="Describe what to improve... (⌘+Enter to confirm)"
+                                placeholder="Describe what to improve... (optional)"
                                 rows={3}
                                 className="w-full rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand/40 transition-colors resize-none"
                                 style={{
@@ -127,7 +125,7 @@ export function RegenerateModal({ imageIndex, isOpen, onClose, onConfirm, isRege
                                 </button>
                                 <button
                                     onClick={handleConfirm}
-                                    disabled={!feedback.trim() || isRegenerating}
+                                    disabled={isRegenerating}
                                     className="flex-1 py-2.5 rounded-2xl bg-gradient-to-r from-brand-dark to-brand text-sm font-bold text-white shadow-lg shadow-brand-dark/20 transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                                 >
                                     {isRegenerating ? (
@@ -143,7 +141,7 @@ export function RegenerateModal({ imageIndex, isOpen, onClose, onConfirm, isRege
                                     ) : (
                                         <>
                                             <RefreshIcon className="w-4 h-4" />
-                                            Regenerate
+                                            {feedback.trim() ? "Modify Photo" : "Retry Photo"}
                                         </>
                                     )}
                                 </button>

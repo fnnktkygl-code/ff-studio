@@ -14,9 +14,9 @@ const DEFAULT_OPTIONS = {
   targetMarket: 'global',
   outputCount: '4',
   generateVideo: false,
-  aiModel: 'gemini-2.5-flash-image',
   headwear: 'none',
   videoModel: 'veo-2.0-generate-001',
+  useCache: true,
 }
 
 export const useGenerationStore = create((set) => ({
