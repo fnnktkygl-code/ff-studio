@@ -271,7 +271,7 @@ async function getVertexAccessToken() {
   }
 }
 
-async function generateVideoViaVertexVeo(prompt, imageBase64, modelInput, vertexProject) {
+async function generateVideoViaVertexVeo(prompt, imageBase64, modelInput, vertexProject, resolution) {
   const model = modelInput || 'veo-2.0-generate-001';
   // Veo is ONLY available in us-central1 — never 'global'
   const veoLocation = 'us-central1';
@@ -308,6 +308,7 @@ async function generateVideoViaVertexVeo(prompt, imageBase64, modelInput, vertex
       personGeneration: 'allow_adult',
       durationSeconds: 8,
       numberOfVideos: 1,
+      ...(resolution ? { resolution } : {}),
     },
   };
 
@@ -371,9 +372,13 @@ const ALLOWED_CLIENT_MODELS = new Set([
 ])
 
 const ALLOWED_VIDEO_MODELS = new Set([
+  'veo-3.1-generate-fast-001:1080p',
+  'veo-3.1-generate-fast-001:4k',
+  'veo-3.1-generate-001:1080p',
+  'veo-3.1-generate-001:4k',
+  // legacy bare IDs for backwards compat
   'veo-2.0-generate-001',
   'veo-3.0-generate-001',
-  'veo-3.0-generate-fast-001',
   'veo-3.1-generate-001',
   'veo-3.1-generate-fast-001',
 ])
@@ -388,10 +393,14 @@ router.post('/generate', validateGenerateRequest, async (req, res) => {
   const clientModel = (req.body.options?.aiModel || '').trim()
   const model = (clientModel && ALLOWED_CLIENT_MODELS.has(clientModel)) ? clientModel : envModel
   const modelCandidates = buildModelCandidates(model)
-  const videoModelReq = (() => {
+  const rawVideoModel = (() => {
     const requested = (req.body.options?.videoModel || '').trim()
-    return (requested && ALLOWED_VIDEO_MODELS.has(requested)) ? requested : 'veo-3.1-generate-fast-001'
+    return (requested && ALLOWED_VIDEO_MODELS.has(requested)) ? requested : 'veo-3.1-generate-fast-001:1080p'
   })()
+  // Compound format is 'modelId:resolution' — split them out
+  const [videoModelReq, videoResolutionReq] = rawVideoModel.includes(':')
+    ? rawVideoModel.split(':')
+    : [rawVideoModel, '1080p']
 
   if (!apiKey && !vertexProject) {
     return res.status(500).json({ error: 'Server API key not configured. Set GEMINI_API_KEY or GOOGLE_API_KEY in environment variables.' })
@@ -523,7 +532,7 @@ router.post('/generate', validateGenerateRequest, async (req, res) => {
           base64Ref,
           videoModelReq,
           vertexProject,
-          vertexLocation
+          videoResolutionReq
         );
         video = `data:${videoResult.mimeType};base64,${videoResult.data}`
         console.log('Video generated successfully.')
