@@ -165,29 +165,8 @@ export function CustomizePage() {
             options={GARMENT_TYPES}
             value={options.garmentType}
             onChange={(v) => {
-              // Guandura / Abaya are full outfits — they can only be combined
-              // with shoes, jacket/coat, or a sweater (pull/doudoune).
-              // If user switches TO guandura or abaya from an incompatible type, reset.
-              const incompatibleWithRobe = ['top', 'dress', 'pants', 'skirt', 'shorts']
-              const robeTypes = ['guandura', 'abaya']
-              if (robeTypes.includes(v) && incompatibleWithRobe.includes(options.garmentType)) {
-                // switching to a robe — any previously selected incompatible item gets cleared
-                // (the robe itself IS the whole outfit, so we just set it)
-              }
-              if (!robeTypes.includes(v) && robeTypes.includes(options.garmentType)) {
-                // switching away from robe — nothing special needed
-              }
               setOption('garmentType', v)
             }}
-            disabledValues={
-              // When a robe-type (guandura/abaya) is already selected,
-              // disable incompatible items in OTHER selectors.
-              // But here we only have ONE garment selector,
-              // so we filter out guandura/abaya if an incompatible type is selected:
-              ['top', 'dress', 'pants', 'skirt', 'shorts'].includes(options.garmentType)
-                ? ['guandura', 'abaya']
-                : []
-            }
           />
 
           {(options.mode === 'model' || options.mode === 'both') && (

@@ -372,15 +372,14 @@ const ALLOWED_CLIENT_MODELS = new Set([
 ])
 
 const ALLOWED_VIDEO_MODELS = new Set([
-  'veo-3.1-generate-fast-001:1080p',
-  'veo-3.1-generate-fast-001:4k',
+  'veo-3.1-fast-generate-001:1080p',
+  'veo-3.1-fast-generate-001:4k',
   'veo-3.1-generate-001:1080p',
   'veo-3.1-generate-001:4k',
   // legacy bare IDs for backwards compat
   'veo-2.0-generate-001',
   'veo-3.0-generate-001',
   'veo-3.1-generate-001',
-  'veo-3.1-generate-fast-001',
 ])
 
 router.post('/generate', validateGenerateRequest, async (req, res) => {

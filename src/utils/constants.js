@@ -32,8 +32,8 @@ export const GARMENT_TYPES = [
   { value: 'skirt', label: 'Skirt' },
   { value: 'shorts', label: 'Shorts' },
   { value: 'shoes', label: 'Shoes / Sneakers' },
-  { value: 'sweater', label: 'Sweater' },
-  { value: 'jacket', label: 'Jacket / Coat' },
+  { value: 'sweater', label: 'Sweater / Pull' },
+  { value: 'jacket', label: 'Jacket / Doudoune' },
   { value: 'guandura', label: 'Guandura / Gandoura' },
   { value: 'abaya', label: 'Abaya' },
 ]
@@ -141,24 +141,24 @@ export const VIDEO_MODEL_OPTIONS = [
     recommended: true,
   },
   {
-    value: 'veo-3.1-generate-fast-001:1080p',
+    value: 'veo-3.1-fast-generate-001:1080p',
     label: 'Veo 3.1 Fast · 1080p',
-    sublabel: '⏳ Requires access — $0.10/sec (~$0.80/8s clip)',
+    sublabel: 'Best value — $0.10/sec (~$0.80/8s clip)',
   },
   {
-    value: 'veo-3.1-generate-fast-001:4k',
+    value: 'veo-3.1-fast-generate-001:4k',
     label: 'Veo 3.1 Fast · 4K',
-    sublabel: '⏳ Requires access — $0.30/sec (~$2.40/8s clip)',
+    sublabel: 'Ultra-HD fast — $0.30/sec (~$2.40/8s clip)',
   },
   {
     value: 'veo-3.1-generate-001:1080p',
     label: 'Veo 3.1 · 1080p',
-    sublabel: '⏳ Requires access — $0.20/sec (~$1.60/8s clip)',
+    sublabel: 'Max quality Full HD — $0.20/sec (~$1.60/8s clip)',
   },
   {
     value: 'veo-3.1-generate-001:4k',
     label: 'Veo 3.1 · 4K',
-    sublabel: '⏳ Requires access — $0.40/sec (~$3.20/8s clip)',
+    sublabel: 'Absolute maximum — $0.40/sec (~$3.20/8s clip)',
   },
 ]
 

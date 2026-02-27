@@ -188,6 +188,8 @@ export function buildVideoPrompt(options) {
     shoes: 'Close-up of feet walking on set, rotating the ankle to display all angles of the footwear.',
     sweater: 'Model walks forward, crosses arms briefly to show sleeve texture, then drops arms for a clean front view.',
     jacket: 'Model walks forward, opens and closes the jacket once to show the lining, adjusts the lapels mid-stride.',
+    guandura: 'Model walks with a slow, dignified pace, showing the elegant flow of the traditional dress with each step.',
+    abaya: 'Model walks gracefully, showcasing the modest drape and movement of the abaya fabric.',
   }
 
   return [
