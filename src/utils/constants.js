@@ -126,7 +126,7 @@ export const AI_MODEL_OPTIONS = [
   },
   {
     value: 'gemini-2.5-flash-image',
-    label: 'Gemini 1.5 Pro (Gen 2.5)',
+    label: 'Gemini 2.5 Flash Image',
     sublabel: 'Nano Banana · ~$0.134/img',
     recommended: false,
   },
