@@ -15,7 +15,7 @@ const DEFAULT_OPTIONS = {
   outputCount: '4',
   generateVideo: false,
   headwear: 'none',
-  videoModel: 'veo-3.1-generate-fast-001:1080p',
+  videoModel: 'veo-2.0-generate-001',
   useCache: true,
 }
 

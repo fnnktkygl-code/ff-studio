@@ -395,7 +395,7 @@ router.post('/generate', validateGenerateRequest, async (req, res) => {
   const modelCandidates = buildModelCandidates(model)
   const rawVideoModel = (() => {
     const requested = (req.body.options?.videoModel || '').trim()
-    return (requested && ALLOWED_VIDEO_MODELS.has(requested)) ? requested : 'veo-3.1-generate-fast-001:1080p'
+    return (requested && ALLOWED_VIDEO_MODELS.has(requested)) ? requested : 'veo-2.0-generate-001'
   })()
   // Compound format is 'modelId:resolution' — split them out
   const [videoModelReq, videoResolutionReq] = rawVideoModel.includes(':')
