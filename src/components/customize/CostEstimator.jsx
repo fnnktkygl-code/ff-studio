@@ -1,21 +1,30 @@
 import {
-  COST_PER_VIDEO_SECOND,
   getPricingProfile,
+  IMAGE_OUTPUT_TOKENS,
 } from '../../utils/constants'
 
-export function CostEstimator({ mode, generateVideo, outputCount = 4, aiModel }) {
-  const modelKey = aiModel || 'gemini-2.5-flash-image'
+export function CostEstimator({ mode, generateVideo, outputCount = 4, aiModel, imageResolution = '1K' }) {
+  const modelKey = aiModel || 'gemini-3.1-flash-image-preview'
   const profile = getPricingProfile(modelKey)
 
-  const imageCount = Math.max(1, Math.min(Number(outputCount || 4), 4))
-  const imageCost = imageCount * profile.imageCost
+  // In Both mode, 4 images means 4 model + 4 product = 8 images total
+  const baseCount = Math.max(1, Math.min(Number(outputCount || 4), 4))
+  const totalImageCount = mode === 'both' ? baseCount * 2 : baseCount
 
-  // Veo 2.0 generate pricing is approx $0.40/second. Default length is 8 seconds.
-  const videoCost = generateVideo ? 8 * 0.40 : 0
+  // Output Cost (Images)
+  // Get token count for the selected resolution (default 1120 for 1K/2K)
+  const tokensPerImage = IMAGE_OUTPUT_TOKENS[imageResolution] || IMAGE_OUTPUT_TOKENS['1K']
+  const totalOutputTokens = tokensPerImage * totalImageCount
+  const outputTokenRatePerToken = (profile.outputTokenCostMillion || 120) / 1000000
+  const imageCost = totalOutputTokens * outputTokenRatePerToken
 
-  const estimatedPromptChars = mode === 'both' ? imageCount * 1100 : imageCount * 900
+  const videoCost = 0 // Video disabled
+
+  // Input Cost (Prompts)
+  const estimatedPromptChars = mode === 'both' ? baseCount * 1100 : baseCount * 900
   const estimatedInputTokens = Math.ceil(estimatedPromptChars / 4)
-  const tokenCost = estimatedInputTokens * profile.inputTokenCost
+  const inputRatePerToken = (profile.inputTokenCostMillion || 2.00) / 1000000
+  const tokenCost = estimatedInputTokens * inputRatePerToken
 
   const total = imageCost + videoCost + tokenCost
 
@@ -26,14 +35,13 @@ export function CostEstimator({ mode, generateVideo, outputCount = 4, aiModel })
         <p className="text-sm font-bold theme-text">
           ~${total.toFixed(3)}
           <span className="theme-text-sec font-normal ml-1">
-            ({imageCount} image{imageCount > 1 ? 's' : ''}{generateVideo ? ' + video' : ''})
+            ({totalImageCount} image{totalImageCount > 1 ? 's' : ''})
           </span>
         </p>
       </div>
       <div className="text-[10px] theme-text-muted text-right">
-        <p>${profile.imageCost.toFixed(3)}/image</p>
-        {profile.inputTokenCost > 0 && <p>~${tokenCost.toFixed(4)} input tokens</p>}
-        {generateVideo && <p>$0.40/s video</p>}
+        {profile.outputTokenCostMillion > 0 && <p>~${(tokensPerImage * outputTokenRatePerToken).toFixed(3)}/image</p>}
+        {profile.inputTokenCostMillion > 0 && <p>~${tokenCost.toFixed(4)} input tokens</p>}
       </div>
     </div>
   )

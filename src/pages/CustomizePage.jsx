@@ -12,7 +12,7 @@ import { useImageUpload } from '../hooks/useImageUpload'
 import {
   MODEL_TYPES, ETHNICITIES, ENVIRONMENTS, GARMENT_TYPES,
   PRODUCT_STYLES, BRAND_STYLES, FABRICS, FITS, SIZES, TARGET_MARKETS, OUTPUT_COUNTS,
-  AI_MODEL_OPTIONS, HEADWEAR_OPTIONS, VIDEO_MODEL_OPTIONS,
+  AI_MODEL_OPTIONS, IMAGE_RESOLUTION_OPTIONS, HEADWEAR_OPTIONS, VIDEO_MODEL_OPTIONS,
 } from '../utils/constants'
 
 function SparklesIcon({ className }) {
@@ -135,6 +135,15 @@ export function CustomizePage() {
                 </button>
               )
             })}
+          </div>
+
+          <div className="mt-4">
+            <OptionSelector
+              label="Image Resolution"
+              options={IMAGE_RESOLUTION_OPTIONS}
+              value={options.imageResolution || '1K'}
+              onChange={(v) => setOption('imageResolution', v)}
+            />
           </div>
         </div>
 
@@ -305,6 +314,7 @@ export function CustomizePage() {
             generateVideo={options.generateVideo}
             outputCount={Number(options.outputCount || 4)}
             aiModel={options.aiModel}
+            imageResolution={options.imageResolution || '1K'}
           />
         </div>
       </div>

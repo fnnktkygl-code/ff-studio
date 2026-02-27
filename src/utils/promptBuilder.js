@@ -213,24 +213,14 @@ export function buildAllPrompts(options) {
 
   if (mode === 'model' || mode === 'both') {
     const modelPrompts = buildModelPrompts(options)
-    if (mode === 'both') {
-      const modelCount = Math.ceil(requestedCount / 2)
-      imagePrompts = [...imagePrompts, ...modelPrompts.slice(0, modelCount)]
-    } else {
-      imagePrompts = [...imagePrompts, ...modelPrompts.slice(0, requestedCount)]
-    }
+    imagePrompts = [...imagePrompts, ...modelPrompts.slice(0, requestedCount)]
   }
   if (mode === 'product' || mode === 'both') {
     const productPrompts = buildProductPrompts(options)
-    if (mode === 'both') {
-      const productCount = Math.floor(requestedCount / 2)
-      imagePrompts = [...imagePrompts, ...productPrompts.slice(0, productCount)]
-    } else {
-      imagePrompts = [...imagePrompts, ...productPrompts.slice(0, requestedCount)]
-    }
+    imagePrompts = [...imagePrompts, ...productPrompts.slice(0, requestedCount)]
   }
 
-  // Safety in case both mode split returns less than requestedCount
+  // Safety in case the slice returns less than requestedCount
   if (imagePrompts.length < requestedCount) {
     const modelPrompts = buildModelPrompts(options)
     const productPrompts = buildProductPrompts(options)
@@ -238,7 +228,10 @@ export function buildAllPrompts(options) {
     imagePrompts = [...imagePrompts, ...extra]
   }
 
-  imagePrompts = imagePrompts.slice(0, requestedCount)
+  // If mode is both, the total count should be 2 * requestedCount.
+  // We do not cap it at `requestedCount` overall if mode is both.
+  const maxTotal = (mode === 'both') ? requestedCount * 2 : requestedCount
+  imagePrompts = imagePrompts.slice(0, maxTotal)
 
   const videoPrompt = generateVideo && (mode === 'model' || mode === 'both')
     ? buildVideoPrompt(options)

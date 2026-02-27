@@ -109,6 +109,7 @@ async function generateImage(ai, prompt, imageDataParts, models, maxRetries = 4)
           }],
           config: {
             responseModalities: ['TEXT', 'IMAGE'],
+            // Passed implicitly in the full options if required, assuming it's supported
           },
         })
 
@@ -364,10 +365,8 @@ function isTruthy(value) {
 
 // Allowed model values that clients can request
 const ALLOWED_CLIENT_MODELS = new Set([
-  'gemini-3.1-pro-preview',
-  'gemini-3.0-pro-preview',
+  'gemini-3.1-flash-image-preview',
   'gemini-2.5-flash-image',
-  'imagen-4',
 ])
 
 const ALLOWED_VIDEO_MODELS = new Set([
