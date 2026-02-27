@@ -41,7 +41,7 @@ export const GARMENT_CATEGORIES = [
   { value: 'bottoms', label: 'Bottoms', emoji: '👖' },
   { value: 'dresses', label: 'Dresses', emoji: '👗' },
   { value: 'outerwear', label: 'Outerwear', emoji: '🧥' },
-  { value: 'traditional', label: 'Traditional', emoji: '🎌' },
+  { value: 'traditional', label: 'Traditional', emoji: '🌍' },
   { value: 'footwear', label: 'Footwear', emoji: '👟' },
   { value: 'accessories', label: 'Accessories', emoji: '👜' },
 ]
@@ -75,11 +75,11 @@ export const GARMENT_TYPES = [
   { value: 'cardigan', label: 'Cardigan', emoji: '🧶', category: 'outerwear', desc: 'Open-front knitwear' },
   { value: 'raincoat', label: 'Raincoat', emoji: '🌧️', category: 'outerwear', desc: 'Waterproof outer layer' },
   // Traditional
-  { value: 'guandura', label: 'Gandoura', emoji: '🎌', category: 'traditional', desc: 'North African robe' },
-  { value: 'abaya', label: 'Abaya', emoji: '🎌', category: 'traditional', desc: 'Full-length outer garment' },
-  { value: 'kaftan', label: 'Kaftan', emoji: '🎌', category: 'traditional', desc: 'Long flowing robe' },
-  { value: 'djellaba', label: 'Djellaba', emoji: '🎌', category: 'traditional', desc: 'Hooded robe' },
-  { value: 'boubou', label: 'Boubou', emoji: '🎌', category: 'traditional', desc: 'West African grand boubou' },
+  { value: 'guandura', label: 'Gandoura', emoji: '🌍', category: 'traditional', desc: 'North African robe' },
+  { value: 'abaya', label: 'Abaya', emoji: '🌍', category: 'traditional', desc: 'Full-length outer garment' },
+  { value: 'kaftan', label: 'Kaftan', emoji: '🌍', category: 'traditional', desc: 'Long flowing robe' },
+  { value: 'djellaba', label: 'Djellaba', emoji: '🌍', category: 'traditional', desc: 'Hooded robe' },
+  { value: 'boubou', label: 'Boubou', emoji: '🌍', category: 'traditional', desc: 'West African grand boubou' },
   // Footwear
   { value: 'shoes', label: 'Sneakers', emoji: '👟', category: 'footwear', desc: 'Athletic or casual shoes' },
   { value: 'heels', label: 'Heels', emoji: '👠', category: 'footwear', desc: 'Elevated formal shoes' },
