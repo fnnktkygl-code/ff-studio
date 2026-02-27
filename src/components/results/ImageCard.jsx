@@ -34,7 +34,7 @@ export function ImageCard({ src, index, onClick, onDownload, onRegenerate }) {
         className="w-full h-full object-cover"
         loading="lazy"
       />
-      <div className="absolute top-2 right-2 flex gap-1">
+      <div className="absolute top-2 right-2 flex gap-1 z-10">
         <button
           onClick={(e) => {
             e.stopPropagation()
