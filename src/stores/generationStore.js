@@ -38,8 +38,10 @@ export const useGenerationStore = create((set) => ({
   receipt: null,
   error: null,
   abortController: null,
+  isFromHistory: false,
 
   // Actions
+  setIsFromHistory: (isFromHistory) => set({ isFromHistory }),
   addImage: (imageData) =>
     set((state) => ({
       images: state.images.length < 4 ? [...state.images, imageData] : state.images,

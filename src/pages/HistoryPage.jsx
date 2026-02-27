@@ -44,9 +44,11 @@ export function HistoryPage() {
   const setResults = useGenerationStore((s) => s.setResults)
   const setVideoResult = useGenerationStore((s) => s.setVideoResult)
   const setReceipt = useGenerationStore((s) => s.setReceipt)
+  const setIsFromHistory = useGenerationStore((s) => s.setIsFromHistory)
   const toast = useToast()
 
   const handleViewGeneration = (gen) => {
+    setIsFromHistory(true)
     setResults(gen.results || [])
     if (gen.videoResult) setVideoResult(gen.videoResult)
     if (gen.receipt) setReceipt(gen.receipt)
