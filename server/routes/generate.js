@@ -323,8 +323,8 @@ async function generateVideoViaVertexVeo(prompt, imageBase64, modelInput, vertex
   let operation = await ai.models.generateVideos(params);
   console.log(`Veo LRO started: ${operation.name}`);
 
-  // Step 2: poll until done (max 3 minutes)
-  const maxAttempts = 18; // 18 × 10s = 3 minutes
+  // Step 2: poll until done (max 10 minutes)
+  const maxAttempts = 60; // 60 × 10s = 10 minutes
   for (let attempt = 0; attempt < maxAttempts; attempt++) {
     await sleep(10000);
     operation = await ai.operations.getVideosOperation({ operation });
@@ -333,7 +333,7 @@ async function generateVideoViaVertexVeo(prompt, imageBase64, modelInput, vertex
   }
 
   if (!operation.done) {
-    throw new Error('Video generation timed out after 3 minutes');
+    throw new Error('Video generation timed out after 10 minutes');
   }
   if (operation.error) {
     throw new Error(`Veo operation failed: ${JSON.stringify(operation.error)}`);
@@ -399,7 +399,7 @@ router.post('/generate', validateGenerateRequest, async (req, res) => {
   // Compound format is 'modelId:resolution' — split them out
   const [videoModelReq, videoResolutionReq] = rawVideoModel.includes(':')
     ? rawVideoModel.split(':')
-    : [rawVideoModel, '1080p']
+    : [rawVideoModel, rawVideoModel.includes('veo-3') ? '1080p' : '720p']
 
   if (!apiKey && !vertexProject) {
     return res.status(500).json({ error: 'Server API key not configured. Set GEMINI_API_KEY or GOOGLE_API_KEY in environment variables.' })
