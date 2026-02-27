@@ -27,6 +27,7 @@ export function useGenerate() {
     const generationController = new AbortController()
     abortRef.current = generationController
     store.getState().setAbortController(generationController)
+    store.getState().setIsFromHistory(false)
 
     store.getState().setStatus('generating')
     store.getState().setProgress(0, PROGRESS_MESSAGES[0])

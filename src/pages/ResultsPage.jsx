@@ -61,9 +61,11 @@ export function ResultsPage() {
   const { saveToHistory } = useHistory()
   const toast = useToast()
 
+  const isFromHistory = useGenerationStore((s) => s.isFromHistory)
+
   // Auto-save to history
   useEffect(() => {
-    if (results.length > 0 && !saved) {
+    if (results.length > 0 && !saved && !isFromHistory) {
       saveToHistory({
         options,
         results,
@@ -72,7 +74,7 @@ export function ResultsPage() {
       })
       setSaved(true)
     }
-  }, [results, saved, saveToHistory, options, videoResult, receipt])
+  }, [results, saved, saveToHistory, options, videoResult, receipt, isFromHistory])
 
   // Redirect if no results
   useEffect(() => {
