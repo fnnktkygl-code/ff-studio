@@ -218,7 +218,7 @@ export function CustomizePage() {
               {/* Hijab / Headwear: Hide or disable for skirts and shorts */}
               {!['skirt', 'shorts'].includes(options.garmentType) && (
                 <DropdownPicker
-                  label="Headwear (Modesty)"
+                  label="Headwear Styling"
                   options={HEADWEAR_OPTIONS}
                   value={options.headwear}
                   onChange={(v) => setOption('headwear', v)}

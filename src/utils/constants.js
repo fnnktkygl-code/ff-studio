@@ -180,7 +180,7 @@ export const AI_MODEL_OPTIONS = [
 
 export const HEADWEAR_OPTIONS = [
   { value: 'none', label: 'No Headwear', emoji: '👤', desc: 'Natural hair display' },
-  { value: 'hijab', label: 'Hijab / Modest Cover', emoji: '🧕', desc: 'Secure modest head cover' },
+  { value: 'hijab', label: 'Hijab / Traditional Wrap', emoji: '🧕', desc: 'Secure head wrap cover' },
 ]
 
 export const VIDEO_MODEL_OPTIONS = [
