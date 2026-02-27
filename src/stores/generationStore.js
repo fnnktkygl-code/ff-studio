@@ -12,7 +12,7 @@ const DEFAULT_OPTIONS = {
   fit: 'regular',
   size: 'm',
   targetMarket: 'global',
-  outputCount: '4',
+  outputCount: '2',
   generateVideo: false,
   headwear: 'none',
   videoModel: 'veo-2.0-generate-001',

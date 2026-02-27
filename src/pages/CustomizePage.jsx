@@ -13,6 +13,7 @@ import {
   MODEL_TYPES, ETHNICITIES, ENVIRONMENTS, GARMENT_TYPES,
   PRODUCT_STYLES, BRAND_STYLES, FABRICS, FITS, SIZES, TARGET_MARKETS, OUTPUT_COUNTS,
   AI_MODEL_OPTIONS, IMAGE_RESOLUTION_OPTIONS, HEADWEAR_OPTIONS, VIDEO_MODEL_OPTIONS,
+  getPricingProfile, IMAGE_OUTPUT_TOKENS,
 } from '../utils/constants'
 
 function SparklesIcon({ className }) {
@@ -114,6 +115,16 @@ export function CustomizePage() {
           <div className="grid grid-cols-2 gap-2">
             {AI_MODEL_OPTIONS.map((model) => {
               const isActive = options.aiModel === model.value
+
+              const currentRes = options.imageResolution || '1K'
+              const tokensPerImage = IMAGE_OUTPUT_TOKENS[currentRes] || 1120
+              const profile = getPricingProfile(model.value)
+              const rate = profile ? profile.outputTokenCostMillion / 1000000 : 0
+              const costPerImg = tokensPerImage * rate
+
+              const prefix = model.sublabel.split('·')[0].trim()
+              const dynamicSublabel = `${prefix} · ~$${costPerImg.toFixed(3)}/img`
+
               return (
                 <button
                   key={model.value}
@@ -131,7 +142,7 @@ export function CustomizePage() {
                   <span className={`text-xs font-bold ${isActive ? 'text-brand-dark' : 'theme-text'}`}>
                     {model.label}
                   </span>
-                  <span className={`text-[10px] ${isActive ? 'text-brand-dark/70' : 'theme-text-sec'}`}>{model.sublabel}</span>
+                  <span className={`text-[10px] ${isActive ? 'text-brand-dark/70' : 'theme-text-sec'}`}>{dynamicSublabel}</span>
                 </button>
               )
             })}
@@ -144,6 +155,11 @@ export function CustomizePage() {
               value={options.imageResolution || '1K'}
               onChange={(v) => setOption('imageResolution', v)}
             />
+            {options.imageResolution && options.imageResolution !== '1K' && (
+              <p className="text-[10px] text-amber-600 bg-amber-50 border border-amber-200 rounded-md px-2 py-1.5 mt-2 block w-full">
+                💡 1K is usually recommended for optimal speed and cost-effectiveness.
+              </p>
+            )}
           </div>
         </div>
 
