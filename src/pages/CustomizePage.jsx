@@ -3,6 +3,7 @@ import { Header } from '../components/layout/Header'
 import { PageTransition } from '../components/layout/PageTransition'
 import { Button } from '../components/common/Button'
 import { OptionSelector } from '../components/customize/OptionSelector'
+import { GarmentPicker } from '../components/customize/GarmentPicker'
 import { GenerationModeToggle } from '../components/customize/GenerationModeToggle'
 import { CostEstimator } from '../components/customize/CostEstimator'
 import { ImagePreview } from '../components/upload/ImagePreview'
@@ -10,7 +11,7 @@ import { useGenerationStore } from '../stores/generationStore'
 import { useGenerate } from '../hooks/useGenerate'
 import { useImageUpload } from '../hooks/useImageUpload'
 import {
-  MODEL_TYPES, ETHNICITIES, ENVIRONMENTS, GARMENT_TYPES,
+  MODEL_TYPES, ETHNICITIES, ENVIRONMENTS,
   PRODUCT_STYLES, BRAND_STYLES, FABRICS, FITS, SIZES, TARGET_MARKETS, OUTPUT_COUNTS,
   AI_MODEL_OPTIONS, IMAGE_RESOLUTION_OPTIONS, HEADWEAR_OPTIONS, VIDEO_MODEL_OPTIONS,
   getPricingProfile, IMAGE_OUTPUT_TOKENS,
@@ -185,13 +186,15 @@ export function CustomizePage() {
 
         {/* Core Options */}
         <div className="space-y-5">
-          <OptionSelector
-            label="Garment Type"
-            options={GARMENT_TYPES}
+          <GarmentPicker
             value={options.garmentType}
-            onChange={(v) => {
-              setOption('garmentType', v)
-            }}
+            onChange={(v) => setOption('garmentType', v)}
+            disabledValues={
+              // abaya / guandura / djellaba / kaftan / boubou can only be worn with compatible bottoms/footwear
+              ['model', 'both'].includes(options.mode)
+                ? []
+                : []
+            }
           />
 
           {(options.mode === 'model' || options.mode === 'both') && (
