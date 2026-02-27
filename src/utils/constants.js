@@ -35,18 +35,64 @@ export const ENVIRONMENT_DESCRIPTIONS = {
   'beach': 'Sandy beach setting with ocean background, soft warm sunlight, relaxed resort photography style',
 }
 
-export const GARMENT_TYPES = [
-  { value: 'top', label: 'Shirt / Top' },
-  { value: 'dress', label: 'Dress' },
-  { value: 'pants', label: 'Pants' },
-  { value: 'skirt', label: 'Skirt' },
-  { value: 'shorts', label: 'Shorts' },
-  { value: 'shoes', label: 'Shoes / Sneakers' },
-  { value: 'sweater', label: 'Sweater / Pull' },
-  { value: 'jacket', label: 'Jacket / Doudoune' },
-  { value: 'guandura', label: 'Guandura / Gandoura' },
-  { value: 'abaya', label: 'Abaya' },
+export const GARMENT_CATEGORIES = [
+  { value: 'all', label: 'All', emoji: '✨' },
+  { value: 'tops', label: 'Tops', emoji: '👕' },
+  { value: 'bottoms', label: 'Bottoms', emoji: '👖' },
+  { value: 'dresses', label: 'Dresses', emoji: '👗' },
+  { value: 'outerwear', label: 'Outerwear', emoji: '🧥' },
+  { value: 'traditional', label: 'Traditional', emoji: '🎌' },
+  { value: 'footwear', label: 'Footwear', emoji: '👟' },
+  { value: 'accessories', label: 'Accessories', emoji: '👜' },
 ]
+
+export const GARMENT_TYPES = [
+  // Tops
+  { value: 'shirt', label: 'Shirt', emoji: '👔', category: 'tops', desc: 'Classic woven top' },
+  { value: 'tshirt', label: 'T-Shirt', emoji: '👕', category: 'tops', desc: 'Casual knit cotton' },
+  { value: 'polo', label: 'Polo', emoji: '👕', category: 'tops', desc: 'Sporty knit collar' },
+  { value: 'blouse', label: 'Blouse', emoji: '👚', category: 'tops', desc: 'Elegant feminine top' },
+  { value: 'tanktop', label: 'Tank Top', emoji: '🩱', category: 'tops', desc: 'Sleeveless summer top' },
+  { value: 'croptop', label: 'Crop Top', emoji: '👕', category: 'tops', desc: 'Short midriff-baring top' },
+  // Bottoms
+  { value: 'pants', label: 'Pants', emoji: '👖', category: 'bottoms', desc: 'Formal trousers' },
+  { value: 'jeans', label: 'Jeans', emoji: '👖', category: 'bottoms', desc: 'Denim trousers' },
+  { value: 'chinos', label: 'Chinos', emoji: '🟤', category: 'bottoms', desc: 'Casual twill pants' },
+  { value: 'shorts', label: 'Shorts', emoji: '🩳', category: 'bottoms', desc: 'Short trousers' },
+  { value: 'skirt', label: 'Skirt', emoji: '👗', category: 'bottoms', desc: 'Classic skirt' },
+  { value: 'miniskirt', label: 'Mini Skirt', emoji: '👗', category: 'bottoms', desc: 'Short above-knee skirt' },
+  // Dresses
+  { value: 'dress', label: 'Dress', emoji: '👗', category: 'dresses', desc: 'Casual everyday dress' },
+  { value: 'eveningdress', label: 'Evening Dress', emoji: '👘', category: 'dresses', desc: 'Formal gala dress' },
+  { value: 'maxidress', label: 'Maxi Dress', emoji: '👗', category: 'dresses', desc: 'Floor-length dress' },
+  { value: 'jumpsuit', label: 'Jumpsuit', emoji: '🧶', category: 'dresses', desc: 'One-piece full outfit' },
+  // Outerwear
+  { value: 'jacket', label: 'Jacket', emoji: '🧥', category: 'outerwear', desc: 'Classic jacket' },
+  { value: 'doudoune', label: 'Puffer / Doudoune', emoji: '🧥', category: 'outerwear', desc: 'Quilted padded jacket' },
+  { value: 'blazer', label: 'Blazer', emoji: '🧥', category: 'outerwear', desc: 'Tailored formal jacket' },
+  { value: 'hoodie', label: 'Hoodie', emoji: '🧥', category: 'outerwear', desc: 'Hooded sweatshirt' },
+  { value: 'sweater', label: 'Sweater / Pull', emoji: '🧶', category: 'outerwear', desc: 'Warm knitwear' },
+  { value: 'cardigan', label: 'Cardigan', emoji: '🧶', category: 'outerwear', desc: 'Open-front knitwear' },
+  { value: 'raincoat', label: 'Raincoat', emoji: '🌧️', category: 'outerwear', desc: 'Waterproof outer layer' },
+  // Traditional
+  { value: 'guandura', label: 'Gandoura', emoji: '🎌', category: 'traditional', desc: 'North African robe' },
+  { value: 'abaya', label: 'Abaya', emoji: '🎌', category: 'traditional', desc: 'Full-length outer garment' },
+  { value: 'kaftan', label: 'Kaftan', emoji: '🎌', category: 'traditional', desc: 'Long flowing robe' },
+  { value: 'djellaba', label: 'Djellaba', emoji: '🎌', category: 'traditional', desc: 'Hooded robe' },
+  { value: 'boubou', label: 'Boubou', emoji: '🎌', category: 'traditional', desc: 'West African grand boubou' },
+  // Footwear
+  { value: 'shoes', label: 'Sneakers', emoji: '👟', category: 'footwear', desc: 'Athletic or casual shoes' },
+  { value: 'heels', label: 'Heels', emoji: '👠', category: 'footwear', desc: 'Elevated formal shoes' },
+  { value: 'boots', label: 'Boots', emoji: '👢', category: 'footwear', desc: 'Ankle or knee-high boots' },
+  { value: 'sandals', label: 'Sandals', emoji: '🩴', category: 'footwear', desc: 'Open-toe summer shoes' },
+  { value: 'loafers', label: 'Loafers', emoji: '👞', category: 'footwear', desc: 'Slip-on leather shoes' },
+  // Accessories
+  { value: 'bag', label: 'Bag / Purse', emoji: '👜', category: 'accessories', desc: 'Handbag or shoulder bag' },
+  { value: 'cap', label: 'Cap / Hat', emoji: '🧢', category: 'accessories', desc: 'Head wear' },
+  { value: 'belt', label: 'Belt', emoji: '👔', category: 'accessories', desc: 'Waist accessory' },
+  { value: 'scarf', label: 'Scarf', emoji: '🧣', category: 'accessories', desc: 'Neck wrap accessory' },
+]
+
 
 export const PRODUCT_STYLES = [
   { value: 'ghost-mannequin', label: 'Ghost Mannequin' },
