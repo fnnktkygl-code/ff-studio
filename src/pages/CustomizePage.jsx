@@ -17,7 +17,7 @@ import {
   PRODUCT_STYLES, BRAND_STYLES, FABRICS, FITS, SIZES, TARGET_MARKETS, OUTPUT_COUNTS,
   AI_MODEL_OPTIONS, IMAGE_RESOLUTION_OPTIONS, HEADWEAR_OPTIONS, VIDEO_MODEL_OPTIONS,
   getPricingProfile, IMAGE_OUTPUT_TOKENS,
-} from '../utils/constants'
+} from '../utils/constants.jsx'
 
 function SparklesIcon({ className }) {
   return (
