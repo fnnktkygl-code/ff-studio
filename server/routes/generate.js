@@ -370,6 +370,14 @@ const ALLOWED_CLIENT_MODELS = new Set([
   'imagen-4-ultra',
 ])
 
+const ALLOWED_VIDEO_MODELS = new Set([
+  'veo-2.0-generate-001',
+  'veo-3.0-generate-001',
+  'veo-3.0-generate-fast-001',
+  'veo-3.1-generate-001',
+  'veo-3.1-generate-fast-001',
+])
+
 router.post('/generate', validateGenerateRequest, async (req, res) => {
   const apiKey = getApiKey()
   const vertexProject = getVertexProject()
@@ -380,7 +388,10 @@ router.post('/generate', validateGenerateRequest, async (req, res) => {
   const clientModel = (req.body.options?.aiModel || '').trim()
   const model = (clientModel && ALLOWED_CLIENT_MODELS.has(clientModel)) ? clientModel : envModel
   const modelCandidates = buildModelCandidates(model)
-  const videoModelReq = (req.body.options?.videoModel || '').trim() || 'veo-2.0-generate-001'
+  const videoModelReq = (() => {
+    const requested = (req.body.options?.videoModel || '').trim()
+    return (requested && ALLOWED_VIDEO_MODELS.has(requested)) ? requested : 'veo-3.1-generate-fast-001'
+  })()
 
   if (!apiKey && !vertexProject) {
     return res.status(500).json({ error: 'Server API key not configured. Set GEMINI_API_KEY or GOOGLE_API_KEY in environment variables.' })
