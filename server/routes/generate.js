@@ -364,11 +364,10 @@ function isTruthy(value) {
 
 // Allowed model values that clients can request
 const ALLOWED_CLIENT_MODELS = new Set([
+  'gemini-3.1-pro-preview',
+  'gemini-3.0-pro-preview',
   'gemini-2.5-flash-image',
-  'gemini-2.5-flash-image-preview',
-  'imagen-4-fast',
   'imagen-4',
-  'imagen-4-ultra',
 ])
 
 const ALLOWED_VIDEO_MODELS = new Set([

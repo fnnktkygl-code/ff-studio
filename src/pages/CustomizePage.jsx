@@ -274,54 +274,27 @@ export function CustomizePage() {
 
         {/* Video Options */}
         {(options.mode === 'model' || options.mode === 'both') && (
-          <div className="mt-6 pt-6 border-t border-slate-200">
-            <div className="flex items-center justify-between p-4 theme-card border theme-border shadow-sm rounded-2xl mb-4">
+          <div className="mt-6 pt-6 border-t border-slate-200 opacity-60">
+            <div className="flex items-center justify-between p-4 theme-card border theme-border shadow-sm rounded-2xl mb-4 relative overflow-hidden">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-brand-light/30 rounded-full flex items-center justify-center">
-                  <FilmIcon className="w-5 h-5 text-brand" />
+                <div className="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center">
+                  <FilmIcon className="w-5 h-5 text-slate-400" />
                 </div>
                 <div>
-                  <p className="font-bold theme-text text-sm">Cinematic Video</p>
-                  <p className="text-[10px] theme-text-sec">Animate the best image generated</p>
+                  <div className="flex items-center gap-2">
+                    <p className="font-bold text-slate-400 text-sm">Cinematic Video</p>
+                    <span className="text-[8px] font-black uppercase tracking-tighter bg-slate-200 text-slate-500 px-1.5 py-0.5 rounded">Maintenance</span>
+                  </div>
+                  <p className="text-[10px] text-slate-400">Temporarily unavailable during model update</p>
                 </div>
               </div>
               <button
-                onClick={() => setOption('generateVideo', !options.generateVideo)}
-                className={`w-12 h-7 rounded-full transition-colors relative ${options.generateVideo ? 'bg-gradient-to-r from-brand-dark to-brand' : 'bg-slate-200'
-                  }`}
+                disabled
+                className="w-12 h-7 rounded-full transition-colors relative bg-slate-200 cursor-not-allowed"
               >
-                <div className={`w-5 h-5 bg-white rounded-full absolute top-1 transition-transform shadow ${options.generateVideo ? 'translate-x-6' : 'translate-x-1'
-                  }`} />
+                <div className="w-5 h-5 bg-white rounded-full absolute top-1 transition-transform shadow translate-x-1" />
               </button>
             </div>
-
-            {options.generateVideo && (
-              <div className="grid grid-cols-1 gap-2">
-                {VIDEO_MODEL_OPTIONS.map((model) => {
-                  const isActive = options.videoModel === model.value
-                  return (
-                    <button
-                      key={model.value}
-                      onClick={() => setOption('videoModel', model.value)}
-                      className={`relative flex flex-col items-start gap-0.5 p-3 rounded-2xl border transition-all text-left ${isActive
-                        ? 'bg-brand/10 border-brand/40 shadow-sm shadow-brand/10'
-                        : 'theme-card theme-border hover:opacity-80'
-                        }`}
-                    >
-                      {model.recommended && (
-                        <span className="absolute top-2 right-2 text-[9px] font-bold text-brand uppercase tracking-wider">
-                          ★ Best
-                        </span>
-                      )}
-                      <span className={`text-xs font-bold ${isActive ? 'text-brand-dark' : 'theme-text'}`}>
-                        {model.label}
-                      </span>
-                      <span className={`text-[10px] ${isActive ? 'text-brand-dark/70' : 'theme-text-sec'}`}>{model.sublabel}</span>
-                    </button>
-                  )
-                })}
-              </div>
-            )}
           </div>
         )}
 
