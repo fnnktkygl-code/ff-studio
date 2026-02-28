@@ -1,4 +1,12 @@
 import React from 'react';
+import AsosLogo from '../assets/brands/asos.png';
+import GucciLogo from '../assets/brands/gucci.png';
+import HMLogo from '../assets/brands/hm.png';
+import NikeLogo from '../assets/brands/nike.png';
+import RalphLaurenLogo from '../assets/brands/ralph_lauren.png';
+import ZaraLogo from '../assets/brands/zara.png';
+
+const brandImageClass = "w-full h-full object-contain mix-blend-multiply dark:invert dark:mix-blend-screen opacity-90";
 
 // Generic: Sparkles
 export const IconGeneric = (props) => (
@@ -8,44 +16,32 @@ export const IconGeneric = (props) => (
     </svg>
 );
 
-// Zara: 'Z'
+// Zara
 export const IconZara = (props) => (
-    <svg viewBox="0 0 24 24" fill="currentColor" className="w-full h-full" {...props}>
-        <text x="50%" y="54%" dominantBaseline="middle" textAnchor="middle" fontFamily="Times New Roman, serif" fontSize="22" fontWeight="bold">Z</text>
-    </svg>
+    <img src={ZaraLogo} alt="Zara" className={brandImageClass} {...props} />
 );
 
-// Ralph Lauren: 'RL'
+// Ralph Lauren
 export const IconRalphLauren = (props) => (
-    <svg viewBox="0 0 24 24" fill="currentColor" className="w-full h-full" {...props}>
-        <text x="50%" y="54%" dominantBaseline="middle" textAnchor="middle" fontFamily="Times New Roman, serif" fontSize="16" letterSpacing="-1" fontStyle="italic" fontWeight="bold">RL</text>
-    </svg>
+    <img src={RalphLaurenLogo} alt="Ralph Lauren" className={brandImageClass} {...props} />
 );
 
-// H&M: 'H&M'
+// H&M
 export const IconHM = (props) => (
-    <svg viewBox="0 0 24 24" fill="currentColor" className="w-full h-full" {...props}>
-        <text x="50%" y="54%" dominantBaseline="middle" textAnchor="middle" fontFamily="Impact, Arial Black, sans-serif" fontSize="12" fontWeight="900" letterSpacing="-0.5">H&amp;M</text>
-    </svg>
+    <img src={HMLogo} alt="H&M" className={brandImageClass} {...props} />
 );
 
-// Nike: Swoosh Path
+// Nike
 export const IconNike = (props) => (
-    <svg viewBox="0 0 24 24" fill="currentColor" className="w-full h-full" {...props}>
-        <path d="M22.54 7.42C19.26 10.84 14.37 13.53 9.4 13.53C5.52 13.53 3.1 11.42 2.65 8.31C2.5 7.32 2.65 6.21 3.01 5.25C1.16 7.14 0.17 10.13 0.82 13.17C1.48 16.23 4.14 19.01 9.06 19.01C14.39 19.01 19.06 16.56 23.36 11.82C23.63 11.53 23.86 11.22 24.08 10.88C23.64 9.66 23.13 8.52 22.54 7.42Z" />
-    </svg>
+    <img src={NikeLogo} alt="Nike" className={brandImageClass} {...props} />
 );
 
-// ASOS: 'asos'
+// ASOS
 export const IconAsos = (props) => (
-    <svg viewBox="0 0 24 24" fill="currentColor" className="w-full h-full" {...props}>
-        <text x="50%" y="54%" dominantBaseline="middle" textAnchor="middle" fontFamily="Helvetica, Arial, sans-serif" fontSize="11" fontWeight="900" letterSpacing="-0.5">asos</text>
-    </svg>
+    <img src={AsosLogo} alt="ASOS" className={brandImageClass} {...props} />
 );
 
-// Gucci: 'G'
+// Gucci
 export const IconGucci = (props) => (
-    <svg viewBox="0 0 24 24" fill="currentColor" className="w-full h-full" {...props}>
-        <text x="50%" y="54%" dominantBaseline="middle" textAnchor="middle" fontFamily="Times New Roman, serif" fontSize="22" fontWeight="normal">G</text>
-    </svg>
+    <img src={GucciLogo} alt="Gucci" className={brandImageClass} {...props} />
 );
