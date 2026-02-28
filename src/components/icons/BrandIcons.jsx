@@ -1,10 +1,10 @@
 import React from 'react';
-import AsosLogo from '../assets/brands/asos.png';
-import GucciLogo from '../assets/brands/gucci.png';
-import HMLogo from '../assets/brands/hm.png';
-import NikeLogo from '../assets/brands/nike.png';
-import RalphLaurenLogo from '../assets/brands/ralph_lauren.png';
-import ZaraLogo from '../assets/brands/zara.png';
+import AsosLogo from '../../assets/brands/asos.png';
+import GucciLogo from '../../assets/brands/gucci.png';
+import HMLogo from '../../assets/brands/hm.png';
+import NikeLogo from '../../assets/brands/nike.png';
+import RalphLaurenLogo from '../../assets/brands/ralph_lauren.png';
+import ZaraLogo from '../../assets/brands/zara.png';
 
 const brandImageClass = "w-full h-full object-contain mix-blend-multiply dark:invert dark:mix-blend-screen opacity-90";
 
