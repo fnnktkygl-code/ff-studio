@@ -1,12 +1,61 @@
 // ─── AppIcons.jsx ─────────────────────────────────────────────────────────────
 // All custom SVG icons for the fashion e-com app.
-// Each component accepts optional `size` (default 20) and `color` (default currentColor).
+// Props: size (default 20), color (CSS color string, inherits by default).
+// aria-hidden="true" by default (decorative). Pass aria-hidden={undefined} +
+// role="img" + aria-label="…" when the icon is the sole accessible label.
 
-const I = ({ size = 20, children, viewBox = "0 0 20 20" }) => (
-  <svg width={size} height={size} viewBox={viewBox} fill="none" xmlns="http://www.w3.org/2000/svg">
+const I = ({ size = 20, color, children, ...rest }) => (
+  <svg
+    width={size} height={size}
+    viewBox="0 0 20 20"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    aria-hidden="true"
+    {...(color ? { style: { color } } : {})}
+    {...rest}
+  >
     {children}
   </svg>
 );
+
+// ─── PRE-COMPUTED GEOMETRY ────────────────────────────────────────────────────
+// Static icons never change — compute sin/cos once at module load, not per render.
+
+const _asianDots = [0,72,144,216,288].map(deg => ({
+  cx: 10 + 4 * Math.cos((deg - 90) * Math.PI / 180),
+  cy: 10 + 4 * Math.sin((deg - 90) * Math.PI / 180),
+}));
+const _asianLines = [0,60,120,180,240,300].map(deg => ({
+  x2: 10 + 3 * Math.cos((deg - 90) * Math.PI / 180),
+  y2: 10 + 3 * Math.sin((deg - 90) * Math.PI / 180),
+}));
+
+const _caucSpokes = [0,30,60,90,120,150].map(deg => {
+  const r = deg * Math.PI / 180;
+  return { x1: 10-6*Math.cos(r), y1: 10-6*Math.sin(r), x2: 10+6*Math.cos(r), y2: 10+6*Math.sin(r) };
+});
+const _caucBranches = [0,30,60,90,120,150].flatMap((deg, i) =>
+  [deg-30, deg+30].map((a, j) => {
+    const mr = deg * Math.PI / 180, br = a * Math.PI / 180;
+    const bx = 10 + 4*Math.cos(mr), by = 10 + 4*Math.sin(mr);
+    return { key: `${i}${j}`, x1: bx, y1: by, x2: bx+1.8*Math.cos(br), y2: by+1.8*Math.sin(br) };
+  })
+);
+
+const _natureSunRays = [0,45,90,135].map(d => {
+  const r = d * Math.PI / 180;
+  return { x1: 15+2.8*Math.cos(r), y1: 5+2.8*Math.sin(r), x2: 15+3.8*Math.cos(r), y2: 5+3.8*Math.sin(r) };
+});
+
+const _beachSunRays = [0,45,90,135,180,225,270,315].map(d => {
+  const r = d * Math.PI / 180;
+  return { x1: 10+3.3*Math.cos(r), y1: 6+3.3*Math.sin(r), x2: 10+4.2*Math.cos(r), y2: 6+4.2*Math.sin(r) };
+});
+
+const _westAfricaRays = [0,90,180,270].map(d => {
+  const r = d * Math.PI / 180;
+  return { x1: 10+4*Math.cos(r), y1: 10+4*Math.sin(r), x2: 10+5.5*Math.cos(r), y2: 10+5.5*Math.sin(r) };
+});
 
 // ─── ETHNICITIES ──────────────────────────────────────────────────────────────
 
@@ -24,15 +73,13 @@ export const IconDiverse = ({ size = 20 }) => (
 
 export const IconAsian = ({ size = 20 }) => (
   <I size={size}>
-    {[0,72,144,216,288].map((deg,i)=>{
-      const cx=10+4*Math.cos((deg-90)*Math.PI/180), cy=10+4*Math.sin((deg-90)*Math.PI/180);
-      return <circle key={i} cx={cx} cy={cy} r="2.4" fill="#E8B4C8" opacity="0.85"/>;
-    })}
+    {_asianDots.map(({ cx, cy }, i) => (
+      <circle key={i} cx={cx} cy={cy} r="2.4" fill="#E8B4C8" opacity="0.85"/>
+    ))}
     <circle cx="10" cy="10" r="2" fill="#F5E6EF"/>
-    {[0,60,120,180,240,300].map((deg,i)=>{
-      const x2=10+3*Math.cos((deg-90)*Math.PI/180), y2=10+3*Math.sin((deg-90)*Math.PI/180);
-      return <line key={i} x1="10" y1="10" x2={x2} y2={y2} stroke="#D4A0B8" strokeWidth="0.6"/>;
-    })}
+    {_asianLines.map(({ x2, y2 }, i) => (
+      <line key={i} x1="10" y1="10" x2={x2} y2={y2} stroke="#D4A0B8" strokeWidth="0.6"/>
+    ))}
   </I>
 );
 
@@ -50,17 +97,12 @@ export const IconBlack = ({ size = 20 }) => (
 
 export const IconCaucasian = ({ size = 20 }) => (
   <I size={size}>
-    {[0,30,60,90,120,150].map((deg,i)=>{
-      const r=deg*Math.PI/180;
-      return <line key={i} x1={10-6*Math.cos(r)} y1={10-6*Math.sin(r)} x2={10+6*Math.cos(r)} y2={10+6*Math.sin(r)} stroke="#A8D8EA" strokeWidth="1" strokeLinecap="round"/>;
-    })}
-    {[0,30,60,90,120,150].map((deg,i)=>
-      [deg-30,deg+30].map((a,j)=>{
-        const mr=deg*Math.PI/180, br=a*Math.PI/180;
-        const bx=10+4*Math.cos(mr), by=10+4*Math.sin(mr);
-        return <line key={`${i}${j}`} x1={bx} y1={by} x2={bx+1.8*Math.cos(br)} y2={by+1.8*Math.sin(br)} stroke="#A8D8EA" strokeWidth="0.7" strokeLinecap="round" opacity="0.7"/>;
-      })
-    )}
+    {_caucSpokes.map(({ x1, y1, x2, y2 }, i) => (
+      <line key={i} x1={x1} y1={y1} x2={x2} y2={y2} stroke="#A8D8EA" strokeWidth="1" strokeLinecap="round"/>
+    ))}
+    {_caucBranches.map(({ key, x1, y1, x2, y2 }) => (
+      <line key={key} x1={x1} y1={y1} x2={x2} y2={y2} stroke="#A8D8EA" strokeWidth="0.7" strokeLinecap="round" opacity="0.7"/>
+    ))}
     <circle cx="10" cy="10" r="1.4" fill="#E8F4F8"/>
   </I>
 );
@@ -224,10 +266,9 @@ export const IconNature = ({ size = 20 }) => (
   <I size={size}>
     {/* sun */}
     <circle cx="15" cy="5" r="2" fill="none" stroke="currentColor" strokeWidth="1.1"/>
-    {[0,45,90,135].map((d,i)=>{
-      const r=d*Math.PI/180;
-      return <line key={i} x1={15+2.8*Math.cos(r)} y1={5+2.8*Math.sin(r)} x2={15+3.8*Math.cos(r)} y2={5+3.8*Math.sin(r)} stroke="currentColor" strokeWidth="0.9" strokeLinecap="round" opacity="0.6"/>;
-    })}
+    {_natureSunRays.map(({ x1, y1, x2, y2 }, i) => (
+      <line key={i} x1={x1} y1={y1} x2={x2} y2={y2} stroke="currentColor" strokeWidth="0.9" strokeLinecap="round" opacity="0.6"/>
+    ))}
     {/* hills */}
     <path d="M 1 16 Q 5 8 9 13 Q 13 7 19 13 L 19 18 L 1 18 Z"
       fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round"/>
@@ -264,10 +305,9 @@ export const IconBeach = ({ size = 20 }) => (
       fill="none" stroke="currentColor" strokeWidth="0.8" strokeLinecap="round" opacity="0.5"/>
     {/* sun */}
     <circle cx="10" cy="6" r="2.5" fill="none" stroke="currentColor" strokeWidth="1.2"/>
-    {[0,45,90,135,180,225,270,315].map((d,i)=>{
-      const r=d*Math.PI/180;
-      return <line key={i} x1={10+3.3*Math.cos(r)} y1={6+3.3*Math.sin(r)} x2={10+4.2*Math.cos(r)} y2={6+4.2*Math.sin(r)} stroke="currentColor" strokeWidth="0.8" strokeLinecap="round" opacity="0.5"/>;
-    })}
+    {_beachSunRays.map(({ x1, y1, x2, y2 }, i) => (
+      <line key={i} x1={x1} y1={y1} x2={x2} y2={y2} stroke="currentColor" strokeWidth="0.8" strokeLinecap="round" opacity="0.5"/>
+    ))}
   </I>
 );
 
@@ -555,9 +595,9 @@ export const IconFitCropped = ({ size = 20 }) => (
 
 export const IconFitLongline = ({ size = 20 }) => (
   <I size={size}>
-    <path d="M 8.5 2 L 11.5 2 L 13 19 L 7 19 Z"
+    <path d="M 8.5 2 L 11.5 2 L 13 18.5 L 7 18.5 Z"
       fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round"/>
-    <line x1="7" y1="19" x2="13" y2="19" stroke="currentColor" strokeWidth="1"/>
+    <line x1="7" y1="18.5" x2="13" y2="18.5" stroke="currentColor" strokeWidth="1"/>
   </I>
 );
 
@@ -659,10 +699,9 @@ export const IconMarketWestAfrica = ({ size = 20 }) => (
     {/* Adinkra Gye Nyame inspired */}
     <rect x="2" y="3" width="16" height="14" rx="1.5" fill="none" stroke="currentColor" strokeWidth="1.2"/>
     <circle cx="10" cy="10" r="4" fill="none" stroke="currentColor" strokeWidth="1"/>
-    {[0,90,180,270].map((d,i)=>{
-      const r=d*Math.PI/180;
-      return <line key={i} x1={10+4*Math.cos(r)} y1={10+4*Math.sin(r)} x2={10+5.5*Math.cos(r)} y2={10+5.5*Math.sin(r)} stroke="currentColor" strokeWidth="1" strokeLinecap="round" opacity="0.6"/>;
-    })}
+    {_westAfricaRays.map(({ x1, y1, x2, y2 }, i) => (
+      <line key={i} x1={x1} y1={y1} x2={x2} y2={y2} stroke="currentColor" strokeWidth="1" strokeLinecap="round" opacity="0.6"/>
+    ))}
   </I>
 );
 
@@ -769,14 +808,18 @@ export const IconBrandGucci = ({ size = 20 }) => (
 export const IconRes1K = ({ size = 20 }) => (
   <I size={size}>
     <rect x="3" y="4" width="14" height="12" rx="1.5" fill="none" stroke="currentColor" strokeWidth="1.2"/>
-    <text x="10" y="13" textAnchor="middle" fontSize="6" fill="currentColor" fontFamily="system-ui" fontWeight="700">1K</text>
+    {/* "1": angled-top vertical  "K": stem + two diagonals */}
+    <path d="M 6.5 8.5 L 7.5 7 L 7.5 13 M 9.5 7 L 9.5 13 M 9.5 10 L 12.5 7 M 9.5 10 L 12.5 13"
+      fill="none" stroke="currentColor" strokeWidth="1.1" strokeLinecap="round" strokeLinejoin="round"/>
   </I>
 );
 
 export const IconRes2K = ({ size = 20 }) => (
   <I size={size}>
     <rect x="2" y="3" width="16" height="14" rx="1.5" fill="none" stroke="currentColor" strokeWidth="1.3"/>
-    <text x="10" y="13.5" textAnchor="middle" fontSize="7" fill="currentColor" fontFamily="system-ui" fontWeight="700">2K</text>
+    {/* "2": arc top + diagonal base  "K": stem + two diagonals */}
+    <path d="M 6 8 Q 6 6.5 7.8 6.5 Q 9.5 6.5 9.5 8 Q 9.5 9.5 6 13.5 L 9.5 13.5 M 11 6.5 L 11 13.5 M 11 10 L 14.5 6.5 M 11 10 L 14.5 13.5"
+      fill="none" stroke="currentColor" strokeWidth="1.1" strokeLinecap="round" strokeLinejoin="round"/>
   </I>
 );
 
@@ -788,6 +831,8 @@ export const IconRes4K = ({ size = 20 }) => (
     <path d="M 19 6 L 19 2 L 15 2" stroke="currentColor" strokeWidth="1" opacity="0.5"/>
     <path d="M 1 14 L 1 18 L 5 18" stroke="currentColor" strokeWidth="1" opacity="0.5"/>
     <path d="M 19 14 L 19 18 L 15 18" stroke="currentColor" strokeWidth="1" opacity="0.5"/>
-    <text x="10" y="13.5" textAnchor="middle" fontSize="7" fill="currentColor" fontFamily="system-ui" fontWeight="700">4K</text>
+    {/* "4": diagonal + crossbar + vertical  "K": stem + two diagonals */}
+    <path d="M 9 6.5 L 5.5 12 L 11 12 M 9 6.5 L 9 14.5 M 12.5 6.5 L 12.5 14.5 M 12.5 10.5 L 16 6.5 M 12.5 10.5 L 16 14.5"
+      fill="none" stroke="currentColor" strokeWidth="1.1" strokeLinecap="round" strokeLinejoin="round"/>
   </I>
 );

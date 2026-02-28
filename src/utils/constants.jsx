@@ -104,14 +104,16 @@ export const PRODUCT_STYLES = [
   { value: 'folded', label: 'Folded', emoji: '📦', desc: 'Neatly folded garment' },
 ]
 
+import { IconGeneric, IconZara, IconRalphLauren, IconHM, IconNike, IconAsos, IconGucci } from '../components/icons/BrandIcons'
+
 export const BRAND_STYLES = [
-  { value: 'generic', label: 'Modern Generic', emoji: '✨', desc: 'Clean editorial style' },
-  { value: 'zara', label: 'Zara', emoji: '🏷️', desc: 'Minimalist European chic' },
-  { value: 'ralph-lauren', label: 'Ralph Lauren', emoji: '🐎', desc: 'Preppy American classic' },
-  { value: 'hm', label: 'H&M', emoji: '♻️', desc: 'Affordable fast fashion' },
-  { value: 'nike', label: 'Nike', emoji: '✔️', desc: 'Athletic sportswear' },
-  { value: 'asos', label: 'ASOS', emoji: '🌐', desc: 'Trendy online fashion' },
-  { value: 'gucci', label: 'Gucci', emoji: '🐍', desc: 'Luxury italic fashion' },
+  { value: 'generic', label: 'Modern Generic', emoji: <IconGeneric />, desc: 'Clean editorial style' },
+  { value: 'zara', label: 'Zara', emoji: <IconZara />, desc: 'Minimalist European chic' },
+  { value: 'ralph-lauren', label: 'Ralph Lauren', emoji: <IconRalphLauren />, desc: 'Preppy American classic' },
+  { value: 'hm', label: 'H&M', emoji: <IconHM />, desc: 'Affordable fast fashion' },
+  { value: 'nike', label: 'Nike', emoji: <IconNike />, desc: 'Athletic sportswear' },
+  { value: 'asos', label: 'ASOS', emoji: <IconAsos />, desc: 'Trendy online fashion' },
+  { value: 'gucci', label: 'Gucci', emoji: <IconGucci />, desc: 'Luxury italic fashion' },
 ]
 
 export const FABRICS = [
