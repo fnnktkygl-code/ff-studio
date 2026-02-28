@@ -6,7 +6,7 @@ import NikeLogo from '../../assets/brands/nike.png';
 import RalphLaurenLogo from '../../assets/brands/ralph_lauren.png';
 import ZaraLogo from '../../assets/brands/zara.png';
 
-const brandImageClass = "w-full h-full object-contain mix-blend-multiply dark:invert dark:mix-blend-screen opacity-90";
+const brandImageClass = "theme-brand-icon";
 
 // Generic: Sparkles
 export const IconGeneric = (props) => (
