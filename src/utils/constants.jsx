@@ -6,7 +6,6 @@ import {
 export const MODEL_TYPES = [
   { value: 'female', label: 'Female', emoji: '👩', desc: 'Female fashion model' },
   { value: 'male', label: 'Male', emoji: '👨', desc: 'Male fashion model' },
-  { value: 'kids', label: 'Kids', emoji: '🧒', desc: "Children's fashion" },
 ]
 
 export const ETHNICITIES = [
@@ -17,7 +16,7 @@ export const ETHNICITIES = [
   { value: 'hispanic', label: 'Hispanic', emoji: <IconHispanic />, desc: 'Latin American features' },
   { value: 'middle-eastern', label: 'Middle Eastern', emoji: <IconMiddleEastern />, desc: 'Middle Eastern features' },
   { value: 'south-asian', label: 'South Asian', emoji: <IconSouthAsian />, desc: 'Indian / Pakistani features' },
-  { value: 'algerian', label: 'Algerian / N. African', emoji: <IconNorthAfrican />, desc: 'North African Maghreb look' },
+  { value: 'algerian', label: 'North Africa', emoji: <IconNorthAfrican />, desc: 'North African Maghreb look' },
 ]
 
 export const ENVIRONMENTS = [
