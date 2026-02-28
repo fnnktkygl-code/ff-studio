@@ -16,8 +16,8 @@ export function Switch({ checked, onChange, label }) {
             role="switch"
             aria-label={label}
             className={`w-12 h-7 rounded-full transition-colors relative flex-shrink-0 ${checked
-                    ? 'bg-gradient-to-r from-brand-dark to-brand'
-                    : 'theme-input-bg border theme-border'
+                ? 'bg-[#ff6b81]'
+                : 'theme-input-bg border theme-border'
                 }`}
             style={{
                 // Fallback for non-tailwind theme vars if needed, but classes should handle mostly
