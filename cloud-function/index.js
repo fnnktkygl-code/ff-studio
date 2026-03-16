@@ -1,7 +1,13 @@
 import functions from '@google-cloud/functions-framework';
 
-const MODEL = 'gemini-2.5-flash-image';
+const DEFAULT_MODEL = 'gemini-2.5-flash-image';
 const API_KEY = process.env.VERTEX_API_KEY;
+
+const ALLOWED_MODELS = [
+  'gemini-3.1-flash-image-preview',
+  'gemini-3.0-pro-preview',
+  'gemini-2.5-flash-image',
+];
 
 const ALLOWED_ORIGINS = [
   'https://fnnktkygl-code.github.io',
@@ -33,13 +39,14 @@ functions.http('generate', async (req, res) => {
   }
 
   try {
-    const { prompt, imageDataParts } = req.body;
+    const { prompt, imageDataParts, model } = req.body;
 
     if (!prompt || !imageDataParts?.length) {
       return res.status(400).json({ error: 'Missing prompt or imageDataParts' });
     }
 
-    const url = `https://aiplatform.googleapis.com/v1/publishers/google/models/${MODEL}:generateContent?key=${API_KEY}`;
+    const selectedModel = ALLOWED_MODELS.includes(model) ? model : DEFAULT_MODEL;
+    const url = `https://aiplatform.googleapis.com/v1/publishers/google/models/${selectedModel}:generateContent?key=${API_KEY}`;
 
     const payload = {
       contents: [{

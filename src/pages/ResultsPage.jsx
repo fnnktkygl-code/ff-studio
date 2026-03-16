@@ -143,9 +143,10 @@ export function ResultsPage() {
         },
       }))
 
+      const selectedModel = options.aiModel || 'gemini-2.5-flash-image'
       const regenerated = useVertex
-        ? await vertexAICall(revisedPrompt, imageDataParts, { timeoutMs: 120000 })
-        : await directGeminiCall(apiKey, revisedPrompt, imageDataParts, { timeoutMs: 120000 })
+        ? await vertexAICall(revisedPrompt, imageDataParts, { timeoutMs: 120000, model: selectedModel })
+        : await directGeminiCall(apiKey, revisedPrompt, imageDataParts, { timeoutMs: 120000, model: selectedModel })
       if (!regenerated) {
         throw new Error('No regenerated image returned')
       }
