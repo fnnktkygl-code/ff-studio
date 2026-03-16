@@ -84,7 +84,7 @@ export function GeneratingPage() {
               transition={{ duration: 0.5, ease: 'easeOut' }}
             />
           </div>
-          <p className="text-[10px] text-slate-500 mt-2 font-mono">{Math.round(progress)}%</p>
+          <p className="text-[10px] mt-2 font-mono" style={{ color: 'var(--text-muted)' }}>{Math.round(progress)}%</p>
         </div>
 
         {/* Cancel */}

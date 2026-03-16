@@ -18,7 +18,8 @@ export function ReceiptView({ receipt }) {
     <div>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 px-3 py-1.5 bg-white border border-slate-200 rounded-full text-xs font-bold text-slate-600 hover:bg-slate-50 transition-colors"
+        className="flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold transition-colors hover:opacity-80"
+        style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border)', color: 'var(--text-secondary)' }}
       >
         <ReceiptIcon className="w-3.5 h-3.5" />
         <span>${receipt.total.toFixed(3)}</span>
@@ -32,17 +33,17 @@ export function ReceiptView({ receipt }) {
             exit={{ opacity: 0, height: 0 }}
             className="overflow-hidden"
           >
-            <div className="mt-3 p-4 bg-white rounded-2xl border border-slate-200 shadow-sm space-y-2">
-              <h3 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest pb-2 border-b border-slate-100">
+            <div className="mt-3 p-4 rounded-2xl shadow-sm space-y-2" style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border)' }}>
+              <h3 className="text-[10px] font-bold uppercase tracking-widest pb-2" style={{ color: 'var(--text-muted)', borderBottom: '1px solid var(--border-muted)' }}>
                 Generation Receipt
               </h3>
               {receipt.pricingModel && (
-                <div className="flex justify-between text-xs text-slate-500">
+                <div className="flex justify-between text-xs" style={{ color: 'var(--text-muted)' }}>
                   <span>Pricing model</span>
                   <span className="font-mono">{receipt.pricingModel}</span>
                 </div>
               )}
-              <div className="flex justify-between text-xs text-slate-500">
+              <div className="flex justify-between text-xs" style={{ color: 'var(--text-muted)' }}>
                 <span>Images ({receipt.imagesGenerated}x)</span>
                 <span className="font-mono">${receipt.imageCost.toFixed(4)}</span>
               </div>
@@ -52,11 +53,11 @@ export function ReceiptView({ receipt }) {
                   <span className="font-mono">${receipt.videoCost.toFixed(3)}</span>
                 </div>
               )}
-              <div className="flex justify-between text-xs text-slate-500">
+              <div className="flex justify-between text-xs" style={{ color: 'var(--text-muted)' }}>
                 <span>Tokens</span>
                 <span className="font-mono">${receipt.tokenCost.toFixed(5)}</span>
               </div>
-              <div className="flex justify-between text-sm font-bold text-slate-900 pt-2 border-t border-slate-100">
+              <div className="flex justify-between text-sm font-bold pt-2" style={{ color: 'var(--text-primary)', borderTop: '1px solid var(--border-muted)' }}>
                 <span>Total</span>
                 <span className="font-mono">${receipt.total.toFixed(3)}</span>
               </div>

@@ -81,7 +81,7 @@ export function CustomizePage() {
 
         {/* Source images */}
         <div className="mb-6">
-          <h3 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-3 px-1">
+          <h3 className="text-[10px] font-bold uppercase tracking-widest mb-3 px-1" style={{ color: 'var(--text-muted)' }}>
             Source Images ({images.length}/4)
           </h3>
           <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
@@ -159,7 +159,7 @@ export function CustomizePage() {
               onChange={(v) => setOption('imageResolution', v)}
             />
             {options.imageResolution && options.imageResolution !== '1K' && (
-              <p className="text-[10px] text-amber-600 bg-amber-50 border border-amber-200 rounded-md px-2 py-1.5 mt-2 block w-full">
+              <p className="text-[10px] text-amber-600 bg-amber-500/10 border border-amber-500/20 rounded-md px-2 py-1.5 mt-2 block w-full">
                 💡 1K is usually recommended for optimal speed and cost-effectiveness.
               </p>
             )}
@@ -249,7 +249,7 @@ export function CustomizePage() {
         </div>
 
         {/* Advanced Options */}
-        <div className="mt-8 pt-6 border-t border-slate-200 space-y-5">
+        <div className="mt-8 pt-6 space-y-5" style={{ borderTop: '1px solid var(--border)' }}>
           <div className="flex items-center gap-2 px-1 mb-2">
             <SparklesIcon className="w-4 h-4 text-brand" />
             <h3 className="text-xs font-bold uppercase tracking-widest theme-text-muted">Advanced</h3>
@@ -327,25 +327,26 @@ export function CustomizePage() {
 
         {/* Video Options */}
         {(options.mode === 'model' || options.mode === 'both') && (
-          <div className="mt-6 pt-6 border-t border-slate-200 opacity-60">
+          <div className="mt-6 pt-6 opacity-60" style={{ borderTop: '1px solid var(--border)' }}>
             <div className="flex items-center justify-between p-4 theme-card border theme-border shadow-sm rounded-2xl mb-4 relative overflow-hidden">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center">
-                  <FilmIcon className="w-5 h-5 text-slate-400" />
+                <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: 'var(--bg-elevated)' }}>
+                  <FilmIcon className="w-5 h-5" style={{ color: 'var(--text-muted)' }} />
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
-                    <p className="font-bold text-slate-400 text-sm">Cinematic Video</p>
-                    <span className="text-[8px] font-black uppercase tracking-tighter bg-slate-200 text-slate-500 px-1.5 py-0.5 rounded">Maintenance</span>
+                    <p className="font-bold text-sm" style={{ color: 'var(--text-muted)' }}>Cinematic Video</p>
+                    <span className="text-[8px] font-black uppercase tracking-tighter px-1.5 py-0.5 rounded" style={{ background: 'var(--bg-elevated)', color: 'var(--text-muted)' }}>Maintenance</span>
                   </div>
-                  <p className="text-[10px] text-slate-400">Temporarily unavailable during model update</p>
+                  <p className="text-[10px]" style={{ color: 'var(--text-muted)' }}>Temporarily unavailable during model update</p>
                 </div>
               </div>
               <button
                 disabled
-                className="w-12 h-7 rounded-full transition-colors relative bg-slate-200 cursor-not-allowed"
+                className="w-12 h-7 rounded-full transition-colors relative cursor-not-allowed"
+                style={{ background: 'var(--input-bg)', border: '1px solid var(--border)' }}
               >
-                <div className="w-5 h-5 bg-white rounded-full absolute top-1 transition-transform shadow translate-x-1" />
+                <div className="w-5 h-5 rounded-full absolute top-1 transition-transform shadow translate-x-1" style={{ background: 'var(--text-muted)' }} />
               </button>
             </div>
           </div>
