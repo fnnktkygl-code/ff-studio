@@ -1,7 +1,7 @@
 import { useCallback, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useGenerationStore } from '../stores/generationStore'
-import { directGeminiCall, getClientApiKey } from '../utils/api'
+import { vertexAICall, directGeminiCall, getClientApiKey, hasCloudFunction } from '../utils/api'
 import { buildAllPrompts } from '../utils/promptBuilder'
 import { COST_PER_VIDEO_SECOND, getPricingProfile } from '../utils/constants'
 import { useToast } from './useToast'
@@ -59,20 +59,26 @@ export function useGenerate() {
         },
       }))
 
-      // Direct Gemini API call (no server proxy needed)
       let generatedImages = []
       let videoResult = null
-      let modelUsed = 'gemini-2.5-flash-image-preview'
+      let modelUsed = 'gemini-2.5-flash-preview-05-20'
 
-      const apiKey = getClientApiKey()
-      if (!apiKey) {
+      const useVertex = hasCloudFunction()
+      const apiKey = useVertex ? null : getClientApiKey()
+
+      if (!useVertex && !apiKey) {
         throw new Error('No API key configured. Add your Gemini API key in Settings.')
       }
 
-      // Generate images one by one with direct API
+      // Generate images one by one
+      const generateOne = (prompt, parts, opts) =>
+        useVertex
+          ? vertexAICall(prompt, parts, opts)
+          : directGeminiCall(apiKey, prompt, parts, opts)
+
       const results = []
       for (let i = 0; i < imagePrompts.length; i++) {
-        const img = await directGeminiCall(apiKey, imagePrompts[i], imageDataParts, {
+        const img = await generateOne(imagePrompts[i], imageDataParts, {
           signal: generationController.signal,
           timeoutMs: 120000,
         })
@@ -84,9 +90,11 @@ export function useGenerate() {
       }
       generatedImages = results
 
+      if (!useVertex) modelUsed = 'gemini-2.5-flash-image-preview'
+
       if (videoPrompt) {
         store.getState().setProgress(88, 'Generating video...')
-        videoResult = await directGeminiCall(apiKey, videoPrompt, imageDataParts, {
+        videoResult = await generateOne(videoPrompt, imageDataParts, {
           signal: generationController.signal,
           timeoutMs: 120000,
         })

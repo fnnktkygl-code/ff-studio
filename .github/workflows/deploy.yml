@@ -29,6 +29,7 @@ jobs:
 
       - run: npm run build
         env:
+          VITE_CLOUD_FUNCTION_URL: ${{ secrets.VITE_CLOUD_FUNCTION_URL }}
           VITE_GEMINI_API_KEY: ${{ secrets.VITE_GEMINI_API_KEY }}
 
       - name: Copy 404.html for SPA routing
