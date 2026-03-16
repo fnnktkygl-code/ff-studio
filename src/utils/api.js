@@ -1,3 +1,5 @@
+const CLOUD_FUNCTION_URL = import.meta.env.VITE_CLOUD_FUNCTION_URL || ''
+
 function createRequestSignal(timeoutMs = 90000, externalSignal) {
   const controller = new AbortController()
   const timeoutId = setTimeout(() => controller.abort('timeout'), timeoutMs)
@@ -27,6 +29,67 @@ export function getClientApiKey() {
   return envKey || ''
 }
 
+export function hasCloudFunction() {
+  return !!CLOUD_FUNCTION_URL
+}
+
+/**
+ * Call the Vertex AI Cloud Function proxy.
+ * The Cloud Function handles auth via service account — no API key needed client-side.
+ */
+export async function vertexAICall(prompt, imageDataParts, options = {}) {
+  const { signal: externalSignal, timeoutMs = 120000 } = options
+
+  let retries = 3
+  let delay = 2000
+
+  while (retries > 0) {
+    const request = createRequestSignal(timeoutMs, externalSignal)
+    let response
+    try {
+      response = await fetch(CLOUD_FUNCTION_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt, imageDataParts }),
+        signal: request.signal,
+      })
+    } catch (e) {
+      if (e?.name === 'AbortError') {
+        const error = new Error(externalSignal?.aborted ? 'Generation canceled.' : 'Request timed out. Please try again.')
+        error.code = externalSignal?.aborted ? 'REQUEST_ABORTED' : 'REQUEST_TIMEOUT'
+        throw error
+      }
+      throw e
+    } finally {
+      request.clear()
+    }
+
+    const result = await response.json()
+
+    if (result.error) {
+      if (response.status === 429 && retries > 1) {
+        retries--
+        await new Promise(r => setTimeout(r, delay))
+        delay *= 2
+        continue
+      }
+      throw new Error(result.error)
+    }
+
+    if (!result.image) {
+      throw new Error('No image generated')
+    }
+
+    return result.image
+  }
+
+  throw new Error('Max retries exceeded')
+}
+
+/**
+ * Direct Gemini API call (fallback when no Cloud Function is configured).
+ * Requires a client-side API key.
+ */
 export async function directGeminiCall(apiKey, prompt, imageDataParts, options = {}) {
   const { signal: externalSignal, timeoutMs = 90000 } = options
   const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image-preview:generateContent?key=${apiKey}`

@@ -13,7 +13,7 @@ import { useDownload } from '../hooks/useDownload'
 import { useShare } from '../hooks/useShare'
 import { useHistory } from '../hooks/useHistory'
 import { useToast } from '../hooks/useToast'
-import { directGeminiCall, getClientApiKey } from '../utils/api'
+import { vertexAICall, directGeminiCall, getClientApiKey, hasCloudFunction } from '../utils/api'
 import { buildAllPrompts, applyFeedbackToPrompt } from '../utils/promptBuilder'
 
 function DownloadIcon({ className }) {
@@ -129,8 +129,9 @@ export function ResultsPage() {
         return
       }
 
-      const apiKey = getClientApiKey()
-      if (!apiKey) {
+      const useVertex = hasCloudFunction()
+      const apiKey = useVertex ? null : getClientApiKey()
+      if (!useVertex && !apiKey) {
         throw new Error('No API key configured. Add your Gemini API key in Settings.')
       }
 
@@ -142,9 +143,9 @@ export function ResultsPage() {
         },
       }))
 
-      const regenerated = await directGeminiCall(apiKey, revisedPrompt, imageDataParts, {
-        timeoutMs: 120000,
-      })
+      const regenerated = useVertex
+        ? await vertexAICall(revisedPrompt, imageDataParts, { timeoutMs: 120000 })
+        : await directGeminiCall(apiKey, revisedPrompt, imageDataParts, { timeoutMs: 120000 })
       if (!regenerated) {
         throw new Error('No regenerated image returned')
       }
