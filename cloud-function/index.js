@@ -1,19 +1,13 @@
 import functions from '@google-cloud/functions-framework';
-import { GoogleAuth } from 'google-auth-library';
 
-const PROJECT_ID = 'ff-lady-vampire-studio';
-const LOCATION = 'us-central1';
-const MODEL = 'gemini-3.1-flash-image-preview';
+const MODEL = 'gemini-2.5-flash-image';
+const API_KEY = process.env.VERTEX_API_KEY;
 
 const ALLOWED_ORIGINS = [
   'https://fnnktkygl-code.github.io',
   'http://localhost:5173',
   'http://localhost:4173',
 ];
-
-const auth = new GoogleAuth({
-  scopes: ['https://www.googleapis.com/auth/cloud-platform'],
-});
 
 function corsHeaders(req) {
   const origin = req.headers.origin || '';
@@ -45,10 +39,7 @@ functions.http('generate', async (req, res) => {
       return res.status(400).json({ error: 'Missing prompt or imageDataParts' });
     }
 
-    const client = await auth.getClient();
-    const accessToken = (await client.getAccessToken()).token;
-
-    const url = `https://${LOCATION}-aiplatform.googleapis.com/v1beta1/projects/${PROJECT_ID}/locations/${LOCATION}/publishers/google/models/${MODEL}:generateContent`;
+    const url = `https://aiplatform.googleapis.com/v1/publishers/google/models/${MODEL}:generateContent?key=${API_KEY}`;
 
     const payload = {
       contents: [{
@@ -65,10 +56,7 @@ functions.http('generate', async (req, res) => {
 
     const response = await fetch(url, {
       method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${accessToken}`,
-        'Content-Type': 'application/json',
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
     });
 
