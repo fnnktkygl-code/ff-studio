@@ -48,7 +48,7 @@ functions.http('generate', async (req, res) => {
     const client = await auth.getClient();
     const accessToken = (await client.getAccessToken()).token;
 
-    const url = `https://${LOCATION}-aiplatform.googleapis.com/v1/projects/${PROJECT_ID}/locations/${LOCATION}/publishers/google/models/${MODEL}:generateContent`;
+    const url = `https://${LOCATION}-aiplatform.googleapis.com/v1beta1/projects/${PROJECT_ID}/locations/${LOCATION}/publishers/google/models/${MODEL}:generateContent`;
 
     const payload = {
       contents: [{
