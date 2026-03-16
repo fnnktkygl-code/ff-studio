@@ -22,14 +22,14 @@ export function InstallBanner() {
           exit={{ opacity: 0, y: 100 }}
           className="fixed bottom-20 left-4 right-4 z-50 max-w-lg mx-auto"
         >
-          <div className="bg-surface-elevated/95 backdrop-blur-xl border border-white/10 rounded-2xl p-4 shadow-2xl">
+          <div className="backdrop-blur-xl rounded-2xl p-4 shadow-2xl" style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border)' }}>
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-dark to-brand flex items-center justify-center shrink-0">
                 <DownloadIcon className="w-5 h-5 text-white" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-bold text-white">Install Lady Vampire Studio</p>
-                <p className="text-xs text-slate-400">Add to home screen for the best experience</p>
+                <p className="text-sm font-bold" style={{ color: 'var(--text-primary)' }}>Install Lady Vampire Studio</p>
+                <p className="text-xs" style={{ color: 'var(--text-muted)' }}>Add to home screen for the best experience</p>
               </div>
             </div>
             <div className="flex gap-2 mt-3">

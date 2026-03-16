@@ -60,7 +60,7 @@ export function FullscreenViewer({ images, initialIndex = 0, onClose }) {
           >
             <XIcon className="w-5 h-5" />
           </button>
-          <span className="text-xs text-slate-400 font-bold">
+          <span className="text-xs font-bold" style={{ color: 'var(--text-muted)' }}>
             {currentIndex + 1} / {images.length}
           </span>
           <div className="w-10" />

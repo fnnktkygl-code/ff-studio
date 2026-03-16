@@ -28,7 +28,7 @@ export function VideoPlayer({ src }) {
     <>
       <div className="space-y-3">
         <div className="flex items-center justify-between px-1">
-          <h3 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+          <h3 className="text-[10px] font-bold uppercase tracking-widest" style={{ color: 'var(--text-muted)' }}>
             Video Preview
           </h3>
           <span className="text-[9px] font-bold bg-brand-dark/20 text-brand px-2 py-0.5 rounded-full uppercase tracking-wider">
@@ -38,7 +38,8 @@ export function VideoPlayer({ src }) {
 
         <button
           onClick={() => setIsPlaying(true)}
-          className="relative w-full rounded-2xl overflow-hidden bg-surface-elevated aspect-video group active:scale-[0.98] transition-transform"
+          className="relative w-full rounded-2xl overflow-hidden aspect-video group active:scale-[0.98] transition-transform"
+          style={{ background: 'var(--bg-elevated)' }}
         >
           <img
             src={src}

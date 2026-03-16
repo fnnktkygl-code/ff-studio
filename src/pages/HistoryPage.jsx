@@ -113,7 +113,8 @@ export function HistoryPage() {
               <button
                 key={gen.id}
                 onClick={() => handleViewGeneration(gen)}
-                className="relative rounded-2xl overflow-hidden bg-surface-elevated aspect-[3/4] group active:scale-[0.97] transition-transform text-left"
+                className="relative rounded-2xl overflow-hidden aspect-[3/4] group active:scale-[0.97] transition-transform text-left"
+                style={{ background: 'var(--bg-elevated)' }}
               >
                 {gen.results?.[0] ? (
                   <img
@@ -123,7 +124,7 @@ export function HistoryPage() {
                     loading="lazy"
                   />
                 ) : (
-                  <div className="w-full h-full bg-surface-elevated" />
+                  <div className="w-full h-full" style={{ background: 'var(--bg-elevated)' }} />
                 )}
 
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
