@@ -66,7 +66,7 @@ const sectionStyle = {
 
 export function SettingsPage() {
   const [apiKey, setApiKey] = useState('')
-  const [serverStatus, setServerStatus] = useState('checking')
+  const hasKey = !!getClientApiKey()
   const { canInstall, isInstalled, promptInstall } = usePWAInstall()
   const { clearHistory, generations } = useHistory()
   const toast = useToast()
@@ -75,10 +75,6 @@ export function SettingsPage() {
 
   useEffect(() => {
     setApiKey(getClientApiKey())
-    fetch('/api/health')
-      .then(r => r.json())
-      .then(data => setServerStatus(data.hasAuth ? 'connected' : 'no-key'))
-      .catch(() => setServerStatus('offline'))
   }, [])
 
   const handleSaveApiKey = () => {
@@ -129,33 +125,18 @@ export function SettingsPage() {
           </div>
         </div>
 
-        {/* Server Status */}
-        <div style={sectionStyle} className="space-y-3">
-          <h3 className="text-xs font-bold uppercase tracking-widest" style={{ color: 'var(--text-label)' }}>Server Status</h3>
-          <div className="flex items-center gap-2">
-            <div className={`w-2 h-2 rounded-full ${serverStatus === 'connected' ? 'bg-emerald-400' :
-              serverStatus === 'no-key' ? 'bg-yellow-400' :
-                serverStatus === 'offline' ? 'bg-red-400' :
-                  'bg-slate-500 animate-pulse'
-              }`} />
-            <span className="text-sm" style={{ color: 'var(--text-secondary)' }}>
-              {serverStatus === 'connected' && 'Connected with API key'}
-              {serverStatus === 'no-key' && 'Server running, no API key configured'}
-              {serverStatus === 'offline' && 'Server offline — using fallback mode'}
-              {serverStatus === 'checking' && 'Checking...'}
-            </span>
-          </div>
-        </div>
-
-        {/* API Key Fallback */}
+        {/* API Key */}
         <div style={sectionStyle} className="space-y-3">
           <div className="flex items-center gap-2">
             <KeyIcon className="w-4 h-4 text-brand" />
-            <h3 className="text-xs font-bold uppercase tracking-widest" style={{ color: 'var(--text-label)' }}>Fallback API Key</h3>
+            <h3 className="text-xs font-bold uppercase tracking-widest" style={{ color: 'var(--text-label)' }}>Gemini API Key</h3>
           </div>
-          <p className="text-[11px]" style={{ color: 'var(--text-muted)' }}>
-            Used when the proxy server is unavailable. Your key is stored locally on this device only.
-          </p>
+          <div className="flex items-center gap-2">
+            <div className={`w-2 h-2 rounded-full ${hasKey ? 'bg-emerald-400' : 'bg-red-400'}`} />
+            <span className="text-[11px]" style={{ color: 'var(--text-muted)' }}>
+              {hasKey ? 'API key configured' : 'No API key — generation will not work'}
+            </span>
+          </div>
           <div className="flex gap-2">
             <input
               type="password"
