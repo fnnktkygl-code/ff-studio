@@ -1,7 +1,7 @@
 import { useCallback, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useGenerationStore } from '../stores/generationStore'
-import { apiPost, directGeminiCall, getClientApiKey } from '../utils/api'
+import { directGeminiCall, getClientApiKey } from '../utils/api'
 import { buildAllPrompts } from '../utils/promptBuilder'
 import { COST_PER_VIDEO_SECOND, getPricingProfile } from '../utils/constants'
 import { useToast } from './useToast'
@@ -59,77 +59,37 @@ export function useGenerate() {
         },
       }))
 
-      // Try proxy server first, fallback to direct API
+      // Direct Gemini API call (no server proxy needed)
       let generatedImages = []
       let videoResult = null
-      let modelUsed = null
+      let modelUsed = 'gemini-2.5-flash-image-preview'
 
-      try {
-        // Attempt via proxy server
-        const response = await apiPost('/generate', {
-          images: images.map((img) => ({
-            data: img.base64.split(',')[1],
-            mimeType: 'image/jpeg',
-          })),
-          prompts: imagePrompts,
-          videoPrompt,
-          options,
-        }, {
+      const apiKey = getClientApiKey()
+      if (!apiKey) {
+        throw new Error('No API key configured. Add your Gemini API key in Settings.')
+      }
+
+      // Generate images one by one with direct API
+      const results = []
+      for (let i = 0; i < imagePrompts.length; i++) {
+        const img = await directGeminiCall(apiKey, imagePrompts[i], imageDataParts, {
           signal: generationController.signal,
-          timeoutMs: 300000, // 5 min to accommodate Veo LRO polling (up to 3 min)
+          timeoutMs: 120000,
         })
-        generatedImages = response.images || []
-        videoResult = response.video || null
-        modelUsed = response.modelUsed || null
+        results.push(img)
+        store.getState().setProgress(
+          Math.round(((i + 1) / imagePrompts.length) * 85),
+          `Generated ${i + 1} of ${imagePrompts.length}...`
+        )
+      }
+      generatedImages = results
 
-        // Show toast if video was requested but failed server-side
-        if (videoPrompt && !videoResult && response.videoError) {
-          toast.error(`Video: ${response.videoError}`)
-        }
-      } catch (serverErr) {
-        // Surface server-side errors directly (auth/config/model/etc.)
-        // Only fallback to direct API when the server is unreachable.
-        const isAuthError = serverErr.authError
-          || serverErr.status === 401
-          || serverErr.status === 403
-          || serverErr.message?.includes('Authentication failed')
-          || serverErr.message?.includes('Invalid API key')
-          || serverErr.message?.includes('API key not valid')
-        const isNetworkError = serverErr.code === 'NETWORK_ERROR' || serverErr.status === 0
-
-        if (isAuthError || !isNetworkError) {
-          throw new Error(serverErr.message || 'Server authentication failed. Check your API key configuration.')
-        }
-
-        // Fallback: direct Gemini API call (settings key or VITE_GEMINI_API_KEY)
-        const apiKey = getClientApiKey()
-        if (!apiKey) {
-          throw new Error('Server unavailable. Start backend with npm run dev:all, or add Gemini API key in Settings.')
-        }
-
-        // Generate images one by one with direct API
-        const results = []
-        for (let i = 0; i < imagePrompts.length; i++) {
-          const img = await directGeminiCall(apiKey, imagePrompts[i], imageDataParts, {
-            signal: generationController.signal,
-            timeoutMs: 120000,
-          })
-          results.push(img)
-          store.getState().setProgress(
-            Math.round(((i + 1) / imagePrompts.length) * 85),
-            `Generated ${i + 1} of ${imagePrompts.length}...`
-          )
-        }
-        generatedImages = results
-        modelUsed = 'gemini-2.5-flash-image-preview'
-
-        if (videoPrompt) {
-          store.getState().setProgress(88, 'Generating video...')
-          videoResult = await directGeminiCall(apiKey, videoPrompt, imageDataParts, {
-            signal: generationController.signal,
-            timeoutMs: 120000,
-          })
-        }
+      if (videoPrompt) {
+        store.getState().setProgress(88, 'Generating video...')
+        videoResult = await directGeminiCall(apiKey, videoPrompt, imageDataParts, {
+          signal: generationController.signal,
+          timeoutMs: 120000,
+        })
       }
 
       clearInterval(messageInterval)

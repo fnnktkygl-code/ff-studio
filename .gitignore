@@ -26,3 +26,7 @@ dist-ssr
 # Environment
 .env
 dev-dist
+
+# Google Cloud service account keys
+*-*.json
+neon-polymer-*.json

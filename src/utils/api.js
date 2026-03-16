@@ -1,5 +1,3 @@
-const API_BASE = '/api'
-
 function createRequestSignal(timeoutMs = 90000, externalSignal) {
   const controller = new AbortController()
   const timeoutId = setTimeout(() => controller.abort('timeout'), timeoutMs)
@@ -27,45 +25,6 @@ export function getClientApiKey() {
 
   const envKey = (import.meta.env.VITE_GEMINI_API_KEY || '').trim()
   return envKey || ''
-}
-
-export async function apiPost(path, body, options = {}) {
-  const { signal: externalSignal, timeoutMs = 90000 } = options
-  const request = createRequestSignal(timeoutMs, externalSignal)
-  let res
-  try {
-    res = await fetch(`${API_BASE}${path}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
-      signal: request.signal,
-    })
-  } catch (e) {
-    if (e?.name === 'AbortError') {
-      const error = new Error(externalSignal?.aborted ? 'Generation canceled.' : 'Request timed out. Please try again.')
-      error.code = externalSignal?.aborted ? 'REQUEST_ABORTED' : 'REQUEST_TIMEOUT'
-      error.status = 0
-      throw error
-    }
-
-    const error = new Error('Network error: could not reach server.')
-    error.code = 'NETWORK_ERROR'
-    error.status = 0
-    throw error
-  } finally {
-    request.clear()
-  }
-
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({ error: `HTTP ${res.status}` }))
-    const error = new Error(err.error || `Request failed: ${res.status}`)
-    error.status = res.status
-    error.code = err.code || null
-    error.authError = !!err.authError
-    throw error
-  }
-
-  return res.json()
 }
 
 export async function directGeminiCall(apiKey, prompt, imageDataParts, options = {}) {
