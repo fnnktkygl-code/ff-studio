@@ -38,7 +38,7 @@ export function hasCloudFunction() {
  * The Cloud Function handles auth via service account — no API key needed client-side.
  */
 export async function vertexAICall(prompt, imageDataParts, options = {}) {
-  const { signal: externalSignal, timeoutMs = 120000 } = options
+  const { signal: externalSignal, timeoutMs = 120000, model } = options
 
   let retries = 3
   let delay = 2000
@@ -50,7 +50,7 @@ export async function vertexAICall(prompt, imageDataParts, options = {}) {
       response = await fetch(CLOUD_FUNCTION_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt, imageDataParts }),
+        body: JSON.stringify({ prompt, imageDataParts, model }),
         signal: request.signal,
       })
     } catch (e) {
@@ -91,8 +91,9 @@ export async function vertexAICall(prompt, imageDataParts, options = {}) {
  * Requires a client-side API key.
  */
 export async function directGeminiCall(apiKey, prompt, imageDataParts, options = {}) {
-  const { signal: externalSignal, timeoutMs = 90000 } = options
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image-preview:generateContent?key=${apiKey}`
+  const { signal: externalSignal, timeoutMs = 90000, model } = options
+  const selectedModel = model || 'gemini-2.5-flash-image-preview'
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${selectedModel}:generateContent?key=${apiKey}`
 
   const payload = {
     contents: [{

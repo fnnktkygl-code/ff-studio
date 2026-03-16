@@ -61,7 +61,7 @@ export function useGenerate() {
 
       let generatedImages = []
       let videoResult = null
-      let modelUsed = 'gemini-2.5-flash-preview-05-20'
+      const selectedModel = options.aiModel || 'gemini-2.5-flash-image'
 
       const useVertex = hasCloudFunction()
       const apiKey = useVertex ? null : getClientApiKey()
@@ -73,8 +73,8 @@ export function useGenerate() {
       // Generate images one by one
       const generateOne = (prompt, parts, opts) =>
         useVertex
-          ? vertexAICall(prompt, parts, opts)
-          : directGeminiCall(apiKey, prompt, parts, opts)
+          ? vertexAICall(prompt, parts, { ...opts, model: selectedModel })
+          : directGeminiCall(apiKey, prompt, parts, { ...opts, model: selectedModel })
 
       const results = []
       for (let i = 0; i < imagePrompts.length; i++) {
@@ -90,7 +90,7 @@ export function useGenerate() {
       }
       generatedImages = results
 
-      if (!useVertex) modelUsed = 'gemini-2.5-flash-image-preview'
+      const modelUsed = selectedModel
 
       if (videoPrompt) {
         store.getState().setProgress(88, 'Generating video...')
