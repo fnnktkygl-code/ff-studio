@@ -3,7 +3,7 @@ import { GoogleAuth } from 'google-auth-library';
 
 const PROJECT_ID = 'ff-lady-vampire-studio';
 const LOCATION = 'us-central1';
-const MODEL = 'gemini-2.5-flash-preview-05-20';
+const MODEL = 'gemini-3.1-flash-image-preview';
 
 const ALLOWED_ORIGINS = [
   'https://fnnktkygl-code.github.io',
