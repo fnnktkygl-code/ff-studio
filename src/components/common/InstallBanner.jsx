@@ -28,7 +28,7 @@ export function InstallBanner() {
                 <DownloadIcon className="w-5 h-5 text-white" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-bold" style={{ color: 'var(--text-primary)' }}>Install Lady Vampire Studio</p>
+                <p className="text-sm font-bold" style={{ color: 'var(--text-primary)' }}>Install Fatma Shooting Studio</p>
                 <p className="text-xs" style={{ color: 'var(--text-muted)' }}>Add to home screen for the best experience</p>
               </div>
             </div>

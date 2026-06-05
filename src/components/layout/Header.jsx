@@ -54,7 +54,7 @@ export function Header({ title, showBack = false, onBack, rightAction, className
             onClick={handleLogoClick}
             className="w-8 h-8 rounded-lg bg-gradient-to-br from-brand-dark to-brand flex items-center justify-center hover:opacity-90 transition-opacity"
           >
-            <span className="text-white font-extrabold text-sm">L</span>
+            <span className="text-white font-extrabold text-sm">F</span>
           </button>
         )}
       </div>
@@ -63,7 +63,7 @@ export function Header({ title, showBack = false, onBack, rightAction, className
         className="flex-1 text-center text-xs font-bold tracking-[0.2em] uppercase"
         style={{ color: 'var(--text-primary)' }}
       >
-        {title || 'Lady Vampire Studio'}
+        {title || 'Fatma Shooting Studio'}
       </h1>
 
       <div className="w-10 flex items-center justify-end">

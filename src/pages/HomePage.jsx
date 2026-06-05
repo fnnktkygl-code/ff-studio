@@ -42,7 +42,7 @@ export function HomePage() {
             <span className="text-[10px] font-bold text-brand uppercase tracking-widest">Professional</span>
           </div>
           <h2 className="text-2xl font-extrabold" style={{ color: 'var(--text-primary)' }}>
-            Lady Vampire Studio
+            Fatma Shooting Studio
           </h2>
           <p className="text-sm max-w-xs mx-auto" style={{ color: 'var(--text-secondary)' }}>
             Upload your garment and generate professional e-commerce photos instantly
