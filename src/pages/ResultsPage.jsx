@@ -7,11 +7,14 @@ import { ImageGallery } from '../components/results/ImageGallery'
 import { FullscreenViewer } from '../components/results/FullscreenViewer'
 import { ReceiptView } from '../components/results/ReceiptView'
 import { VideoPlayer } from '../components/results/VideoPlayer'
+import { RegenerateModal } from '../components/results/RegenerateModal'
 import { useGenerationStore } from '../stores/generationStore'
 import { useDownload } from '../hooks/useDownload'
 import { useShare } from '../hooks/useShare'
 import { useHistory } from '../hooks/useHistory'
 import { useToast } from '../hooks/useToast'
+import { vertexAICall, directGeminiCall, getClientApiKey, hasCloudFunction } from '../utils/api'
+import { buildAllPrompts, applyFeedbackToPrompt } from '../utils/promptBuilder'
 
 function DownloadIcon({ className }) {
   return (
@@ -41,21 +44,28 @@ export function ResultsPage() {
   const navigate = useNavigate()
   const [viewerIndex, setViewerIndex] = useState(null)
   const [saved, setSaved] = useState(false)
+  // Regenerate modal state
+  const [regenModal, setRegenModal] = useState({ open: false, index: null })
+  const [isRegenerating, setIsRegenerating] = useState(false)
 
   const results = useGenerationStore((s) => s.results)
   const videoResult = useGenerationStore((s) => s.videoResult)
   const receipt = useGenerationStore((s) => s.receipt)
   const options = useGenerationStore((s) => s.options)
+  const sourceImages = useGenerationStore((s) => s.images)
+  const setResults = useGenerationStore((s) => s.setResults)
   const reset = useGenerationStore((s) => s.reset)
 
-  const { downloadAll } = useDownload()
+  const { downloadAll, downloadImage } = useDownload()
   const { canShare, shareAll } = useShare()
   const { saveToHistory } = useHistory()
   const toast = useToast()
 
+  const isFromHistory = useGenerationStore((s) => s.isFromHistory)
+
   // Auto-save to history
   useEffect(() => {
-    if (results.length > 0 && !saved) {
+    if (results.length > 0 && !saved && !isFromHistory) {
       saveToHistory({
         options,
         results,
@@ -64,7 +74,7 @@ export function ResultsPage() {
       })
       setSaved(true)
     }
-  }, [results, saved, saveToHistory, options, videoResult, receipt])
+  }, [results, saved, saveToHistory, options, videoResult, receipt, isFromHistory])
 
   // Redirect if no results
   useEffect(() => {
@@ -85,6 +95,74 @@ export function ResultsPage() {
     toast.success(`Downloading ${results.length} photos`)
   }
 
+  const handleDownloadOne = (index) => {
+    downloadImage(results[index], `ff-studio-${index + 1}.jpg`)
+    toast.success(`Downloading image ${index + 1}`)
+  }
+
+  const handleOpenRegenModal = (index) => {
+    setRegenModal({ open: true, index })
+  }
+
+  const handleCloseRegenModal = () => {
+    if (!isRegenerating) {
+      setRegenModal({ open: false, index: null })
+    }
+  }
+
+  const handleRegenerateOne = async (feedback) => {
+    const index = regenModal.index
+    if (index === null) return
+
+    if (sourceImages.length === 0) {
+      toast.error('Missing source images. Start a new generation.')
+      setRegenModal({ open: false, index: null })
+      return
+    }
+
+    setIsRegenerating(true)
+    try {
+      const { imagePrompts } = buildAllPrompts(options)
+      const basePrompt = imagePrompts[index] || imagePrompts[0]
+      if (!basePrompt) {
+        toast.error('No base prompt found for regeneration.')
+        return
+      }
+
+      const useVertex = hasCloudFunction()
+      const apiKey = useVertex ? null : getClientApiKey()
+      if (!useVertex && !apiKey) {
+        throw new Error('No API key configured. Add your Gemini API key in Settings.')
+      }
+
+      const revisedPrompt = feedback ? applyFeedbackToPrompt(basePrompt, feedback) : basePrompt
+      const imageDataParts = sourceImages.map((img) => ({
+        inlineData: {
+          mimeType: 'image/jpeg',
+          data: img.base64.split(',')[1],
+        },
+      }))
+
+      const selectedModel = options.aiModel || 'gemini-2.5-flash-image'
+      const regenerated = useVertex
+        ? await vertexAICall(revisedPrompt, imageDataParts, { timeoutMs: 120000, model: selectedModel })
+        : await directGeminiCall(apiKey, revisedPrompt, imageDataParts, { timeoutMs: 120000, model: selectedModel })
+      if (!regenerated) {
+        throw new Error('No regenerated image returned')
+      }
+
+      const next = [...results]
+      next[index] = regenerated
+      setResults(next)
+      toast.success(`Image ${index + 1} regenerated`)
+      setRegenModal({ open: false, index: null })
+    } catch (err) {
+      toast.error(err.message || 'Failed to regenerate this image')
+    } finally {
+      setIsRegenerating(false)
+    }
+  }
+
   const handleShareAll = async () => {
     try {
       await shareAll(results)
@@ -101,8 +179,8 @@ export function ResultsPage() {
         {/* Header */}
         <div className="flex items-end justify-between mb-6">
           <div>
-            <h2 className="text-2xl font-extrabold text-white">Looking great!</h2>
-            <p className="text-sm text-slate-400 mt-1">Your photos are ready</p>
+            <h2 className="text-2xl font-extrabold" style={{ color: 'var(--text-primary)' }}>Looking great!</h2>
+            <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>Your photos are ready</p>
           </div>
           <ReceiptView receipt={receipt} />
         </div>
@@ -118,12 +196,14 @@ export function ResultsPage() {
         <ImageGallery
           images={results}
           onImageClick={(index) => setViewerIndex(index)}
+          onImageDownload={handleDownloadOne}
+          onImageRegenerate={handleOpenRegenModal}
         />
       </div>
 
       {/* Bottom actions */}
       <div className="fixed bottom-20 left-0 right-0 px-5 pb-4 max-w-lg mx-auto">
-        <div className="bg-surface-dark/90 backdrop-blur-xl pt-4 flex gap-3">
+        <div className="backdrop-blur-xl pt-4 flex gap-3" style={{ background: 'var(--nav-bg)' }}>
           <Button variant="secondary" onClick={handleStartOver} className="w-14 shrink-0 px-0">
             <RotateIcon className="w-5 h-5" />
           </Button>
@@ -147,6 +227,15 @@ export function ResultsPage() {
           onClose={() => setViewerIndex(null)}
         />
       )}
+
+      {/* Regeneration modal */}
+      <RegenerateModal
+        imageIndex={regenModal.index ?? 0}
+        isOpen={regenModal.open}
+        onClose={handleCloseRegenModal}
+        onConfirm={handleRegenerateOne}
+        isRegenerating={isRegenerating}
+      />
     </PageTransition>
   )
 }

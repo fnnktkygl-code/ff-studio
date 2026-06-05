@@ -1,9 +1,0 @@
-services:
-  - type: web
-    name: ff-studio
-    runtime: node
-    buildCommand: npm install && npm run build
-    startCommand: npm start
-    envVars:
-      - key: GEMINI_API_KEY
-        sync: false  # Enter this manually in the Render dashboard

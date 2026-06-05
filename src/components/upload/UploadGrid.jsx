@@ -19,10 +19,18 @@ export function UploadGrid({ onAddMore }) {
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between px-1">
-        <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest">
+        <h3 className="text-xs font-bold uppercase tracking-widest" style={{ color: 'var(--text-label)' }}>
           Your photos ({images.length}/4)
         </h3>
-        <span className="text-[10px] text-slate-500">More angles = better results</span>
+        <div className="flex items-center gap-3">
+          <span className="text-[10px]" style={{ color: 'var(--text-muted)' }}>More angles = better results</span>
+          <button
+            onClick={() => useGenerationStore.getState().clearImages()}
+            className="text-[10px] font-bold text-red-400 hover:text-red-500 transition-colors uppercase tracking-wider"
+          >
+            Clear all
+          </button>
+        </div>
       </div>
 
       <div className={cn(
@@ -44,12 +52,16 @@ export function UploadGrid({ onAddMore }) {
           <button
             onClick={onAddMore}
             className={cn(
-              'rounded-2xl border-2 border-dashed border-white/10 flex flex-col items-center justify-center gap-2 text-slate-500 hover:border-white/20 hover:text-slate-400 transition-all active:scale-95',
+              'rounded-2xl border-2 border-dashed flex flex-col items-center justify-center gap-2 transition-all active:scale-95',
               images.length === 1 ? 'aspect-square' : 'aspect-square'
             )}
+            style={{
+              background: 'var(--bg-card)',
+              borderColor: 'var(--border)',
+            }}
           >
-            <PlusIcon className="w-6 h-6" />
-            <span className="text-[10px] font-bold uppercase tracking-wider">Add</span>
+            <PlusIcon className="w-6 h-6 text-brand" />
+            <span className="text-[10px] font-bold uppercase tracking-wider text-brand">Add</span>
           </button>
         )}
       </div>

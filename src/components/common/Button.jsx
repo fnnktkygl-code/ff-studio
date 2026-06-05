@@ -9,18 +9,20 @@ export function Button({
   className,
   ...props
 }) {
+  const variantStyles = {
+    secondary: { background: 'var(--bg-elevated)', border: '1px solid var(--border)', color: 'var(--text-primary)' },
+    ghost: { color: 'var(--text-muted)' },
+    danger: { background: 'rgba(239,68,68,0.1)', color: '#ef4444' },
+  }
+
   return (
     <button
       onClick={onClick}
       disabled={disabled}
       className={cn(
         'inline-flex items-center justify-center gap-2 font-bold rounded-full transition-all active:scale-95',
-        {
-          'bg-gradient-to-r from-brand-dark to-brand text-white shadow-lg shadow-brand-dark/25 hover:shadow-brand-dark/40': variant === 'primary',
-          'bg-surface-elevated text-slate-200 hover:bg-surface-light': variant === 'secondary',
-          'bg-white/5 text-slate-400 hover:bg-white/10 hover:text-slate-200': variant === 'ghost',
-          'bg-red-500/10 text-red-400 hover:bg-red-500/20': variant === 'danger',
-        },
+        variant === 'primary' && 'bg-gradient-to-r from-brand-dark to-brand text-white shadow-lg shadow-brand/25 hover:shadow-brand/40',
+        variant !== 'primary' && 'hover:opacity-80',
         {
           'h-14 px-8 text-base': size === 'lg',
           'h-11 px-6 text-sm': size === 'md',
@@ -29,6 +31,7 @@ export function Button({
         disabled && 'opacity-40 pointer-events-none',
         className
       )}
+      style={variantStyles[variant]}
       {...props}
     >
       {children}

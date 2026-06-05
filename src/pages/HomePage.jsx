@@ -3,6 +3,7 @@ import { Header } from '../components/layout/Header'
 import { PageTransition } from '../components/layout/PageTransition'
 import { UploadZone } from '../components/upload/UploadZone'
 import { UploadGrid } from '../components/upload/UploadGrid'
+import { UploadGuidelines } from '../components/upload/UploadGuidelines'
 import { Button } from '../components/common/Button'
 import { useImageUpload } from '../hooks/useImageUpload'
 import { useGenerationStore } from '../stores/generationStore'
@@ -38,19 +39,22 @@ export function HomePage() {
         <div className="text-center py-8 space-y-3">
           <div className="inline-flex items-center gap-2 bg-brand-dark/10 px-3 py-1.5 rounded-full">
             <SparklesIcon className="w-3.5 h-3.5 text-brand" />
-            <span className="text-[10px] font-bold text-brand uppercase tracking-widest">AI-Powered</span>
+            <span className="text-[10px] font-bold text-brand uppercase tracking-widest">Professional</span>
           </div>
-          <h2 className="text-2xl font-extrabold text-white">
-            Fashion Photography
+          <h2 className="text-2xl font-extrabold" style={{ color: 'var(--text-primary)' }}>
+            Lady Vampire Studio
           </h2>
-          <p className="text-sm text-slate-400 max-w-xs mx-auto">
+          <p className="text-sm max-w-xs mx-auto" style={{ color: 'var(--text-secondary)' }}>
             Upload your garment and generate professional e-commerce photos instantly
           </p>
         </div>
 
         {/* Upload area */}
         {images.length === 0 ? (
-          <UploadZone onOpenPicker={openPicker} onFiles={handleFiles} />
+          <>
+            <UploadGuidelines />
+            <UploadZone onOpenPicker={openPicker} onFiles={handleFiles} />
+          </>
         ) : (
           <UploadGrid onAddMore={openPicker} />
         )}
@@ -69,7 +73,7 @@ export function HomePage() {
       {/* Bottom CTA */}
       {images.length > 0 && (
         <div className="fixed bottom-20 left-0 right-0 px-5 pb-4 max-w-lg mx-auto">
-          <div className="bg-surface-dark/80 backdrop-blur-xl pt-4">
+          <div className="backdrop-blur-xl pt-4" style={{ background: 'var(--nav-bg)' }}>
             <Button
               onClick={() => navigate('/customize')}
               className="w-full"

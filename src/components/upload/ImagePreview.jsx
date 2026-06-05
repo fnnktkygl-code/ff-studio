@@ -11,13 +11,13 @@ function XIcon({ className }) {
 export function ImagePreview({ src, onRemove, className }) {
   return (
     <div className={cn(
-      'relative rounded-2xl overflow-hidden bg-surface-elevated group',
+      'relative rounded-2xl overflow-hidden theme-elevated group',
       className
     )}>
       <img
         src={src}
         alt="Garment"
-        className="w-full h-full object-cover"
+        className="w-full h-full object-contain"
         loading="lazy"
       />
       {onRemove && (

@@ -1,9 +1,10 @@
 import { useCallback, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useGenerationStore } from '../stores/generationStore'
-import { apiPost, directGeminiCall } from '../utils/api'
+import { vertexAICall, directGeminiCall, getClientApiKey, hasCloudFunction } from '../utils/api'
 import { buildAllPrompts } from '../utils/promptBuilder'
-import { COST_PER_IMAGE, COST_PER_VIDEO_SECOND } from '../utils/constants'
+import { COST_PER_VIDEO_SECOND, getPricingProfile } from '../utils/constants'
+import { useToast } from './useToast'
 
 const PROGRESS_MESSAGES = [
   'Analyzing your garment...',
@@ -17,10 +18,16 @@ export function useGenerate() {
   const navigate = useNavigate()
   const abortRef = useRef(null)
   const store = useGenerationStore
+  const toast = useToast()
 
   const generate = useCallback(async () => {
     const { images, options } = store.getState()
     if (images.length === 0) return
+
+    const generationController = new AbortController()
+    abortRef.current = generationController
+    store.getState().setAbortController(generationController)
+    store.getState().setIsFromHistory(false)
 
     store.getState().setStatus('generating')
     store.getState().setProgress(0, PROGRESS_MESSAGES[0])
@@ -52,59 +59,64 @@ export function useGenerate() {
         },
       }))
 
-      // Try proxy server first, fallback to direct API
       let generatedImages = []
       let videoResult = null
+      const selectedModel = options.aiModel || 'gemini-2.5-flash-image'
 
-      try {
-        // Attempt via proxy server
-        const response = await apiPost('/generate', {
-          images: images.map((img) => ({
-            data: img.base64.split(',')[1],
-            mimeType: 'image/jpeg',
-          })),
-          prompts: imagePrompts,
-          videoPrompt,
-          options,
+      const useVertex = hasCloudFunction()
+      const apiKey = useVertex ? null : getClientApiKey()
+
+      if (!useVertex && !apiKey) {
+        throw new Error('No API key configured. Add your Gemini API key in Settings.')
+      }
+
+      // Generate images one by one
+      const generateOne = (prompt, parts, opts) =>
+        useVertex
+          ? vertexAICall(prompt, parts, { ...opts, model: selectedModel })
+          : directGeminiCall(apiKey, prompt, parts, { ...opts, model: selectedModel })
+
+      const results = []
+      for (let i = 0; i < imagePrompts.length; i++) {
+        const img = await generateOne(imagePrompts[i], imageDataParts, {
+          signal: generationController.signal,
+          timeoutMs: 120000,
         })
-        generatedImages = response.images || []
-        videoResult = response.video || null
-        if (generatedImages.length === 0) throw new Error('No images generated from server')
-      } catch {
-        // Fallback: direct Gemini API call (if user has API key in settings)
-        const apiKey = localStorage.getItem('ff_studio_api_key')
-        if (!apiKey) {
-          throw new Error('Server unavailable. Please add your Gemini API key in Settings.')
-        }
+        results.push(img)
+        store.getState().setProgress(
+          Math.round(((i + 1) / imagePrompts.length) * 85),
+          `Generated ${i + 1} of ${imagePrompts.length}...`
+        )
+      }
+      generatedImages = results
 
-        // Generate images one by one with direct API
-        const results = []
-        for (let i = 0; i < imagePrompts.length; i++) {
-          const img = await directGeminiCall(apiKey, imagePrompts[i], imageDataParts)
-          results.push(img)
-          store.getState().setProgress(
-            Math.round(((i + 1) / imagePrompts.length) * 85),
-            `Generated ${i + 1} of ${imagePrompts.length}...`
-          )
-        }
-        generatedImages = results
+      const modelUsed = selectedModel
 
-        if (videoPrompt) {
-          store.getState().setProgress(88, 'Generating video...')
-          videoResult = await directGeminiCall(apiKey, videoPrompt, imageDataParts)
-        }
+      if (videoPrompt) {
+        store.getState().setProgress(88, 'Generating video...')
+        videoResult = await generateOne(videoPrompt, imageDataParts, {
+          signal: generationController.signal,
+          timeoutMs: 120000,
+        })
       }
 
       clearInterval(messageInterval)
 
+      const validImages = generatedImages.filter(Boolean)
+      if (validImages.length === 0) {
+        throw new Error('No photos were generated. Please try again.')
+      }
+
       // Calculate cost receipt
       const totalPromptChars = imagePrompts.reduce((a, p) => a + p.length, 0)
+      const pricingProfile = getPricingProfile(modelUsed || import.meta.env.VITE_PRICING_IMAGE_MODEL || 'gemini-2.5-flash-image')
       const receipt = {
-        imagesGenerated: generatedImages.length,
-        imageCost: generatedImages.length * COST_PER_IMAGE,
+        pricingModel: modelUsed || 'gemini-2.5-flash-image',
+        imagesGenerated: validImages.length,
+        imageCost: validImages.length * pricingProfile.imageCost,
         videoIncluded: !!videoResult,
         videoCost: videoResult ? 8 * COST_PER_VIDEO_SECOND : 0,
-        tokenCost: Math.ceil(totalPromptChars / 4) * 0.000000075,
+        tokenCost: Math.ceil(totalPromptChars / 4) * pricingProfile.inputTokenCost,
         get total() {
           return this.imageCost + this.videoCost + this.tokenCost
         },
@@ -112,8 +124,11 @@ export function useGenerate() {
 
       store.getState().setProgress(100, 'Done!')
       store.getState().setReceipt(receipt)
-      store.getState().setResults(generatedImages.filter(Boolean))
+      store.getState().setResults(validImages)
       if (videoResult) store.getState().setVideoResult(videoResult)
+
+      // Crucial: reset status to idle so hitting back doesn't trigger the generation loop
+      store.getState().setStatus('idle')
 
       // Navigate to results
       setTimeout(() => navigate('/results'), 300)
@@ -121,6 +136,9 @@ export function useGenerate() {
       clearInterval(messageInterval)
       store.getState().setError(err.message || 'Generation failed. Please try again.')
       navigate('/customize')
+    } finally {
+      abortRef.current = null
+      store.getState().setAbortController(null)
     }
   }, [navigate])
 

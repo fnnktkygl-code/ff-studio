@@ -12,7 +12,14 @@ const DEFAULT_OPTIONS = {
   fit: 'regular',
   size: 'm',
   targetMarket: 'global',
+  outputCount: '2',
   generateVideo: false,
+  headwear: 'none',
+  videoModel: 'veo-2.0-generate-001',
+  aiModel: 'gemini-3.1-flash-image-preview',
+  imageResolution: '1K',
+  useSearchGrounding: false,
+  useCache: true,
 }
 
 export const useGenerationStore = create((set) => ({
@@ -30,8 +37,11 @@ export const useGenerationStore = create((set) => ({
   videoResult: null,
   receipt: null,
   error: null,
+  abortController: null,
+  isFromHistory: false,
 
   // Actions
+  setIsFromHistory: (isFromHistory) => set({ isFromHistory }),
   addImage: (imageData) =>
     set((state) => ({
       images: state.images.length < 4 ? [...state.images, imageData] : state.images,
@@ -55,6 +65,11 @@ export const useGenerationStore = create((set) => ({
   setVideoResult: (videoResult) => set({ videoResult }),
   setReceipt: (receipt) => set({ receipt }),
   setError: (error) => set({ error, status: 'error' }),
+  setAbortController: (abortController) => set({ abortController }),
+  abortGeneration: () => set((state) => {
+    state.abortController?.abort()
+    return { abortController: null }
+  }),
 
   reset: () =>
     set({
@@ -67,6 +82,7 @@ export const useGenerationStore = create((set) => ({
       videoResult: null,
       receipt: null,
       error: null,
+      abortController: null,
     }),
 
   resetResults: () =>
@@ -78,5 +94,6 @@ export const useGenerationStore = create((set) => ({
       videoResult: null,
       receipt: null,
       error: null,
+      abortController: null,
     }),
 }))

@@ -1,32 +1,110 @@
-const API_BASE = '/api'
+const CLOUD_FUNCTION_URL = import.meta.env.VITE_CLOUD_FUNCTION_URL || ''
 
-export async function apiPost(path, body) {
-  const res = await fetch(`${API_BASE}${path}`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
-  })
+function createRequestSignal(timeoutMs = 90000, externalSignal) {
+  const controller = new AbortController()
+  const timeoutId = setTimeout(() => controller.abort('timeout'), timeoutMs)
 
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({ error: `HTTP ${res.status}` }))
-    throw new Error(err.error || `Request failed: ${res.status}`)
+  if (externalSignal) {
+    if (externalSignal.aborted) {
+      controller.abort(externalSignal.reason)
+    } else {
+      externalSignal.addEventListener('abort', () => controller.abort(externalSignal.reason), { once: true })
+    }
   }
 
-  return res.json()
+  return {
+    signal: controller.signal,
+    clear: () => clearTimeout(timeoutId),
+  }
 }
 
-export async function directGeminiCall(apiKey, prompt, imageDataParts) {
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image-preview:generateContent?key=${apiKey}`
+export function getClientApiKey() {
+  const localKey = typeof window !== 'undefined'
+    ? (localStorage.getItem('ff_studio_api_key') || '').trim()
+    : ''
+
+  if (localKey) return localKey
+
+  const envKey = (import.meta.env.VITE_GEMINI_API_KEY || '').trim()
+  return envKey || ''
+}
+
+export function hasCloudFunction() {
+  return !!CLOUD_FUNCTION_URL
+}
+
+/**
+ * Call the Vertex AI Cloud Function proxy.
+ * The Cloud Function handles auth via service account — no API key needed client-side.
+ */
+export async function vertexAICall(prompt, imageDataParts, options = {}) {
+  const { signal: externalSignal, timeoutMs = 120000, model } = options
+
+  let retries = 3
+  let delay = 2000
+
+  while (retries > 0) {
+    const request = createRequestSignal(timeoutMs, externalSignal)
+    let response
+    try {
+      response = await fetch(CLOUD_FUNCTION_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt, imageDataParts, model }),
+        signal: request.signal,
+      })
+    } catch (e) {
+      if (e?.name === 'AbortError') {
+        const error = new Error(externalSignal?.aborted ? 'Generation canceled.' : 'Request timed out. Please try again.')
+        error.code = externalSignal?.aborted ? 'REQUEST_ABORTED' : 'REQUEST_TIMEOUT'
+        throw error
+      }
+      throw e
+    } finally {
+      request.clear()
+    }
+
+    const result = await response.json()
+
+    if (result.error) {
+      if (response.status === 429 && retries > 1) {
+        retries--
+        await new Promise(r => setTimeout(r, delay))
+        delay *= 2
+        continue
+      }
+      throw new Error(result.error)
+    }
+
+    if (!result.image) {
+      throw new Error('No image generated')
+    }
+
+    return result.image
+  }
+
+  throw new Error('Max retries exceeded')
+}
+
+/**
+ * Direct Gemini API call (fallback when no Cloud Function is configured).
+ * Requires a client-side API key.
+ */
+export async function directGeminiCall(apiKey, prompt, imageDataParts, options = {}) {
+  const { signal: externalSignal, timeoutMs = 90000, model } = options
+  const selectedModel = model || 'gemini-2.5-flash-image-preview'
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${selectedModel}:generateContent?key=${apiKey}`
 
   const payload = {
     contents: [{
+      role: 'user',
       parts: [
         { text: prompt },
         ...imageDataParts,
       ]
     }],
     generationConfig: {
-      responseModalities: ['IMAGE'],
+      responseModalities: ['TEXT', 'IMAGE'],
     }
   }
 
@@ -34,11 +112,25 @@ export async function directGeminiCall(apiKey, prompt, imageDataParts) {
   let delay = 2000
 
   while (retries > 0) {
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    })
+    const request = createRequestSignal(timeoutMs, externalSignal)
+    let response
+    try {
+      response = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+        signal: request.signal,
+      })
+    } catch (e) {
+      if (e?.name === 'AbortError') {
+        const error = new Error(externalSignal?.aborted ? 'Generation canceled.' : 'Request timed out. Please try again.')
+        error.code = externalSignal?.aborted ? 'REQUEST_ABORTED' : 'REQUEST_TIMEOUT'
+        throw error
+      }
+      throw e
+    } finally {
+      request.clear()
+    }
 
     const result = await response.json()
 
