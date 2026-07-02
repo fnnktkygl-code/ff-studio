@@ -99,9 +99,9 @@ router.post('/detect', async (req, res) => {
     const mimeType = imageBase64.startsWith('data:image/png') ? 'image/png' : 'image/jpeg'
     const base64Data = imageBase64.split(',')[1]
 
-    // Use gemini-2.0-flash-lite for detection (cheapest, fastest)
+    // Use gemini-3.1-flash-lite for detection (cheapest, fastest)
     const response = await ai.models.generateContent({
-      model: 'gemini-2.0-flash-lite',
+      model: 'gemini-3.1-flash-lite',
       contents: [{
         role: 'user',
         parts: [
