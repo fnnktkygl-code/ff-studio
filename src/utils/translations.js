@@ -63,6 +63,14 @@ const en = {
   'label.size': 'Size',
   'label.target_market': 'Target Market',
   
+  // Auto-Detect
+  'customize.detect.analyzing': 'Analyzing garment...',
+  'customize.detect.success': 'fields auto-detected',
+  'customize.detect.redetect': 'tap to re-detect',
+  'customize.detect.idle': 'Auto-fill from photo',
+  'customize.detect.powered_by': 'powered by Flash Lite',
+  'customize.add_image': 'Add',
+
   // Results & History Page
   'results.header': 'Your Looks',
   'results.title': 'Looking great!',
@@ -176,6 +184,16 @@ const fr = {
   'label.fit': 'Coupe',
   'label.size': 'Taille',
   'label.target_market': 'Cible',
+  'customize.generate': 'Générer des photos',
+  'customize.generating': 'Génération en cours...',
+
+  // Auto-Detect
+  'customize.detect.analyzing': 'Analyse du vêtement...',
+  'customize.detect.success': 'champs auto-détectés',
+  'customize.detect.redetect': 'appuyez pour re-détecter',
+  'customize.detect.idle': 'Auto-remplir depuis la photo',
+  'customize.detect.powered_by': 'propulsé par Flash Lite',
+  'customize.add_image': 'Ajouter',
   
   // Results & History Page
   'results.header': 'Vos Créations',

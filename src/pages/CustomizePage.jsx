@@ -154,7 +154,7 @@ export function CustomizePage() {
                 }}
               >
                 <PlusIcon className="w-4 h-4" />
-                <span className="text-[9px] font-bold mt-1">Add</span>
+                <span className="text-[9px] font-bold mt-1">{t('customize.add_image')}</span>
               </button>
             )}
           </div>
@@ -176,21 +176,21 @@ export function CustomizePage() {
             {isDetecting ? (
               <>
                 <LoaderIcon className="w-4 h-4 text-purple-400" />
-                <span className="text-sm font-semibold text-purple-400">Analyzing garment...</span>
+                <span className="text-sm font-semibold text-purple-400">{t('customize.detect.analyzing')}</span>
               </>
             ) : detectedCount > 0 ? (
               <>
                 <WandIcon className="w-4 h-4 text-purple-400" />
                 <span className="text-sm font-semibold text-purple-400">
-                  {detectedCount} fields auto-detected
+                  {detectedCount} {t('customize.detect.success')}
                 </span>
-                <span className="text-[10px] text-purple-400/60">· tap to re-detect</span>
+                <span className="text-[10px] text-purple-400/60">· {t('customize.detect.redetect')}</span>
               </>
             ) : (
               <>
                 <WandIcon className="w-4 h-4 text-brand" />
-                <span className="text-sm font-semibold text-brand">Auto-fill from photo</span>
-                <span className="text-[10px] theme-text-muted">· powered by Flash Lite</span>
+                <span className="text-sm font-semibold text-brand">{t('customize.detect.idle')}</span>
+                <span className="text-[10px] theme-text-muted">· {t('customize.detect.powered_by')}</span>
               </>
             )}
           </button>
