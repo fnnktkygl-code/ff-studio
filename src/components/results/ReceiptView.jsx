@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useTranslation } from '../../utils/translations'
 
 function ReceiptIcon({ className }) {
   return (
@@ -11,6 +12,7 @@ function ReceiptIcon({ className }) {
 
 export function ReceiptView({ receipt }) {
   const [isOpen, setIsOpen] = useState(false)
+  const t = useTranslation()
 
   if (!receipt) return null
 
@@ -35,30 +37,24 @@ export function ReceiptView({ receipt }) {
           >
             <div className="mt-3 p-4 rounded-2xl shadow-sm space-y-2" style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border)' }}>
               <h3 className="text-[10px] font-bold uppercase tracking-widest pb-2" style={{ color: 'var(--text-muted)', borderBottom: '1px solid var(--border-muted)' }}>
-                Generation Receipt
+                {t('receipt.title')}
               </h3>
               {receipt.pricingModel && (
                 <div className="flex justify-between text-xs" style={{ color: 'var(--text-muted)' }}>
-                  <span>Pricing model</span>
+                  <span>{t('receipt.pricing')}</span>
                   <span className="font-mono">{receipt.pricingModel}</span>
                 </div>
               )}
               <div className="flex justify-between text-xs" style={{ color: 'var(--text-muted)' }}>
-                <span>Images ({receipt.imagesGenerated}x)</span>
+                <span>{t('receipt.images')} ({receipt.imagesGenerated}x)</span>
                 <span className="font-mono">${receipt.imageCost.toFixed(4)}</span>
               </div>
-              {receipt.videoIncluded && (
-                <div className="flex justify-between text-xs text-brand">
-                  <span>Video (8s)</span>
-                  <span className="font-mono">${receipt.videoCost.toFixed(3)}</span>
-                </div>
-              )}
               <div className="flex justify-between text-xs" style={{ color: 'var(--text-muted)' }}>
-                <span>Tokens</span>
+                <span>{t('receipt.tokens')}</span>
                 <span className="font-mono">${receipt.tokenCost.toFixed(5)}</span>
               </div>
               <div className="flex justify-between text-sm font-bold pt-2" style={{ color: 'var(--text-primary)', borderTop: '1px solid var(--border-muted)' }}>
-                <span>Total</span>
+                <span>{t('receipt.total')}</span>
                 <span className="font-mono">${receipt.total.toFixed(3)}</span>
               </div>
             </div>

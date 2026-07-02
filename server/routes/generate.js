@@ -370,86 +370,6 @@ async function generateVideoViaVertexVeo(prompt, imageBase64, modelInput, vertex
 
   // Build an SDK client authenticated with service-account credentials
   const inlineJson = (process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON || '').trim();
-  if (!inlineJson) {
-    throw new Error('Video generation requires GOOGLE_APPLICATION_CREDENTIALS_JSON to be set in your environment variables.');
-  }
-
-  let credentials;
-  try {
-    credentials = JSON.parse(inlineJson);
-  } catch {
-    throw new Error('GOOGLE_APPLICATION_CREDENTIALS_JSON is not valid JSON.');
-  }
-
-  // The @google/genai SDK handles auth via GOOGLE_APPLICATION_CREDENTIALS_JSON
-  // when we set the env var. We temporarily set it as a path workaround OR
-  // pass it via the vertexai options.
-  const ai = new GoogleGenAI({
-    vertexai: true,
-    project: vertexProject,
-    location: veoLocation,
-    googleAuthOptions: { credentials },
-  });
-
-  // Step 1: submit the generation request (returns an Operation object)
-  const params = {
-    model,
-    prompt,
-    config: {
-      aspectRatio: '9:16',
-      personGeneration: 'allow_adult',
-      durationSeconds: 8,
-      numberOfVideos: 1,
-      ...(resolution ? { resolution } : {}),
-    },
-  };
-
-  if (imageBase64) {
-    params.image = {
-      imageBytes: imageBase64,
-      mimeType: 'image/jpeg',
-    };
-  }
-
-  console.log(`Veo starting generation with model: ${model}`);
-  let operation = await ai.models.generateVideos(params);
-  console.log(`Veo LRO started: ${operation.name}`);
-
-  // Step 2: poll until done (max 10 minutes)
-  const maxAttempts = 60; // 60 × 10s = 10 minutes
-  for (let attempt = 0; attempt < maxAttempts; attempt++) {
-    await sleep(10000);
-    operation = await ai.operations.getVideosOperation({ operation });
-    console.log(`Veo LRO attempt ${attempt + 1}/${maxAttempts} — done: ${operation.done}`);
-    if (operation.done) break;
-  }
-
-  if (!operation.done) {
-    throw new Error('Video generation timed out after 10 minutes');
-  }
-  if (operation.error) {
-    throw new Error(`Veo operation failed: ${JSON.stringify(operation.error)}`);
-  }
-
-  // The SDK returns a GCS URI or base64 bytes depending on config
-  const generatedVideo = operation.response?.generatedVideos?.[0];
-  if (!generatedVideo) {
-    throw new Error('Veo returned done but no video found in response');
-  }
-
-  // If GCS URI is returned, we'd need to download it — but Vertex inline returns videoBytes
-  const videoBytes = generatedVideo.video?.videoBytes || generatedVideo.videoBytes;
-  if (!videoBytes) {
-    throw new Error('Veo returned done but no video bytes in response. The video may have been stored to GCS instead.');
-  }
-
-  return {
-    data: videoBytes,
-    mimeType: 'video/mp4',
-    modelUsed: model,
-  };
-}
-
 function isTruthy(value) {
   return ['1', 'true', 'yes', 'on'].includes((value || '').trim().toLowerCase())
 }
@@ -458,23 +378,13 @@ function isTruthy(value) {
 const ALLOWED_CLIENT_MODELS = new Set([
   'gemini-3.1-flash-image-preview',
   'gemini-3.1-flash-lite-image',
-  'gemini-3.0-pro-preview',
+  'gemini-3-pro-image-preview',
   'gemini-2.5-flash-image',
   'imagen-4.0-fast-generate-001',
   'imagen-4.0-generate-001',
   'imagen-4.0-ultra-generate-001',
 ])
 
-const ALLOWED_VIDEO_MODELS = new Set([
-  'veo-3.1-fast-generate-001:1080p',
-  'veo-3.1-fast-generate-001:4k',
-  'veo-3.1-generate-001:1080p',
-  'veo-3.1-generate-001:4k',
-  // legacy bare IDs for backwards compat
-  'veo-2.0-generate-001',
-  'veo-3.0-generate-001',
-  'veo-3.1-generate-001',
-])
 
 router.post('/generate', validateGenerateRequest, async (req, res) => {
   const apiKey = getApiKey()
@@ -491,15 +401,6 @@ router.post('/generate', validateGenerateRequest, async (req, res) => {
   }
   const model = (clientModel && ALLOWED_CLIENT_MODELS.has(clientModel)) ? clientModel : envModel
   const modelCandidates = buildModelCandidates(model)
-  const rawVideoModel = (() => {
-    const requested = (req.body.options?.videoModel || '').trim()
-    return (requested && ALLOWED_VIDEO_MODELS.has(requested)) ? requested : 'veo-2.0-generate-001'
-  })()
-  // Compound format is 'modelId:resolution' — split them out
-  const [videoModelReq, videoResolutionReq] = rawVideoModel.includes(':')
-    ? rawVideoModel.split(':')
-    : [rawVideoModel, rawVideoModel.includes('veo-3') ? '1080p' : '720p']
-
   if (!apiKey && !vertexProject) {
     return res.status(500).json({ error: 'Server API key not configured. Set GEMINI_API_KEY or GOOGLE_API_KEY in environment variables.' })
   }
@@ -512,7 +413,7 @@ router.post('/generate', validateGenerateRequest, async (req, res) => {
         ? new GoogleGenAI({ apiKey })
         : new GoogleGenAI({ vertexai: true, project: vertexProject, location: vertexLocation }))
 
-    const { images, prompts, videoPrompt } = req.body
+    const { images, prompts } = req.body
 
     // If 'both' mode is selected, we need to process 8 prompts.
     // Allow up to 8 max prompts by default. Override via env if needed.
@@ -616,36 +517,9 @@ router.post('/generate', validateGenerateRequest, async (req, res) => {
       return res.status(500).json({ error: errorMsg })
     }
 
-    let video = null
-    let videoError = null
-    if (videoPrompt && generatedImages.length > 0) {
-      console.log('Generating video via Veo 2.0...')
-      try {
-        if (!vertexProject) {
-          throw new Error('GOOGLE_CLOUD_PROJECT must be set to use Veo Video Generation API. Add it in your environment variables.')
-        }
-
-        const base64Ref = generatedImages[0].split(',')[1] || generatedImages[0];
-        const videoResult = await generateVideoViaVertexVeo(
-          videoPrompt,
-          base64Ref,
-          videoModelReq,
-          vertexProject,
-          videoResolutionReq
-        );
-        video = `data:${videoResult.mimeType};base64,${videoResult.data}`
-        console.log('Video generated successfully.')
-      } catch (err) {
-        console.error('Video generation failed:', err.message)
-        videoError = err.message || 'Video generation failed'
-      }
-    }
-
     res.json({
       success: true,
       images: generatedImages,
-      video,
-      videoError,
       count: generatedImages.length,
       limitedByQuota: useVertexApiKey && effectivePrompts.length < prompts.length,
       modelUsed: modelUsed || model,

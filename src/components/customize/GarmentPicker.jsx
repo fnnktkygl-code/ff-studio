@@ -17,7 +17,7 @@ function XIcon({ className }) {
     )
 }
 
-export function GarmentPicker({ value, onChange, disabledValues = [] }) {
+export function GarmentPicker({ value, onChange, disabledValues = [], detected = false }) {
     const [open, setOpen] = useState(false)
     const [activeCategory, setActiveCategory] = useState('all')
     const overlayRef = useRef(null)
@@ -46,8 +46,13 @@ export function GarmentPicker({ value, onChange, disabledValues = [] }) {
         <>
             {/* Trigger button */}
             <div className="space-y-2.5">
-                <h3 className="text-[10px] font-bold uppercase tracking-widest px-1 theme-text-muted">
+                <h3 className="text-[10px] font-bold uppercase tracking-widest px-1 theme-text-muted flex items-center gap-1.5">
                     Garment Type
+                    {detected && (
+                        <span className="inline-flex items-center gap-0.5 text-[9px] font-bold text-purple-400 bg-purple-500/10 px-1.5 py-0.5 rounded-full normal-case tracking-normal">
+                            🪄 Detected
+                        </span>
+                    )}
                 </h3>
                 <button
                     onClick={() => setOpen(true)}

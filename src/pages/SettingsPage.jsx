@@ -4,10 +4,13 @@ import { PageTransition } from '../components/layout/PageTransition'
 import { Button } from '../components/common/Button'
 import { usePWAInstall } from '../hooks/usePWAInstall'
 import { useHistory } from '../hooks/useHistory'
+import { version } from '../../package.json'
 import { useToast } from '../hooks/useToast'
 import { useThemeStore } from '../stores/themeStore'
 import { getClientApiKey } from '../utils/api'
 import { Switch } from '../components/common/Switch'
+import { useTranslation } from '../utils/translations'
+import { useI18nStore } from '../stores/i18nStore'
 
 function KeyIcon({ className }) {
   return (
@@ -72,6 +75,8 @@ export function SettingsPage() {
   const toast = useToast()
   const { theme, toggleTheme } = useThemeStore()
   const isDark = theme === 'dark'
+  const t = useTranslation()
+  const { language, setLanguage } = useI18nStore()
 
   useEffect(() => {
     setApiKey(getClientApiKey())
@@ -129,12 +134,12 @@ export function SettingsPage() {
         <div style={sectionStyle} className="space-y-3">
           <div className="flex items-center gap-2">
             <KeyIcon className="w-4 h-4 text-brand" />
-            <h3 className="text-xs font-bold uppercase tracking-widest" style={{ color: 'var(--text-label)' }}>Gemini API Key</h3>
+            <h3 className="text-xs font-bold uppercase tracking-widest" style={{ color: 'var(--text-label)' }}>{t('settings.apikey.title')}</h3>
           </div>
           <div className="flex items-center gap-2">
             <div className={`w-2 h-2 rounded-full ${hasKey ? 'bg-emerald-400' : 'bg-red-400'}`} />
             <span className="text-[11px]" style={{ color: 'var(--text-muted)' }}>
-              {hasKey ? 'API key configured' : 'No API key — generation will not work'}
+              {hasKey ? t('settings.apikey.configured') : t('settings.apikey.missing')}
             </span>
           </div>
           <div className="flex gap-2">
@@ -142,7 +147,7 @@ export function SettingsPage() {
               type="password"
               value={apiKey}
               onChange={(e) => setApiKey(e.target.value)}
-              placeholder="Enter Gemini API key..."
+              placeholder={t('settings.apikey.placeholder')}
               className="flex-1 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand/40 transition-colors"
               style={{
                 background: 'var(--input-bg)',
@@ -161,16 +166,16 @@ export function SettingsPage() {
           <div style={sectionStyle} className="space-y-3">
             <div className="flex items-center gap-2">
               <DownloadIcon className="w-4 h-4 text-brand" />
-              <h3 className="text-xs font-bold uppercase tracking-widest" style={{ color: 'var(--text-label)' }}>Install App</h3>
+              <h3 className="text-xs font-bold uppercase tracking-widest" style={{ color: 'var(--text-label)' }}>{t('settings.install.title')}</h3>
             </div>
             <p className="text-[11px]" style={{ color: 'var(--text-muted)' }}>
-              Install Fatma Shooting Studio to your home screen for full-screen experience and quick access.
+              {t('settings.install.desc')}
             </p>
             {canInstall ? (
-              <Button size="sm" onClick={promptInstall}>Install Now</Button>
+              <Button size="sm" onClick={promptInstall}>{t('settings.install.button')}</Button>
             ) : (
               <p className="text-[11px] italic" style={{ color: 'var(--text-muted)' }}>
-                Open in Safari (iOS) or Chrome (Android) to install.
+                {t('settings.install.safari')}
               </p>
             )}
           </div>
@@ -180,7 +185,7 @@ export function SettingsPage() {
           <div className="p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl">
             <div className="flex items-center gap-2">
               <CheckIcon className="w-4 h-4 text-emerald-400" />
-              <span className="text-sm font-bold text-emerald-400">App installed</span>
+              <span className="text-sm font-bold text-emerald-400">{t('settings.install.installed')}</span>
             </div>
           </div>
         )}
@@ -189,11 +194,11 @@ export function SettingsPage() {
         <div style={sectionStyle} className="space-y-3">
           <div className="flex items-center gap-2">
             <TrashIcon className="w-4 h-4 text-red-400" />
-            <h3 className="text-xs font-bold uppercase tracking-widest" style={{ color: 'var(--text-label)' }}>Data</h3>
+            <h3 className="text-xs font-bold uppercase tracking-widest" style={{ color: 'var(--text-label)' }}>{t('settings.data.title')}</h3>
           </div>
           <div className="flex items-center justify-between">
             <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
-              {generations.length} generation{generations.length !== 1 ? 's' : ''} saved
+              {generations.length} {t('settings.data.saved')}
             </p>
             <Button
               variant="danger"
@@ -201,7 +206,7 @@ export function SettingsPage() {
               onClick={handleClearHistory}
               disabled={generations.length === 0}
             >
-              Clear History
+              {t('settings.data.clear')}
             </Button>
           </div>
         </div>
@@ -211,9 +216,9 @@ export function SettingsPage() {
           <div className="w-12 h-12 mx-auto rounded-xl bg-gradient-to-br from-brand-dark to-brand flex items-center justify-center">
             <span className="text-white font-extrabold text-lg">F</span>
           </div>
-          <p className="text-sm font-bold" style={{ color: 'var(--text-primary)' }}>Fatma Shooting Studio</p>
-          <p className="text-[11px]" style={{ color: 'var(--text-secondary)' }}>Fashion Photography Studio</p>
-          <p className="text-[10px]" style={{ color: 'var(--text-muted)' }}>Version 1.0.0</p>
+          <p className="text-sm font-bold" style={{ color: 'var(--text-primary)' }}>{t('settings.about.title')}</p>
+          <p className="text-[11px]" style={{ color: 'var(--text-secondary)' }}>{t('settings.about.subtitle')}</p>
+          <p className="text-[10px]" style={{ color: 'var(--text-muted)' }}>Version {version}</p>
         </div>
       </div>
     </PageTransition>

@@ -27,8 +27,10 @@ function XIcon({ className }) {
  *   onChange    – Called with the new value
  *   disabledValues – Array of values that should be disabled
  *   columns     – 'auto' (default) | 1 | 2 | 3  (grid columns in the sheet)
+ *   detected    – If true, shows a "🪄 Detected" badge next to the label
+ *   onOverride  – Called when the user manually changes a detected field
  */
-export function DropdownPicker({ label, options, value, onChange, disabledValues = [], columns = 2 }) {
+export function DropdownPicker({ label, options, value, onChange, disabledValues = [], columns = 2, detected = false, onOverride }) {
     const [open, setOpen] = useState(false)
     const overlayRef = useRef(null)
 
@@ -37,6 +39,10 @@ export function DropdownPicker({ label, options, value, onChange, disabledValues
     function handleSelect(val) {
         if (disabledValues.includes(val)) return
         onChange(val)
+        // If this field was auto-detected and user picks a different value, mark as overridden
+        if (detected && onOverride && val !== value) {
+            onOverride()
+        }
         setOpen(false)
     }
 
@@ -57,8 +63,13 @@ export function DropdownPicker({ label, options, value, onChange, disabledValues
         <>
             {/* Trigger */}
             <div className="space-y-2.5">
-                <h3 className="text-[10px] font-bold uppercase tracking-widest px-1 theme-text-muted">
+                <h3 className="text-[10px] font-bold uppercase tracking-widest px-1 theme-text-muted flex items-center gap-1.5">
                     {label}
+                    {detected && (
+                        <span className="inline-flex items-center gap-0.5 text-[9px] font-bold text-purple-400 bg-purple-500/10 px-1.5 py-0.5 rounded-full normal-case tracking-normal">
+                            🪄 Detected
+                        </span>
+                    )}
                 </h3>
                 <button
                     onClick={() => setOpen(true)}

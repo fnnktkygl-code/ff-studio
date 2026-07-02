@@ -7,6 +7,7 @@ import { UploadGuidelines } from '../components/upload/UploadGuidelines'
 import { Button } from '../components/common/Button'
 import { useImageUpload } from '../hooks/useImageUpload'
 import { useGenerationStore } from '../stores/generationStore'
+import { useTranslation } from '../utils/translations'
 
 function SparklesIcon({ className }) {
   return (
@@ -29,6 +30,7 @@ export function HomePage() {
   const navigate = useNavigate()
   const images = useGenerationStore((s) => s.images)
   const { inputRef, openPicker, handleInputChange, handleFiles } = useImageUpload()
+  const t = useTranslation()
 
   return (
     <PageTransition>
@@ -42,10 +44,10 @@ export function HomePage() {
             <span className="text-[10px] font-bold text-brand uppercase tracking-widest">Professional</span>
           </div>
           <h2 className="text-2xl md:text-3xl font-extrabold" style={{ color: 'var(--text-primary)' }}>
-            Fatma Shooting Studio
+            {t('home.title')}
           </h2>
           <p className="text-sm md:text-base max-w-xs md:max-w-md mx-auto" style={{ color: 'var(--text-secondary)' }}>
-            Upload your garment and generate professional e-commerce photos instantly
+            {t('home.subtitle')}
           </p>
         </div>
 
@@ -78,7 +80,7 @@ export function HomePage() {
               onClick={() => navigate('/customize')}
               className="w-full"
             >
-              <span>Continue</span>
+              <span>{t('home.continue')}</span>
               <ArrowRightIcon className="w-5 h-5" />
             </Button>
           </div>

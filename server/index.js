@@ -4,6 +4,7 @@ import cors from 'cors'
 import { fileURLToPath } from 'url'
 import { dirname, join } from 'path'
 import generateRouter from './routes/generate.js'
+import detectRouter from './routes/detect.js'
 import { rateLimit } from './middleware/rateLimit.js'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
@@ -22,7 +23,7 @@ app.use(cors({
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true)
     } else {
-      callback(null, true) // In production, same-origin requests pass anyway
+      callback(new Error('Not allowed by CORS'))
     }
   },
 }))
@@ -33,6 +34,7 @@ app.use('/api', rateLimit)
 
 // API routes
 app.use('/api', generateRouter)
+app.use('/api', detectRouter)
 
 // Health check
 app.get('/api/health', (req, res) => {

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useGenerationStore } from '../stores/generationStore'
 import { vertexAICall, directGeminiCall, getClientApiKey, hasCloudFunction } from '../utils/api'
 import { buildAllPrompts } from '../utils/promptBuilder'
-import { COST_PER_VIDEO_SECOND, getPricingProfile } from '../utils/constants'
+import { getPricingProfile, IMAGE_OUTPUT_TOKENS_BY_MODEL } from '../utils/constants'
 import { useToast } from './useToast'
 
 const PROGRESS_MESSAGES = [
@@ -49,7 +49,7 @@ export function useGenerate() {
     }, 800)
 
     try {
-      const { imagePrompts, videoPrompt } = buildAllPrompts(options)
+      const { imagePrompts } = buildAllPrompts(options)
 
       // Prepare image data for the API
       const imageDataParts = images.map((img) => ({
@@ -60,7 +60,6 @@ export function useGenerate() {
       }))
 
       let generatedImages = []
-      let videoResult = null
       const selectedModel = options.aiModel || 'gemini-2.5-flash-image'
 
       const useVertex = hasCloudFunction()
@@ -70,35 +69,40 @@ export function useGenerate() {
         throw new Error('No API key configured. Add your Gemini API key in Settings.')
       }
 
-      // Generate images one by one
+      // Pass options that directGeminiCall needs (temperature, safetySettings, searchGrounding)
       const generateOne = (prompt, parts, opts) =>
         useVertex
           ? vertexAICall(prompt, parts, { ...opts, model: selectedModel })
-          : directGeminiCall(apiKey, prompt, parts, { ...opts, model: selectedModel })
+          : directGeminiCall(apiKey, prompt, parts, {
+              ...opts,
+              model: selectedModel,
+              useSearchGrounding: options.useSearchGrounding,
+            })
 
-      const results = []
-      for (let i = 0; i < imagePrompts.length; i++) {
-        const img = await generateOne(imagePrompts[i], imageDataParts, {
-          signal: generationController.signal,
-          timeoutMs: 120000,
-        })
-        results.push(img)
-        store.getState().setProgress(
-          Math.round(((i + 1) / imagePrompts.length) * 85),
-          `Generated ${i + 1} of ${imagePrompts.length}...`
-        )
+      // Generate images in parallel (independent requests)
+      const genOpts = {
+        signal: generationController.signal,
+        timeoutMs: 120000,
       }
-      generatedImages = results
+
+      const promises = imagePrompts.map((prompt, i) =>
+        generateOne(prompt, imageDataParts, genOpts).then((img) => {
+          // Update progress as each image completes
+          const completed = store.getState().progress
+          store.getState().setProgress(
+            Math.min(Math.round(((i + 1) / imagePrompts.length) * 85), 85),
+            `Generated ${i + 1} of ${imagePrompts.length}...`
+          )
+          return img
+        })
+      )
+
+      const settled = await Promise.allSettled(promises)
+      generatedImages = settled
+        .filter((r) => r.status === 'fulfilled')
+        .map((r) => r.value)
 
       const modelUsed = selectedModel
-
-      if (videoPrompt) {
-        store.getState().setProgress(88, 'Generating video...')
-        videoResult = await generateOne(videoPrompt, imageDataParts, {
-          signal: generationController.signal,
-          timeoutMs: 120000,
-        })
-      }
 
       clearInterval(messageInterval)
 
@@ -107,25 +111,35 @@ export function useGenerate() {
         throw new Error('No photos were generated. Please try again.')
       }
 
-      // Calculate cost receipt
+      // Calculate cost receipt — aligned with CostEstimator formula
       const totalPromptChars = imagePrompts.reduce((a, p) => a + p.length, 0)
-      const pricingProfile = getPricingProfile(modelUsed || import.meta.env.VITE_PRICING_IMAGE_MODEL || 'gemini-2.5-flash-image')
+      const pricingProfile = getPricingProfile(modelUsed || 'gemini-3.1-flash-image-preview')
+      const isFlat = !!pricingProfile.isFlat
+      const imageRes = options.imageResolution || '1K'
+      const tokensPerImage = IMAGE_OUTPUT_TOKENS_BY_MODEL[modelUsed]?.[imageRes] || 1120
+      const outputRatePerToken = (pricingProfile.outputTokenCostMillion || 120) / 1000000
+      const inputRatePerToken = (pricingProfile.inputTokenCostMillion || 2.00) / 1000000
+
+      const imageCostTotal = isFlat
+        ? validImages.length * (pricingProfile.flatRateCost || 0.04)
+        : validImages.length * tokensPerImage * outputRatePerToken
+      const tokenCostTotal = isFlat
+        ? 0
+        : Math.ceil(totalPromptChars / 4) * inputRatePerToken
+
       const receipt = {
-        pricingModel: modelUsed || 'gemini-2.5-flash-image',
+        pricingModel: modelUsed || 'gemini-3.1-flash-image-preview',
         imagesGenerated: validImages.length,
-        imageCost: validImages.length * pricingProfile.imageCost,
-        videoIncluded: !!videoResult,
-        videoCost: videoResult ? 8 * COST_PER_VIDEO_SECOND : 0,
-        tokenCost: Math.ceil(totalPromptChars / 4) * pricingProfile.inputTokenCost,
+        imageCost: imageCostTotal,
+        tokenCost: tokenCostTotal,
         get total() {
-          return this.imageCost + this.videoCost + this.tokenCost
+          return this.imageCost + this.tokenCost
         },
       }
 
       store.getState().setProgress(100, 'Done!')
       store.getState().setReceipt(receipt)
       store.getState().setResults(validImages)
-      if (videoResult) store.getState().setVideoResult(videoResult)
 
       // Crucial: reset status to idle so hitting back doesn't trigger the generation loop
       store.getState().setStatus('idle')

@@ -6,7 +6,6 @@ import { Button } from '../components/common/Button'
 import { ImageGallery } from '../components/results/ImageGallery'
 import { FullscreenViewer } from '../components/results/FullscreenViewer'
 import { ReceiptView } from '../components/results/ReceiptView'
-import { VideoPlayer } from '../components/results/VideoPlayer'
 import { RegenerateModal } from '../components/results/RegenerateModal'
 import { useGenerationStore } from '../stores/generationStore'
 import { useDownload } from '../hooks/useDownload'
@@ -15,6 +14,7 @@ import { useHistory } from '../hooks/useHistory'
 import { useToast } from '../hooks/useToast'
 import { vertexAICall, directGeminiCall, getClientApiKey, hasCloudFunction } from '../utils/api'
 import { buildAllPrompts, applyFeedbackToPrompt } from '../utils/promptBuilder'
+import { useTranslation } from '../utils/translations'
 
 function DownloadIcon({ className }) {
   return (
@@ -49,7 +49,6 @@ export function ResultsPage() {
   const [isRegenerating, setIsRegenerating] = useState(false)
 
   const results = useGenerationStore((s) => s.results)
-  const videoResult = useGenerationStore((s) => s.videoResult)
   const receipt = useGenerationStore((s) => s.receipt)
   const options = useGenerationStore((s) => s.options)
   const sourceImages = useGenerationStore((s) => s.images)
@@ -60,6 +59,7 @@ export function ResultsPage() {
   const { canShare, shareAll } = useShare()
   const { saveToHistory } = useHistory()
   const toast = useToast()
+  const t = useTranslation()
 
   const isFromHistory = useGenerationStore((s) => s.isFromHistory)
 
@@ -68,13 +68,10 @@ export function ResultsPage() {
     if (results.length > 0 && !saved && !isFromHistory) {
       saveToHistory({
         options,
-        results,
-        videoResult,
-        receipt,
       })
       setSaved(true)
     }
-  }, [results, saved, saveToHistory, options, videoResult, receipt, isFromHistory])
+  }, [results, saved, saveToHistory, options, receipt, isFromHistory])
 
   // Redirect if no results
   useEffect(() => {
@@ -173,24 +170,17 @@ export function ResultsPage() {
 
   return (
     <PageTransition>
-      <Header title="Your Looks" />
+      <Header title={t('results.header')} />
 
       <div className="flex-1 overflow-y-auto px-5 md:px-8 pt-4 pb-36 max-w-4xl mx-auto w-full">
         {/* Header */}
         <div className="flex items-end justify-between mb-6">
           <div>
-            <h2 className="text-2xl md:text-3xl font-extrabold" style={{ color: 'var(--text-primary)' }}>Looking great!</h2>
-            <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>Your photos are ready</p>
+            <h2 className="text-2xl md:text-3xl font-extrabold" style={{ color: 'var(--text-primary)' }}>{t('results.title')}</h2>
+            <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>{t('results.subtitle')}</p>
           </div>
           <ReceiptView receipt={receipt} />
         </div>
-
-        {/* Video */}
-        {videoResult && (
-          <div className="mb-6">
-            <VideoPlayer src={videoResult} />
-          </div>
-        )}
 
         {/* Image gallery */}
         <ImageGallery
@@ -214,7 +204,7 @@ export function ResultsPage() {
           )}
           <Button onClick={handleDownloadAll} className="flex-1">
             <DownloadIcon className="w-5 h-5" />
-            <span>Save All</span>
+            <span>{t('results.button.download')}</span>
           </Button>
         </div>
       </div>

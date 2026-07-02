@@ -1,5 +1,6 @@
 import { NavLink, useLocation } from 'react-router-dom'
 import { cn } from '../../utils/cn'
+import { useTranslation } from '../../utils/translations'
 
 function HomeIcon({ className }) {
   return (
@@ -26,13 +27,14 @@ function SettingsIcon({ className }) {
 }
 
 const NAV_ITEMS = [
-  { to: '/', icon: HomeIcon, label: 'Create' },
-  { to: '/history', icon: ClockIcon, label: 'History' },
-  { to: '/settings', icon: SettingsIcon, label: 'Settings' },
+  { to: '/', icon: HomeIcon, labelKey: 'nav.customize' },
+  { to: '/history', icon: ClockIcon, labelKey: 'nav.history' },
+  { to: '/settings', icon: SettingsIcon, labelKey: 'nav.settings' },
 ]
 
 export function BottomNav() {
   const location = useLocation()
+  const t = useTranslation()
 
   if (['/generating'].includes(location.pathname)) {
     return null
@@ -47,7 +49,7 @@ export function BottomNav() {
       }}
     >
       <div className="max-w-screen-md mx-auto flex items-center justify-around h-16 pb-safe">
-        {NAV_ITEMS.map(({ to, icon: Icon, label }) => (
+        {NAV_ITEMS.map(({ to, icon: Icon, labelKey }) => (
           <NavLink
             key={to}
             to={to}
@@ -60,7 +62,7 @@ export function BottomNav() {
             {({ isActive }) => (
               <>
                 <Icon className={cn('w-5 h-5', isActive && 'drop-shadow-[0_0_8px_rgba(255,107,129,0.4)]')} />
-                <span className="text-[10px] font-semibold">{label}</span>
+                <span className="text-[10px] font-semibold">{t(labelKey)}</span>
               </>
             )}
           </NavLink>

@@ -1,11 +1,13 @@
 import {
   getPricingProfile,
-  IMAGE_OUTPUT_TOKENS,
+  IMAGE_OUTPUT_TOKENS_BY_MODEL,
 } from '../../utils/constants'
+import { useTranslation } from '../../utils/translations'
 
-export function CostEstimator({ mode, generateVideo, outputCount = 4, aiModel, imageResolution = '1K' }) {
+export function CostEstimator({ mode, outputCount = 4, aiModel, imageResolution = '1K' }) {
   const modelKey = aiModel || 'gemini-3.1-flash-image-preview'
   const profile = getPricingProfile(modelKey)
+  const t = useTranslation()
 
   // In Both mode, 4 images means 4 model + 4 product = 8 images total
   const baseCount = Math.max(1, Math.min(Number(outputCount || 4), 4))
@@ -13,14 +15,12 @@ export function CostEstimator({ mode, generateVideo, outputCount = 4, aiModel, i
 
   // Output Cost (Images)
   const isFlat = !!profile.isFlat
-  const tokensPerImage = IMAGE_OUTPUT_TOKENS[imageResolution] || IMAGE_OUTPUT_TOKENS['1K']
+  const tokensPerImage = IMAGE_OUTPUT_TOKENS_BY_MODEL[modelKey]?.[imageResolution] || 1120
   const totalOutputTokens = tokensPerImage * totalImageCount
   const outputTokenRatePerToken = (profile.outputTokenCostMillion || 120) / 1000000
   const imageCost = isFlat
     ? totalImageCount * (profile.flatRateCost || 0.04)
     : totalOutputTokens * outputTokenRatePerToken
-
-  const videoCost = 0 // Video disabled
 
   // Input Cost (Prompts)
   const estimatedPromptChars = mode === 'both' ? baseCount * 1100 : baseCount * 900
@@ -28,22 +28,22 @@ export function CostEstimator({ mode, generateVideo, outputCount = 4, aiModel, i
   const inputRatePerToken = (profile.inputTokenCostMillion || 2.00) / 1000000
   const tokenCost = isFlat ? 0 : estimatedInputTokens * inputRatePerToken
 
-  const total = imageCost + videoCost + tokenCost
+  const total = imageCost + tokenCost
 
   return (
     <div className="flex items-center justify-between px-4 py-3 theme-card theme-border border rounded-2xl mt-4">
       <div>
-        <p className="text-xs theme-text-muted">Estimated cost</p>
+        <p className="text-xs theme-text-muted">{t('cost.title')}</p>
         <p className="text-sm font-bold theme-text">
           ~${total.toFixed(3)}
           <span className="theme-text-sec font-normal ml-1">
-            ({totalImageCount} image{totalImageCount > 1 ? 's' : ''})
+            ({totalImageCount} {t('receipt.images').toLowerCase()})
           </span>
         </p>
       </div>
       <div className="text-[10px] theme-text-muted text-right">
         {profile.outputTokenCostMillion > 0 && <p>~${(tokensPerImage * outputTokenRatePerToken).toFixed(3)}/image</p>}
-        {profile.inputTokenCostMillion > 0 && <p>~${tokenCost.toFixed(4)} input tokens</p>}
+        {profile.inputTokenCostMillion > 0 && <p>~${tokenCost.toFixed(4)} {t('cost.tokens').toLowerCase()}</p>}
       </div>
     </div>
   )

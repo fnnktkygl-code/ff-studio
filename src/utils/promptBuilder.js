@@ -215,58 +215,8 @@ ${FIDELITY_INSTRUCTION(referenceImages)}
   })
 }
 
-export function buildVideoPrompt(options) {
-  const {
-    modelType = 'female',
-    ethnicity = 'any',
-    environment = 'studio-white',
-    garmentType = 'top',
-    fit = 'regular',
-    headwear = 'none',
-    brandStyle = 'generic',
-  } = options
-
-  const isSkirtOrShorts = ['skirt', 'shorts'].includes(garmentType)
-  const actualHeadwear = isSkirtOrShorts ? 'none' : headwear
-
-  const modelText = modelType === 'female' ? 'female fashion model' : modelType === 'male' ? 'male fashion model' : 'child fashion model'
-  const ethText = ethnicity !== 'any' ? `${ethnicity} ` : ''
-  const hijabText = actualHeadwear === 'hijab' ? 'wearing a stylish modest hijab' : ''
-  const subjectDescription = [ethText, modelText, hijabText].filter(Boolean).join(' ')
-
-  const envDesc = ENVIRONMENT_DESCRIPTIONS[environment] || ENVIRONMENT_DESCRIPTIONS['studio-white']
-  const garmentName = GARMENT_NAMES[garmentType] || garmentType
-  const fitText = fit !== 'regular' ? `, ${fit} fit` : ''
-  const focusText = FOCUS_INSTRUCTIONS[garmentType] || ''
-  const brandText = brandStyle !== 'generic' ? ` Cinematic style matching the ${brandStyle} brand aesthetic.` : ''
-
-  const actions = {
-    top: 'Model walks toward camera, pauses, and naturally adjusts the collar. Smooth, confident movement.',
-    dress: 'Model walks elegantly, performs a graceful half-turn allowing the dress fabric to flow, then poses confidently.',
-    pants: 'Model walks forward, does a smooth half-turn to show the back fit, places one hand in pocket, then walks off.',
-    shoes: 'Close-up of feet walking on set, rotating the ankle to display all angles of the footwear.',
-    sweater: 'Model walks forward, crosses arms briefly to show sleeve texture, then drops arms for a clean front view.',
-    jacket: 'Model walks forward, opens and closes the jacket once to show the lining, adjusts the lapels mid-stride.',
-    guandura: 'Model walks with a slow, dignified pace, showing the elegant flow of the traditional dress with each step.',
-    abaya: 'Model walks gracefully, showcasing the modest drape and movement of the abaya fabric.',
-  }
-
-  return [
-    `CINEMATIC FASHION VIDEO`,
-    REFERENCE_ISOLATION_INSTRUCTION,
-    FIDELITY_INSTRUCTION(),
-    `Video Prompt: Create a realistic, high quality, cinematic video.`,
-    `Subject: ${subjectDescription} wearing the exact ${garmentName}${fitText} shown in the provided image.`,
-    `${focusText}`,
-    `Action: ${actions[garmentType] || actions.top}`,
-    `Setting: ${envDesc}.${brandText}`,
-    getModestyInstruction(garmentType),
-    `Professional e-commerce fashion video, soft cinematic lighting, smooth fluid motion, ultra-detailed, photorealistic.`,
-  ].filter(Boolean).join('\n\n')
-}
-
 export function buildAllPrompts(options) {
-  const { mode = 'model', generateVideo = false } = options
+  const { mode = 'model' } = options
   const requestedCount = Math.min(Math.max(Number(options.outputCount || 4), 1), 4)
   let imagePrompts = []
 
@@ -299,11 +249,7 @@ export function buildAllPrompts(options) {
 
   imagePrompts = imagePrompts.slice(0, requestedCount)
 
-  const videoPrompt = generateVideo && (mode === 'model' || mode === 'both')
-    ? buildVideoPrompt(options)
-    : null
-
-  return { imagePrompts, videoPrompt }
+  return { imagePrompts }
 }
 
 export function applyFeedbackToPrompt(prompt, feedback) {

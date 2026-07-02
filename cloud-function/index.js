@@ -6,7 +6,7 @@ const API_KEY = process.env.VERTEX_API_KEY;
 const ALLOWED_MODELS = [
   'gemini-3.1-flash-image-preview',
   'gemini-3.1-flash-lite-image',
-  'gemini-3.0-pro-preview',
+  'gemini-3-pro-image-preview',
   'gemini-2.5-flash-image',
   'imagen-4.0-fast-generate-001',
   'imagen-4.0-generate-001',

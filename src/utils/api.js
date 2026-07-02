@@ -95,8 +95,8 @@ export async function directGeminiCall(apiKey, prompt, imageDataParts, options =
   const selectedModel = model || 'gemini-2.5-flash-image-preview'
   const isImagen = selectedModel.includes('imagen-')
   const url = isImagen
-    ? `https://generativelanguage.googleapis.com/v1beta/models/${selectedModel}:predict?key=${apiKey}`
-    : `https://generativelanguage.googleapis.com/v1beta/models/${selectedModel}:generateContent?key=${apiKey}`
+    ? `https://generativelanguage.googleapis.com/v1beta/models/${selectedModel}:predict`
+    : `https://generativelanguage.googleapis.com/v1beta/models/${selectedModel}:generateContent`
 
   const payload = isImagen
     ? {
@@ -119,7 +119,18 @@ export async function directGeminiCall(apiKey, prompt, imageDataParts, options =
         }],
         generationConfig: {
           responseModalities: ['TEXT', 'IMAGE'],
-        }
+          temperature: 0.35,
+          topP: 0.9,
+        },
+        // Bug fix: safetySettings were missing from the direct client path
+        safetySettings: [
+          { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_ONLY_HIGH' },
+          { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_ONLY_HIGH' },
+          { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_ONLY_HIGH' },
+          { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_ONLY_HIGH' },
+        ],
+        // Bug fix: Search Grounding was silently ignored in direct mode
+        ...(options.useSearchGrounding ? { tools: [{ googleSearch: {} }] } : {}),
       }
 
   let retries = 3
@@ -131,7 +142,10 @@ export async function directGeminiCall(apiKey, prompt, imageDataParts, options =
     try {
       response = await fetch(url, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'x-goog-api-key': apiKey,
+        },
         body: JSON.stringify(payload),
         signal: request.signal,
       })
@@ -166,6 +180,13 @@ export async function directGeminiCall(apiKey, prompt, imageDataParts, options =
     }
 
     if (!base64) {
+      // Retryable: sporadic safety block or model hiccup (matches server behavior)
+      if (retries > 1) {
+        retries--
+        await new Promise(r => setTimeout(r, delay))
+        delay *= 2
+        continue
+      }
       throw new Error('No image generated')
     }
 
@@ -173,4 +194,114 @@ export async function directGeminiCall(apiKey, prompt, imageDataParts, options =
   }
 
   throw new Error('Max retries exceeded')
+}
+
+/**
+ * Lightweight garment detection via Flash Lite (text+vision → structured JSON).
+ * Short timeout (10s), no retries — detection is best-effort.
+ *
+ * @param {string} apiKey - Gemini API key
+ * @param {string} imageBase64 - Full data URI (data:image/...;base64,...)
+ * @param {string} detectionPrompt - The prompt from buildDetectionPrompt()
+ * @param {object} responseSchema - Optional structured output schema
+ * @returns {Promise<object|null>} Parsed JSON or null on any failure
+ */
+export async function detectGarment(apiKey, imageBase64, detectionPrompt, responseSchema) {
+  const model = 'gemini-2.0-flash-lite'
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`
+
+  const mimeType = imageBase64.startsWith('data:image/png') ? 'image/png' : 'image/jpeg'
+  const base64Data = imageBase64.split(',')[1]
+
+  const generationConfig = {
+    temperature: 0.1,
+    maxOutputTokens: 512,
+  }
+
+  // Use structured output if schema provided
+  if (responseSchema) {
+    generationConfig.responseMimeType = 'application/json'
+    generationConfig.responseSchema = responseSchema
+  }
+
+  const payload = {
+    contents: [{
+      role: 'user',
+      parts: [
+        { text: detectionPrompt },
+        { inlineData: { mimeType, data: base64Data } },
+      ],
+    }],
+    generationConfig,
+  }
+
+  const controller = new AbortController()
+  const timeout = setTimeout(() => controller.abort('detection_timeout'), 10000)
+
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+      signal: controller.signal,
+    })
+
+    const result = await response.json()
+
+    if (result.error) {
+      console.warn('[detectGarment] API error:', result.error.message)
+      return null
+    }
+
+    const text = result.candidates?.[0]?.content?.parts?.[0]?.text
+    if (!text) return null
+
+    try {
+      return JSON.parse(text.replace(/```json\s*/g, '').replace(/```\s*/g, '').trim())
+    } catch {
+      console.warn('[detectGarment] Failed to parse response:', text)
+      return null
+    }
+  } catch (err) {
+    if (err?.name === 'AbortError' || err === 'detection_timeout') {
+      console.warn('[detectGarment] Timed out after 10s')
+    } else {
+      console.warn('[detectGarment] Network error:', err.message)
+    }
+    return null
+  } finally {
+    clearTimeout(timeout)
+  }
+}
+
+/**
+ * Server-side garment detection via the backend proxy.
+ * Falls back to null on any error.
+ */
+export async function detectGarmentViaServer(imageBase64) {
+  const CLOUD_URL = import.meta.env.VITE_CLOUD_FUNCTION_URL || ''
+  if (!CLOUD_URL) return null
+
+  // Derive server base URL from cloud function URL
+  const serverBase = CLOUD_URL.replace(/\/api\/generate\/?$/, '').replace(/\/+$/, '')
+
+  const controller = new AbortController()
+  const timeout = setTimeout(() => controller.abort('detection_timeout'), 12000)
+
+  try {
+    const response = await fetch(`${serverBase}/api/detect`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ imageBase64 }),
+      signal: controller.signal,
+    })
+
+    const result = await response.json()
+    return result.detected || null
+  } catch (err) {
+    console.warn('[detectGarmentViaServer]', err.message || err)
+    return null
+  } finally {
+    clearTimeout(timeout)
+  }
 }

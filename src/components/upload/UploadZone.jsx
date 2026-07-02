@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react'
 import { cn } from '../../utils/cn'
+import { useTranslation } from '../../utils/translations'
 
 function CameraIcon({ className }) {
   return (
@@ -20,6 +21,7 @@ function UploadIcon({ className }) {
 
 export function UploadZone({ onOpenPicker, onFiles }) {
   const [isDragging, setIsDragging] = useState(false)
+  const t = useTranslation()
 
   const handleDragOver = useCallback((e) => {
     e.preventDefault()
@@ -73,15 +75,15 @@ export function UploadZone({ onOpenPicker, onFiles }) {
       </div>
 
       <div className="text-center space-y-2 px-6">
-        <p className="font-bold text-lg" style={{ color: 'var(--text-primary)' }}>Add your garment</p>
+        <p className="font-bold text-lg" style={{ color: 'var(--text-primary)' }}>{t('upload.title')}</p>
         <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
-          Take a photo or drag & drop up to 4 images
+          {t('upload.desc')}
         </p>
       </div>
 
       <div className="flex items-center gap-2 text-xs" style={{ color: 'var(--text-muted)' }}>
         <UploadIcon className="w-4 h-4" />
-        <span>JPG, PNG, WebP up to 10MB</span>
+        <span>{t('upload.format')}</span>
       </div>
     </button>
   )

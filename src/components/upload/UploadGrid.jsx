@@ -1,6 +1,7 @@
 import { useGenerationStore } from '../../stores/generationStore'
 import { ImagePreview } from './ImagePreview'
 import { cn } from '../../utils/cn'
+import { useTranslation } from '../../utils/translations'
 
 function PlusIcon({ className }) {
   return (
@@ -13,6 +14,7 @@ function PlusIcon({ className }) {
 export function UploadGrid({ onAddMore }) {
   const images = useGenerationStore((s) => s.images)
   const removeImage = useGenerationStore((s) => s.removeImage)
+  const t = useTranslation()
 
   if (images.length === 0) return null
 
@@ -20,15 +22,15 @@ export function UploadGrid({ onAddMore }) {
     <div className="space-y-3">
       <div className="flex items-center justify-between px-1">
         <h3 className="text-xs font-bold uppercase tracking-widest" style={{ color: 'var(--text-label)' }}>
-          Your photos ({images.length}/4)
+          {t('upload.your_photos')} ({images.length}/4)
         </h3>
         <div className="flex items-center gap-3">
-          <span className="text-[10px]" style={{ color: 'var(--text-muted)' }}>More angles = better results</span>
+          <span className="text-[10px]" style={{ color: 'var(--text-muted)' }}>{t('upload.more_angles')}</span>
           <button
             onClick={() => useGenerationStore.getState().clearImages()}
             className="text-[10px] font-bold text-red-400 hover:text-red-500 transition-colors uppercase tracking-wider"
           >
-            Clear all
+            {t('upload.clear_all')}
           </button>
         </div>
       </div>

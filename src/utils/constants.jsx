@@ -176,7 +176,7 @@ export const AI_MODEL_OPTIONS = [
     recommended: false,
   },
   {
-    value: 'gemini-3.0-pro-preview',
+    value: 'gemini-3-pro-image-preview',
     label: 'Gemini 3 Pro Image',
     sublabel: '🧠 Nano Banana Pro · ~$0.134/img',
     recommended: false,
@@ -207,38 +207,14 @@ export const AI_MODEL_OPTIONS = [
   },
 ]
 
+// ─── Canonical Model IDs (Single Source of Truth) ──────────────────────────────
+// Server (ALLOWED_CLIENT_MODELS) and Cloud Function (ALLOWED_MODELS) must stay
+// in sync with this list. If you add/remove a model above, update those too.
+export const CANONICAL_MODEL_IDS = AI_MODEL_OPTIONS.map((m) => m.value)
+
 export const HEADWEAR_OPTIONS = [
   { value: 'none', label: 'No Headwear', emoji: '👤', desc: 'Natural hair display' },
   { value: 'hijab', label: 'Hijab / Traditional Wrap', emoji: '🧕', desc: 'Secure head wrap cover' },
-]
-
-export const VIDEO_MODEL_OPTIONS = [
-  {
-    value: 'veo-2.0-generate-001',
-    label: 'Veo 2 · 720p',
-    sublabel: '✅ Available now — $0.50/sec (~$4/8s clip)',
-    recommended: true,
-  },
-  {
-    value: 'veo-3.1-fast-generate-001:1080p',
-    label: 'Veo 3.1 Fast · 1080p',
-    sublabel: 'Best value — $0.10/sec (~$0.80/8s clip)',
-  },
-  {
-    value: 'veo-3.1-fast-generate-001:4k',
-    label: 'Veo 3.1 Fast · 4K',
-    sublabel: 'Ultra-HD fast — $0.30/sec (~$2.40/8s clip)',
-  },
-  {
-    value: 'veo-3.1-generate-001:1080p',
-    label: 'Veo 3.1 · 1080p',
-    sublabel: 'Max quality Full HD — $0.20/sec (~$1.60/8s clip)',
-  },
-  {
-    value: 'veo-3.1-generate-001:4k',
-    label: 'Veo 3.1 · 4K',
-    sublabel: 'Absolute maximum — $0.40/sec (~$3.20/8s clip)',
-  },
 ]
 
 // ─── Vertex AI Pricing (official rates) ────────────────────────────────────────
@@ -260,15 +236,16 @@ export const VIDEO_MODEL_OPTIONS = [
 //   Imagen 4      : $0.04/image
 
 export const IMAGE_RESOLUTION_OPTIONS = [
+  { value: '0.5K', label: '0.5K (512x512)', emoji: '📱', desc: 'Fast previews' },
   { value: '1K', label: '1K (1024x1024)', emoji: '🖼️', desc: 'Optimal speed & cost' },
   { value: '2K', label: '2K (2048x2048)', emoji: '🌟', desc: 'High fidelity sharpness' },
   { value: '4K', label: '4K (4096x4096)', emoji: '💎', desc: 'Maximum print quality' },
 ]
 
-export const IMAGE_OUTPUT_TOKENS = {
-  '1K': 1120,
-  '2K': 1120, // Billed the same as 1K conceptually, but you can adjust if needed
-  '4K': 2000,
+export const IMAGE_OUTPUT_TOKENS_BY_MODEL = {
+  'gemini-3.1-flash-image-preview': { '0.5K': 747, '1K': 1120, '2K': 1680, '4K': 2520 },
+  'gemini-3-pro-image-preview':     { '1K': 1120, '2K': 1120, '4K': 2000 },
+  'gemini-2.5-flash-image':         { '1K': 1290 }, // fixed resolution for 2.5
 }
 
 export const TECHNICAL_CONFIG = {
@@ -285,7 +262,7 @@ export const INPUT_TEXT_COST_PER_MILLION_TOKENS = 2.00   // $2.00/1M input token
 export const PRICING_PROFILES = {
   'gemini-3.1-flash-image-preview': {
     outputTokenCostMillion: 60, // $60/1M tokens = ~$0.067/img
-    inputTokenCostMillion: 0.15,
+    inputTokenCostMillion: 0.50,
     label: 'Nano Banana 2 (Gemini 3.1 Flash Image)',
   },
   'gemini-3.1-flash-lite-image': {
@@ -294,14 +271,14 @@ export const PRICING_PROFILES = {
     label: 'Nano Banana Lite (Gemini 3.1 Flash Lite Image)',
     maxResolution: '1K', // Only supports up to 1024x1024
   },
-  'gemini-3.0-pro-preview': {
+  'gemini-3-pro-image-preview': {
     outputTokenCostMillion: 120, // $120/1M tokens = ~$0.134/img
     inputTokenCostMillion: 2.00,
     label: 'Nano Banana Pro (Gemini 3 Pro Image)',
   },
   'gemini-2.5-flash-image': {
     outputTokenCostMillion: 30, // $30/1M tokens = ~$0.034/img
-    inputTokenCostMillion: 0.15,
+    inputTokenCostMillion: 0.30,
     label: 'Nano Banana (Gemini 2.5 Flash Image)',
   },
   'imagen-4.0-fast-generate-001': {
@@ -338,9 +315,6 @@ export function getPricingProfile(modelName = '') {
   const key = normalizePricingModel(modelName)
   return PRICING_PROFILES[key]
 }
-
-// Kept configurable for your video workflow (Veo Fast 720/1080 baseline)
-export const COST_PER_VIDEO_SECOND = 0.10
 
 export const MAX_IMAGES = 4
 

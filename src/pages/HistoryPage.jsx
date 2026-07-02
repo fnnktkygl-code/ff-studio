@@ -6,6 +6,7 @@ import { Button } from '../components/common/Button'
 import { useHistory } from '../hooks/useHistory'
 import { useGenerationStore } from '../stores/generationStore'
 import { useToast } from '../hooks/useToast'
+import { useTranslation } from '../utils/translations'
 
 function TrashIcon({ className }) {
   return (
@@ -46,11 +47,11 @@ export function HistoryPage() {
   const setReceipt = useGenerationStore((s) => s.setReceipt)
   const setIsFromHistory = useGenerationStore((s) => s.setIsFromHistory)
   const toast = useToast()
+  const t = useTranslation()
 
   const handleViewGeneration = (gen) => {
     setIsFromHistory(true)
     setResults(gen.results || [])
-    if (gen.videoResult) setVideoResult(gen.videoResult)
     if (gen.receipt) setReceipt(gen.receipt)
     navigate('/results')
   }
@@ -58,25 +59,25 @@ export function HistoryPage() {
   const handleDelete = async (e, id) => {
     e.stopPropagation()
     await deleteFromHistory(id)
-    toast.info('Generation removed')
+    toast.info(t('history.toast.removed'))
   }
 
   const handleClearAll = async () => {
     await clearHistory()
-    toast.info('History cleared')
+    toast.info(t('history.toast.cleared'))
   }
 
   return (
     <PageTransition>
       <Header
-        title="History"
+        title={t('history.title')}
         rightAction={
           generations.length > 0 ? (
             <button
               onClick={handleClearAll}
               className="text-xs text-red-400 font-semibold hover:text-red-300"
             >
-              Clear
+              {t('history.clear')}
             </button>
           ) : null
         }
@@ -94,9 +95,9 @@ export function HistoryPage() {
             <div className="w-16 h-16 rounded-full flex items-center justify-center mb-4" style={{ background: 'var(--bg-elevated)' }}>
               <ClockIcon className="w-8 h-8" style={{ color: 'var(--text-muted)' }} />
             </div>
-            <h3 className="text-lg font-bold mb-2" style={{ color: 'var(--text-secondary)' }}>No history yet</h3>
+            <h3 className="text-lg font-bold mb-2" style={{ color: 'var(--text-secondary)' }}>{t('history.empty')}</h3>
             <p className="text-sm max-w-xs" style={{ color: 'var(--text-muted)' }}>
-              Your generated fashion photos will appear here
+              {t('history.empty.desc')}
             </p>
             <Button
               variant="secondary"
@@ -104,7 +105,7 @@ export function HistoryPage() {
               onClick={() => navigate('/')}
               className="mt-6"
             >
-              Create your first
+              {t('history.create_first')}
             </Button>
           </div>
         ) : (
