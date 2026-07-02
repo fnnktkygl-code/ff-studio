@@ -46,7 +46,7 @@ export function BottomNav() {
         borderColor: 'var(--nav-border)',
       }}
     >
-      <div className="max-w-lg mx-auto flex items-center justify-around h-16 pb-safe">
+      <div className="max-w-screen-md mx-auto flex items-center justify-around h-16 pb-safe">
         {NAV_ITEMS.map(({ to, icon: Icon, label }) => (
           <NavLink
             key={to}

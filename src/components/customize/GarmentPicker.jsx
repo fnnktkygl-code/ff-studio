@@ -73,7 +73,7 @@ export function GarmentPicker({ value, onChange, disabledValues = [] }) {
                     onClick={(e) => { if (e.target === overlayRef.current) setOpen(false) }}
                 >
                     <div
-                        className="rounded-t-3xl w-full max-w-lg mx-auto flex flex-col"
+                        className="rounded-t-3xl w-full max-w-screen-sm mx-auto flex flex-col"
                         style={{
                             background: 'var(--bg-elevated)',
                             maxHeight: '80vh',

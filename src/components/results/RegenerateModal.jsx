@@ -68,7 +68,7 @@ export function RegenerateModal({ imageIndex, isOpen, onClose, onConfirm, isRege
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 20, scale: 0.97 }}
                         transition={{ type: 'spring', bounce: 0.25, duration: 0.4 }}
-                        className="fixed bottom-0 left-0 right-0 z-50 max-w-lg mx-auto px-4 pb-6"
+                        className="fixed bottom-0 left-0 right-0 z-50 max-w-screen-sm mx-auto px-4 pb-6"
                     >
                         <div className="theme-surface border theme-border rounded-3xl p-5 shadow-2xl">
                             {/* Header */}

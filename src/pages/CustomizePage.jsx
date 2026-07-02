@@ -71,7 +71,7 @@ export function CustomizePage() {
     <PageTransition>
       <Header title="Customize" showBack />
 
-      <div className="flex-1 overflow-y-auto px-5 pt-4 pb-44">
+      <div className="flex-1 overflow-y-auto px-5 md:px-8 pt-4 pb-44 max-w-3xl mx-auto w-full">
         {/* Error display */}
         {error && (
           <div className="mb-4 p-3 bg-red-500/10 border border-red-500/20 rounded-2xl flex items-center gap-2 text-sm text-red-400">
@@ -115,7 +115,7 @@ export function CustomizePage() {
             <CpuIcon className="w-4 h-4 text-brand" />
             <h3 className="text-[10px] font-bold uppercase tracking-widest theme-text-muted">AI Model</h3>
           </div>
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
             {AI_MODEL_OPTIONS.map((model) => {
               const isActive = options.aiModel === model.value
 
@@ -375,7 +375,7 @@ export function CustomizePage() {
       />
 
       {/* Generate button */}
-      <div className="fixed bottom-20 left-0 right-0 px-5 pb-4 max-w-lg mx-auto">
+      <div className="fixed bottom-20 left-0 right-0 px-5 md:px-8 pb-4 max-w-screen-md mx-auto">
         <div className="backdrop-blur-xl pt-4" style={{ background: 'var(--nav-bg)' }}>
           <Button
             onClick={generate}

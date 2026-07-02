@@ -82,9 +82,9 @@ export function HistoryPage() {
         }
       />
 
-      <div className="flex-1 overflow-y-auto px-5 pt-4 pb-24">
+      <div className="flex-1 overflow-y-auto px-5 md:px-8 pt-4 pb-24 max-w-4xl mx-auto w-full">
         {isLoading ? (
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
             {[...Array(4)].map((_, i) => (
               <Skeleton key={i} className="aspect-[3/4]" />
             ))}
@@ -108,7 +108,7 @@ export function HistoryPage() {
             </Button>
           </div>
         ) : (
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
             {generations.map((gen) => (
               <button
                 key={gen.id}

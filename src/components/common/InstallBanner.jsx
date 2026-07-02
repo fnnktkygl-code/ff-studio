@@ -20,7 +20,7 @@ export function InstallBanner() {
           initial={{ opacity: 0, y: 100 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 100 }}
-          className="fixed bottom-20 left-4 right-4 z-50 max-w-lg mx-auto"
+          className="fixed bottom-20 left-4 right-4 z-50 max-w-screen-sm mx-auto"
         >
           <div className="backdrop-blur-xl rounded-2xl p-4 shadow-2xl" style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border)' }}>
             <div className="flex items-center gap-3">

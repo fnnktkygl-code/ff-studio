@@ -34,17 +34,17 @@ export function HomePage() {
     <PageTransition>
       <Header />
 
-      <div className="flex-1 flex flex-col px-5 pb-28">
+      <div className="flex-1 flex flex-col px-5 md:px-8 pb-28 max-w-3xl mx-auto w-full">
         {/* Hero section */}
         <div className="text-center py-8 space-y-3">
           <div className="inline-flex items-center gap-2 bg-brand-dark/10 px-3 py-1.5 rounded-full">
             <SparklesIcon className="w-3.5 h-3.5 text-brand" />
             <span className="text-[10px] font-bold text-brand uppercase tracking-widest">Professional</span>
           </div>
-          <h2 className="text-2xl font-extrabold" style={{ color: 'var(--text-primary)' }}>
+          <h2 className="text-2xl md:text-3xl font-extrabold" style={{ color: 'var(--text-primary)' }}>
             Fatma Shooting Studio
           </h2>
-          <p className="text-sm max-w-xs mx-auto" style={{ color: 'var(--text-secondary)' }}>
+          <p className="text-sm md:text-base max-w-xs md:max-w-md mx-auto" style={{ color: 'var(--text-secondary)' }}>
             Upload your garment and generate professional e-commerce photos instantly
           </p>
         </div>
@@ -72,7 +72,7 @@ export function HomePage() {
 
       {/* Bottom CTA */}
       {images.length > 0 && (
-        <div className="fixed bottom-20 left-0 right-0 px-5 pb-4 max-w-lg mx-auto">
+        <div className="fixed bottom-20 left-0 right-0 px-5 md:px-8 pb-4 max-w-screen-md mx-auto">
           <div className="backdrop-blur-xl pt-4" style={{ background: 'var(--nav-bg)' }}>
             <Button
               onClick={() => navigate('/customize')}

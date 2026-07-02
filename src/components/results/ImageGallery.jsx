@@ -8,7 +8,7 @@ export function ImageGallery({ images, onImageClick, onImageDownload, onImageReg
       <h3 className="text-[10px] font-bold uppercase tracking-widest px-1" style={{ color: 'var(--text-muted)' }}>
         Generated Photos
       </h3>
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
         {images.map((img, i) => (
           <ImageCard
             key={i}

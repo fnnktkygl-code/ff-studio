@@ -175,11 +175,11 @@ export function ResultsPage() {
     <PageTransition>
       <Header title="Your Looks" />
 
-      <div className="flex-1 overflow-y-auto px-5 pt-4 pb-36">
+      <div className="flex-1 overflow-y-auto px-5 md:px-8 pt-4 pb-36 max-w-4xl mx-auto w-full">
         {/* Header */}
         <div className="flex items-end justify-between mb-6">
           <div>
-            <h2 className="text-2xl font-extrabold" style={{ color: 'var(--text-primary)' }}>Looking great!</h2>
+            <h2 className="text-2xl md:text-3xl font-extrabold" style={{ color: 'var(--text-primary)' }}>Looking great!</h2>
             <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>Your photos are ready</p>
           </div>
           <ReceiptView receipt={receipt} />
@@ -202,7 +202,7 @@ export function ResultsPage() {
       </div>
 
       {/* Bottom actions */}
-      <div className="fixed bottom-20 left-0 right-0 px-5 pb-4 max-w-lg mx-auto">
+      <div className="fixed bottom-20 left-0 right-0 px-5 md:px-8 pb-4 max-w-screen-md mx-auto">
         <div className="backdrop-blur-xl pt-4 flex gap-3" style={{ background: 'var(--nav-bg)' }}>
           <Button variant="secondary" onClick={handleStartOver} className="w-14 shrink-0 px-0">
             <RotateIcon className="w-5 h-5" />

@@ -96,7 +96,7 @@ export function SettingsPage() {
     <PageTransition>
       <Header title="Settings" />
 
-      <div className="flex-1 overflow-y-auto px-5 pt-4 pb-24 space-y-4">
+      <div className="flex-1 overflow-y-auto px-5 md:px-8 pt-4 pb-24 space-y-4 max-w-2xl mx-auto w-full">
 
         {/* Theme Toggle */}
         <div style={sectionStyle}>

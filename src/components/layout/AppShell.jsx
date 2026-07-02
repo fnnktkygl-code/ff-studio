@@ -18,7 +18,7 @@ export function AppShell() {
     <div
       id="app-root"
       data-theme={theme}
-      className="min-h-screen flex flex-col max-w-lg mx-auto relative transition-colors duration-200"
+      className="min-h-screen flex flex-col w-full mx-auto relative transition-colors duration-200"
       style={{ background: 'var(--bg-base)', color: 'var(--text-primary)' }}
     >
       <AnimatePresence mode="wait">
