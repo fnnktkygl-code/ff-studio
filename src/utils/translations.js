@@ -13,6 +13,7 @@ const en = {
   'home.create_magic': 'Create Magic',
   'home.view_history': 'View History',
   'home.continue': 'Continue',
+  'home.professional': 'Professional',
 
   // Settings Page
   'settings.title': 'Settings',
@@ -91,6 +92,16 @@ const en = {
   'upload.more_angles': 'More angles = better results',
   'upload.clear_all': 'Clear all',
 
+  'guidelines.title': 'Photo Guidelines',
+  'guidelines.flat.title': 'Lay it flat',
+  'guidelines.flat.desc': 'Use a clean, flat surface or a ghost mannequin for the best shape.',
+  'guidelines.lighting.title': 'Good lighting',
+  'guidelines.lighting.desc': 'Ensure bright, even lighting to capture true colors and details.',
+  'guidelines.bg.title': 'Clear background',
+  'guidelines.bg.desc': 'Use a solid, contrasting background without any clutter.',
+  'guidelines.wrinkles.title': 'Smooth wrinkles',
+  'guidelines.wrinkles.desc': 'Iron or steam the garment for a flawless, professional finish.',
+
   // Models
   'model.gemini_3_1_flash': 'Gemini 3.1 Flash Image',
   'model.gemini_3_pro': 'Gemini 3 Pro Image',
@@ -116,6 +127,7 @@ const fr = {
   'home.create_magic': 'Créer la Magie',
   'home.view_history': 'Voir l\'Historique',
   'home.continue': 'Continuer',
+  'home.professional': 'Professionnel',
 
   // Settings Page
   'settings.title': 'Paramètres',
@@ -193,6 +205,16 @@ const fr = {
   'upload.your_photos': 'Vos photos',
   'upload.more_angles': 'Plus d\'angles = meilleurs résultats',
   'upload.clear_all': 'Tout effacer',
+
+  'guidelines.title': 'Conseils Photo',
+  'guidelines.flat.title': 'À plat',
+  'guidelines.flat.desc': 'Utilisez une surface propre et plane ou un mannequin fantôme.',
+  'guidelines.lighting.title': 'Bonne lumière',
+  'guidelines.lighting.desc': 'Assurez un éclairage uniforme pour capturer les vraies couleurs.',
+  'guidelines.bg.title': 'Fond clair',
+  'guidelines.bg.desc': 'Utilisez un fond uni et contrastant, sans objets autour.',
+  'guidelines.wrinkles.title': 'Sans plis',
+  'guidelines.wrinkles.desc': 'Repassez le vêtement pour un rendu impeccable et professionnel.',
 
   // Models
   'model.gemini_3_1_flash': 'Gemini 3.1 Flash Image',

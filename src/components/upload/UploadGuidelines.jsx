@@ -1,10 +1,14 @@
+import { useTranslation } from '../../utils/translations'
+
 export function UploadGuidelines() {
+    const t = useTranslation()
+
     return (
         <div className="mt-8 mb-6">
             <div className="flex items-center gap-2 mb-3 px-1">
                 <SparklesIcon className="w-4 h-4 text-brand" />
                 <h3 className="text-[10px] font-bold uppercase tracking-widest theme-text-muted">
-                    Photo Guidelines
+                    {t('guidelines.title')}
                 </h3>
             </div>
 
@@ -15,9 +19,9 @@ export function UploadGuidelines() {
                     <div className="w-8 h-8 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-500">
                         <LayoutIcon className="w-4 h-4" />
                     </div>
-                    <p className="text-xs font-bold theme-text">Lay it flat</p>
+                    <p className="text-xs font-bold theme-text">{t('guidelines.flat.title')}</p>
                     <p className="text-[10px] theme-text-sec leading-snug">
-                        Use a clean, flat surface or a ghost mannequin for the best shape.
+                        {t('guidelines.flat.desc')}
                     </p>
                 </div>
 
@@ -26,9 +30,9 @@ export function UploadGuidelines() {
                     <div className="w-8 h-8 rounded-full bg-amber-500/10 flex items-center justify-center text-amber-500">
                         <SunIcon className="w-4 h-4" />
                     </div>
-                    <p className="text-xs font-bold theme-text">Good lighting</p>
+                    <p className="text-xs font-bold theme-text">{t('guidelines.lighting.title')}</p>
                     <p className="text-[10px] theme-text-sec leading-snug">
-                        Ensure bright, even lighting to capture true colors and details.
+                        {t('guidelines.lighting.desc')}
                     </p>
                 </div>
 
@@ -37,9 +41,9 @@ export function UploadGuidelines() {
                     <div className="w-8 h-8 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-500">
                         <CheckCircleIcon className="w-4 h-4" />
                     </div>
-                    <p className="text-xs font-bold theme-text">Clear background</p>
+                    <p className="text-xs font-bold theme-text">{t('guidelines.bg.title')}</p>
                     <p className="text-[10px] theme-text-sec leading-snug">
-                        Use a solid, contrasting background without any clutter.
+                        {t('guidelines.bg.desc')}
                     </p>
                 </div>
 
@@ -48,9 +52,9 @@ export function UploadGuidelines() {
                     <div className="w-8 h-8 rounded-full bg-purple-500/10 flex items-center justify-center text-purple-500">
                         <DropletsIcon className="w-4 h-4" />
                     </div>
-                    <p className="text-xs font-bold theme-text">Smooth wrinkles</p>
+                    <p className="text-xs font-bold theme-text">{t('guidelines.wrinkles.title')}</p>
                     <p className="text-[10px] theme-text-sec leading-snug">
-                        Iron or steam the garment for a flawless, professional finish.
+                        {t('guidelines.wrinkles.desc')}
                     </p>
                 </div>
 
