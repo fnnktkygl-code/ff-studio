@@ -11,6 +11,7 @@ import {
   getDetectionResponseSchema,
   parseDetectionResult,
 } from '../utils/autoDetect'
+import { useToast } from './useToast'
 
 /**
  * useAutoDetect — Hook for intelligent garment auto-detection via Flash Lite.
@@ -27,6 +28,7 @@ export function useAutoDetect() {
   const [detectedFields, setDetectedFields] = useState({}) // { fieldName: value }
   const [detectedCount, setDetectedCount] = useState(0)
   const abortRef = useRef(false)
+  const toast = useToast()
 
   const setOption = useGenerationStore((s) => s.setOption)
 
@@ -62,6 +64,7 @@ export function useAutoDetect() {
 
       if (!rawResult) {
         console.warn('[useAutoDetect] Detection returned no results — using defaults')
+        toast.error('Auto-detection failed. Model returned no result or API error.')
         return
       }
 
@@ -84,6 +87,7 @@ export function useAutoDetect() {
     } catch (err) {
       // Silent fallback — never block the user
       console.warn('[useAutoDetect] Detection failed silently:', err.message || err)
+      toast.error('Detection error: ' + (err.message || 'unknown'))
     } finally {
       if (!abortRef.current) {
         setIsDetecting(false)

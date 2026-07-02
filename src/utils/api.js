@@ -209,7 +209,7 @@ export async function directGeminiCall(apiKey, prompt, imageDataParts, options =
 export async function detectGarment(apiKey, imageBase64, detectionPrompt, responseSchema) {
   // Use the correct preview ID for flash-lite or fallback to a stable flash model
   const model = 'gemini-3.1-flash-lite'
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`
+  const url = `https://generativelanguage.googleapis.com/v1alpha/models/${model}:generateContent?key=${apiKey}`
 
   const mimeType = imageBase64.startsWith('data:image/png') ? 'image/png' : 'image/jpeg'
   const base64Data = imageBase64.split(',')[1]

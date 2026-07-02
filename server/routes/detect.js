@@ -94,7 +94,7 @@ router.post('/detect', async (req, res) => {
       return res.status(500).json({ detected: null, error: 'No API key configured on server' })
     }
 
-    const ai = new GoogleGenAI({ apiKey })
+    const ai = new GoogleGenAI({ apiKey, httpOptions: { apiVersion: 'v1alpha' } })
 
     const mimeType = imageBase64.startsWith('data:image/png') ? 'image/png' : 'image/jpeg'
     const base64Data = imageBase64.split(',')[1]
