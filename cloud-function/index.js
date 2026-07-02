@@ -5,6 +5,7 @@ const API_KEY = process.env.VERTEX_API_KEY;
 
 const ALLOWED_MODELS = [
   'gemini-3.1-flash-image-preview',
+  'gemini-3.1-flash-lite-image',
   'gemini-3.0-pro-preview',
   'gemini-2.5-flash-image',
 ];
@@ -58,7 +59,15 @@ functions.http('generate', async (req, res) => {
       }],
       generationConfig: {
         responseModalities: ['TEXT', 'IMAGE'],
+        temperature: 0.35,
+        topP: 0.9,
       },
+      safetySettings: [
+        { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_ONLY_HIGH' },
+        { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_ONLY_HIGH' },
+        { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_ONLY_HIGH' },
+        { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_ONLY_HIGH' },
+      ],
     };
 
     const response = await fetch(url, {

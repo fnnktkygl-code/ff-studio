@@ -49,6 +49,12 @@ function isRetriableError(err) {
     || message.includes('too many requests')
 }
 
+// Bug #5 fix: "No image in response" is the typical symptom of a sporadic safety
+// block or model hiccup — it should be retried instead of failing immediately.
+function isNoImageError(err) {
+  return normalizeErrorMessage(err).toLowerCase().includes('no image in response')
+}
+
 function isRateLimitError(err) {
   const status = err?.status || getEmbeddedStatus(normalizeErrorMessage(err))
   const message = normalizeErrorMessage(err).toLowerCase()
@@ -98,8 +104,18 @@ async function generateImage(ai, prompt, imageDataParts, models, maxRetries = 4,
 
     while (retries > 0) {
       try {
+        // Bug #3 fix: safetySettings were declared in constants but never sent.
+        // Bug #4 fix: temperature was unset, causing drift despite 1:1 fidelity demands.
         const config = {
           responseModalities: ['TEXT', 'IMAGE'],
+          temperature: 0.35,
+          topP: 0.9,
+          safetySettings: [
+            { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_ONLY_HIGH' },
+            { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_ONLY_HIGH' },
+            { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_ONLY_HIGH' },
+            { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_ONLY_HIGH' },
+          ],
         }
 
         if (options.useSearchGrounding) {
@@ -141,7 +157,7 @@ async function generateImage(ai, prompt, imageDataParts, models, maxRetries = 4,
           throw err
         }
 
-        if (isRetriableError(err)) {
+        if (isRetriableError(err) || isNoImageError(err)) {
           const jitter = Math.floor(Math.random() * 500)
           await sleep(delay + jitter)
           delay = Math.min(delay * 2, 8000)
@@ -177,7 +193,15 @@ async function generateImageViaVertexApiKey(apiKey, prompt, imageDataParts, mode
           }],
           generationConfig: {
             responseModalities: ['TEXT', 'IMAGE'],
+            temperature: 0.35,
+            topP: 0.9,
           },
+          safetySettings: [
+            { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_ONLY_HIGH' },
+            { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_ONLY_HIGH' },
+            { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_ONLY_HIGH' },
+            { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_ONLY_HIGH' },
+          ],
         }
 
         if (options.useSearchGrounding) {
@@ -223,7 +247,7 @@ async function generateImageViaVertexApiKey(apiKey, prompt, imageDataParts, mode
           throw err
         }
 
-        if (isRetriableError(err)) {
+        if (isRetriableError(err) || isNoImageError(err)) {
           const jitter = Math.floor(Math.random() * 500)
           await sleep(delay + jitter)
           delay = Math.min(delay * 2, 8000)
@@ -380,9 +404,11 @@ function isTruthy(value) {
   return ['1', 'true', 'yes', 'on'].includes((value || '').trim().toLowerCase())
 }
 
-// Allowed model values that clients can request
+// Bug #6 fix: Added gemini-3.0-pro-preview so the user's UI choice is honored.
 const ALLOWED_CLIENT_MODELS = new Set([
   'gemini-3.1-flash-image-preview',
+  'gemini-3.1-flash-lite-image',
+  'gemini-3.0-pro-preview',
   'gemini-2.5-flash-image',
 ])
 
@@ -405,6 +431,11 @@ router.post('/generate', validateGenerateRequest, async (req, res) => {
   const envModel = (process.env.GENERATION_MODEL || '').trim() || 'gemini-2.5-flash-image'
   // Accept model from client request body (options.aiModel) if it's in the allow-list
   const clientModel = (req.body.options?.aiModel || '').trim()
+  // Bug #6 fix: warn when model is downgraded instead of silently swapping
+  const modelDowngraded = !!(clientModel && !ALLOWED_CLIENT_MODELS.has(clientModel))
+  if (modelDowngraded) {
+    console.warn(`Client requested disallowed model "${clientModel}", falling back to ${envModel}`)
+  }
   const model = (clientModel && ALLOWED_CLIENT_MODELS.has(clientModel)) ? clientModel : envModel
   const modelCandidates = buildModelCandidates(model)
   const rawVideoModel = (() => {
@@ -565,6 +596,7 @@ router.post('/generate', validateGenerateRequest, async (req, res) => {
       count: generatedImages.length,
       limitedByQuota: useVertexApiKey && effectivePrompts.length < prompts.length,
       modelUsed: modelUsed || model,
+      modelDowngraded,
     })
   } catch (err) {
     console.error('Generation error:', err)

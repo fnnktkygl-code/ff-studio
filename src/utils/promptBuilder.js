@@ -59,7 +59,17 @@ const PRODUCT_SHOTS = {
   ],
 }
 
-const ISOLATION_INSTRUCTION = `
+// Bug #1 fix: Two distinct isolation instructions for model vs product prompts.
+// Model prompts: extract garment design from reference, but render the ENVIRONMENT scene.
+const REFERENCE_ISOLATION_INSTRUCTION = `
+<TECHNICAL_SPECS>
+  Use the reference image(s) ONLY to extract the garment's design (color, pattern, texture, cut).
+  Do NOT reuse the background, surface, lighting or setting visible in the reference photo(s).
+  The new background must strictly follow the ENVIRONMENT instruction above.
+</TECHNICAL_SPECS>`.trim()
+
+// Product prompts: ghost mannequin / flat-lay floating effect on clean background.
+const PRODUCT_FLOAT_INSTRUCTION = `
 <TECHNICAL_SPECS>
   CRITICAL BACKGROUND REPLACEMENT: Erase original background entirely.
   Extract ONLY the garment.
@@ -75,7 +85,15 @@ const FIDELITY_INSTRUCTION = (refCount = 1) => `
   Ensure absolute 1:1 design reproduction.
 </CONTEXT>`.trim()
 
-const MODESTY_INSTRUCTION = `Strictly professional and modest posture. No suggestive poses, no bare skin on torso.`
+// Bug #2 fix: Conditional modesty instruction that respects skin-exposing garments.
+const SKIN_EXPOSING_GARMENTS = ['croptop', 'tanktop', 'shorts', 'miniskirt', 'eveningdress']
+
+function getModestyInstruction(garmentType) {
+  if (SKIN_EXPOSING_GARMENTS.includes(garmentType)) {
+    return `Professional, tasteful fashion posture. Show the garment exactly as designed (including its natural coverage/cut) — do not add extra fabric or alter the silhouette.`
+  }
+  return `Strictly professional and modest posture. No suggestive poses.`
+}
 
 export function buildModelPrompts(options) {
   const {
@@ -126,10 +144,10 @@ export function buildModelPrompts(options) {
   ${brandText}
   ${marketText}
   ${searchContext}
-  ${MODESTY_INSTRUCTION}
+  ${getModestyInstruction(garmentType)}
 </INSTRUCTIONS>
 
-${ISOLATION_INSTRUCTION}
+${REFERENCE_ISOLATION_INSTRUCTION}
 ${FIDELITY_INSTRUCTION(referenceImages)}
 
 <OUTPUT_FORMAT>
@@ -185,7 +203,7 @@ export function buildProductPrompts(options) {
   ${searchContext}
 </INSTRUCTIONS>
 
-${ISOLATION_INSTRUCTION}
+${PRODUCT_FLOAT_INSTRUCTION}
 ${FIDELITY_INSTRUCTION(referenceImages)}
 
 <OUTPUT_FORMAT>
@@ -235,14 +253,14 @@ export function buildVideoPrompt(options) {
 
   return [
     `CINEMATIC FASHION VIDEO`,
-    ISOLATION_INSTRUCTION,
+    REFERENCE_ISOLATION_INSTRUCTION,
     FIDELITY_INSTRUCTION(),
     `Video Prompt: Create a realistic, high quality, cinematic video.`,
     `Subject: ${subjectDescription} wearing the exact ${garmentName}${fitText} shown in the provided image.`,
     `${focusText}`,
     `Action: ${actions[garmentType] || actions.top}`,
     `Setting: ${envDesc}.${brandText}`,
-    MODESTY_INSTRUCTION,
+    getModestyInstruction(garmentType),
     `Professional e-commerce fashion video, soft cinematic lighting, smooth fluid motion, ultra-detailed, photorealistic.`,
   ].filter(Boolean).join('\n\n')
 }

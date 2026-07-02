@@ -170,6 +170,12 @@ export const AI_MODEL_OPTIONS = [
     recommended: true,
   },
   {
+    value: 'gemini-3.1-flash-lite-image',
+    label: 'Gemini 3.1 Flash Lite Image',
+    sublabel: '⚡ Nano Banana Lite · <2s latency · ~$0.020/img',
+    recommended: false,
+  },
+  {
     value: 'gemini-3.0-pro-preview',
     label: 'Gemini 3 Pro Image',
     sublabel: '🧠 Nano Banana Pro · ~$0.134/img',
@@ -264,6 +270,12 @@ export const PRICING_PROFILES = {
     inputTokenCostMillion: 0.15,
     label: 'Nano Banana 2 (Gemini 3.1 Flash Image)',
   },
+  'gemini-3.1-flash-lite-image': {
+    outputTokenCostMillion: 18, // Ultra-low cost, ~$0.020/img
+    inputTokenCostMillion: 0.075,
+    label: 'Nano Banana Lite (Gemini 3.1 Flash Lite Image)',
+    maxResolution: '1K', // Only supports up to 1024x1024
+  },
   'gemini-3.0-pro-preview': {
     outputTokenCostMillion: 120, // $120/1M tokens = ~$0.134/img
     inputTokenCostMillion: 2.00,
@@ -280,6 +292,7 @@ export function normalizePricingModel(modelName = '') {
   const normalized = String(modelName || '').trim().toLowerCase()
   if (!normalized) return 'gemini-3.1-flash-image-preview'
   if (normalized.includes('gemini-3.0-pro')) return 'gemini-3.0-pro-preview'
+  if (normalized.includes('flash-lite')) return 'gemini-3.1-flash-lite-image'
   if (normalized.includes('gemini-3.1')) return 'gemini-3.1-flash-image-preview'
   if (normalized.includes('gemini-2.5') || normalized.includes('gemini')) return 'gemini-2.5-flash-image'
   return 'gemini-3.1-flash-image-preview'
