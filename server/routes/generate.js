@@ -104,6 +104,27 @@ async function generateImage(ai, prompt, imageDataParts, models, maxRetries = 4,
 
     while (retries > 0) {
       try {
+        if (model.includes('imagen-')) {
+          const response = await ai.models.generateImages({
+            model,
+            prompt,
+            config: {
+              numberOfImages: 1,
+              aspectRatio: options.aspectRatio || '3:4',
+              outputMimeType: 'image/jpeg',
+            }
+          })
+          const imageBytes = response?.generatedImages?.[0]?.image?.imageBytes
+          if (!imageBytes) {
+            throw new Error('No image in response')
+          }
+          return {
+            data: imageBytes,
+            mimeType: 'image/jpeg',
+            modelUsed: model,
+          }
+        }
+
         // Bug #3 fix: safetySettings were declared in constants but never sent.
         // Bug #4 fix: temperature was unset, causing drift despite 1:1 fidelity demands.
         const config = {
@@ -182,33 +203,48 @@ async function generateImageViaVertexApiKey(apiKey, prompt, imageDataParts, mode
 
     while (retries > 0) {
       try {
-        const url = `https://aiplatform.googleapis.com/v1/publishers/google/models/${model}:generateContent?key=${apiKey}`
-        const payload = {
-          contents: [{
-            role: 'user',
-            parts: [
-              { text: prompt },
-              ...imageDataParts,
-            ],
-          }],
-          generationConfig: {
-            responseModalities: ['TEXT', 'IMAGE'],
-            temperature: 0.35,
-            topP: 0.9,
-          },
-          safetySettings: [
-            { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_ONLY_HIGH' },
-            { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_ONLY_HIGH' },
-            { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_ONLY_HIGH' },
-            { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_ONLY_HIGH' },
-          ],
-        }
+        const isImagen = model.includes('imagen-')
+        const url = isImagen
+          ? `https://aiplatform.googleapis.com/v1/publishers/google/models/${model}:predict?key=${apiKey}`
+          : `https://aiplatform.googleapis.com/v1/publishers/google/models/${model}:generateContent?key=${apiKey}`
 
-        if (options.useSearchGrounding) {
+        const payload = isImagen
+          ? {
+              instances: [{
+                prompt,
+              }],
+              parameters: {
+                sampleCount: 1,
+                aspectRatio: options.aspectRatio || '3:4',
+                outputMimeType: 'image/jpeg',
+              }
+            }
+          : {
+              contents: [{
+                role: 'user',
+                parts: [
+                  { text: prompt },
+                  ...imageDataParts,
+                ],
+              }],
+              generationConfig: {
+                responseModalities: ['TEXT', 'IMAGE'],
+                temperature: 0.35,
+                topP: 0.9,
+              },
+              safetySettings: [
+                { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_ONLY_HIGH' },
+                { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_ONLY_HIGH' },
+                { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_ONLY_HIGH' },
+                { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_ONLY_HIGH' },
+              ],
+            }
+
+        if (!isImagen && options.useSearchGrounding) {
           payload.tools = [{ googleSearch: {} }]
         }
 
-        if (model.includes('pro')) {
+        if (!isImagen && model.includes('pro')) {
           payload.generationConfig.thinkingConfig = { includeThoughts: true }
         }
 
@@ -226,6 +262,20 @@ async function generateImageViaVertexApiKey(apiKey, prompt, imageDataParts, mode
           const err = new Error(message)
           err.status = result?.error?.code || response.status
           throw err
+        }
+
+        if (isImagen) {
+          const prediction = result.predictions?.[0]
+          if (!prediction) {
+            const errorMsg = result.predictions?.[0]?.raiFilteredReason
+              || 'No image in response (safety/RAI block)'
+            throw new Error(errorMsg)
+          }
+          return {
+            data: prediction.bytesBase64Encoded,
+            mimeType: prediction.mimeType || 'image/jpeg',
+            modelUsed: model,
+          }
         }
 
         const imagePart = result.candidates?.[0]?.content?.parts?.find((p) => p.inlineData)
@@ -410,6 +460,9 @@ const ALLOWED_CLIENT_MODELS = new Set([
   'gemini-3.1-flash-lite-image',
   'gemini-3.0-pro-preview',
   'gemini-2.5-flash-image',
+  'imagen-4.0-fast-generate-001',
+  'imagen-4.0-generate-001',
+  'imagen-4.0-ultra-generate-001',
 ])
 
 const ALLOWED_VIDEO_MODELS = new Set([

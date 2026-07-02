@@ -8,6 +8,9 @@ const ALLOWED_MODELS = [
   'gemini-3.1-flash-lite-image',
   'gemini-3.0-pro-preview',
   'gemini-2.5-flash-image',
+  'imagen-4.0-fast-generate-001',
+  'imagen-4.0-generate-001',
+  'imagen-4.0-ultra-generate-001',
 ];
 
 const ALLOWED_ORIGINS = [
@@ -40,35 +43,50 @@ functions.http('generate', async (req, res) => {
   }
 
   try {
-    const { prompt, imageDataParts, model } = req.body;
+    const { prompt, imageDataParts, model, options } = req.body;
 
-    if (!prompt || !imageDataParts?.length) {
+    // For Imagen, we don't strictly require imageDataParts
+    const isImagen = model && model.includes('imagen-');
+    if (!prompt || (!isImagen && !imageDataParts?.length)) {
       return res.status(400).json({ error: 'Missing prompt or imageDataParts' });
     }
 
     const selectedModel = ALLOWED_MODELS.includes(model) ? model : DEFAULT_MODEL;
-    const url = `https://aiplatform.googleapis.com/v1/publishers/google/models/${selectedModel}:generateContent?key=${API_KEY}`;
+    const isModelImagen = selectedModel.includes('imagen-');
+    const endpointSuffix = isModelImagen ? 'predict' : 'generateContent';
+    const url = `https://aiplatform.googleapis.com/v1/publishers/google/models/${selectedModel}:${endpointSuffix}?key=${API_KEY}`;
 
-    const payload = {
-      contents: [{
-        role: 'user',
-        parts: [
-          { text: prompt },
-          ...imageDataParts,
-        ],
-      }],
-      generationConfig: {
-        responseModalities: ['TEXT', 'IMAGE'],
-        temperature: 0.35,
-        topP: 0.9,
-      },
-      safetySettings: [
-        { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_ONLY_HIGH' },
-        { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_ONLY_HIGH' },
-        { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_ONLY_HIGH' },
-        { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_ONLY_HIGH' },
-      ],
-    };
+    const payload = isModelImagen
+      ? {
+          instances: [{
+            prompt,
+          }],
+          parameters: {
+            sampleCount: 1,
+            aspectRatio: options?.aspectRatio || '3:4',
+            outputMimeType: 'image/jpeg',
+          }
+        }
+      : {
+          contents: [{
+            role: 'user',
+            parts: [
+              { text: prompt },
+              ...imageDataParts,
+            ],
+          }],
+          generationConfig: {
+            responseModalities: ['TEXT', 'IMAGE'],
+            temperature: 0.35,
+            topP: 0.9,
+          },
+          safetySettings: [
+            { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_ONLY_HIGH' },
+            { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_ONLY_HIGH' },
+            { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_ONLY_HIGH' },
+            { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_ONLY_HIGH' },
+          ],
+        };
 
     const response = await fetch(url, {
       method: 'POST',
@@ -82,7 +100,13 @@ functions.http('generate', async (req, res) => {
       return res.status(result.error.code || 500).json({ error: result.error.message });
     }
 
-    const base64 = result.candidates?.[0]?.content?.parts?.find(p => p.inlineData)?.inlineData?.data;
+    let base64;
+    if (isModelImagen) {
+      base64 = result.predictions?.[0]?.bytesBase64Encoded;
+    } else {
+      base64 = result.candidates?.[0]?.content?.parts?.find(p => p.inlineData)?.inlineData?.data;
+    }
+
     if (!base64) {
       return res.status(500).json({ error: 'No image generated' });
     }

@@ -187,6 +187,24 @@ export const AI_MODEL_OPTIONS = [
     sublabel: 'Nano Banana · ~$0.034/img',
     recommended: false,
   },
+  {
+    value: 'imagen-4.0-fast-generate-001',
+    label: 'Imagen 4 Fast Generate',
+    sublabel: '⚡ Fast · ~$0.030/img',
+    recommended: false,
+  },
+  {
+    value: 'imagen-4.0-generate-001',
+    label: 'Imagen 4 Generate',
+    sublabel: '🎨 Balanced · ~$0.040/img',
+    recommended: false,
+  },
+  {
+    value: 'imagen-4.0-ultra-generate-001',
+    label: 'Imagen 4 Ultra Generate',
+    sublabel: '💎 Ultra Detail · ~$0.050/img',
+    recommended: false,
+  },
 ]
 
 export const HEADWEAR_OPTIONS = [
@@ -286,11 +304,29 @@ export const PRICING_PROFILES = {
     inputTokenCostMillion: 0.15,
     label: 'Nano Banana (Gemini 2.5 Flash Image)',
   },
+  'imagen-4.0-fast-generate-001': {
+    isFlat: true,
+    flatRateCost: 0.03,
+    label: 'Imagen 4 Fast Generate',
+  },
+  'imagen-4.0-generate-001': {
+    isFlat: true,
+    flatRateCost: 0.04,
+    label: 'Imagen 4 Generate',
+  },
+  'imagen-4.0-ultra-generate-001': {
+    isFlat: true,
+    flatRateCost: 0.05,
+    label: 'Imagen 4 Ultra Generate',
+  },
 }
 
 export function normalizePricingModel(modelName = '') {
   const normalized = String(modelName || '').trim().toLowerCase()
   if (!normalized) return 'gemini-3.1-flash-image-preview'
+  if (normalized.includes('imagen-4.0-fast')) return 'imagen-4.0-fast-generate-001'
+  if (normalized.includes('imagen-4.0-ultra')) return 'imagen-4.0-ultra-generate-001'
+  if (normalized.includes('imagen-4.0-generate')) return 'imagen-4.0-generate-001'
   if (normalized.includes('gemini-3.0-pro')) return 'gemini-3.0-pro-preview'
   if (normalized.includes('flash-lite')) return 'gemini-3.1-flash-lite-image'
   if (normalized.includes('gemini-3.1')) return 'gemini-3.1-flash-image-preview'

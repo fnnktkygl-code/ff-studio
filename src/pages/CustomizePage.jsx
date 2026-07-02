@@ -122,8 +122,10 @@ export function CustomizePage() {
               const currentRes = options.imageResolution || '1K'
               const tokensPerImage = IMAGE_OUTPUT_TOKENS[currentRes] || 1120
               const profile = getPricingProfile(model.value)
-              const rate = profile ? profile.outputTokenCostMillion / 1000000 : 0
-              const costPerImg = tokensPerImage * rate
+              const rate = profile ? (profile.outputTokenCostMillion || 0) / 1000000 : 0
+              const costPerImg = profile && profile.isFlat
+                ? profile.flatRateCost
+                : tokensPerImage * rate
 
               const prefix = model.sublabel.split('·')[0].trim()
               const dynamicSublabel = `${prefix} · ~$${costPerImg.toFixed(3)}/img`

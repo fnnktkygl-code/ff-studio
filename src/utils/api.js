@@ -50,7 +50,7 @@ export async function vertexAICall(prompt, imageDataParts, options = {}) {
       response = await fetch(CLOUD_FUNCTION_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt, imageDataParts, model }),
+        body: JSON.stringify({ prompt, imageDataParts, model, options }),
         signal: request.signal,
       })
     } catch (e) {
@@ -93,20 +93,34 @@ export async function vertexAICall(prompt, imageDataParts, options = {}) {
 export async function directGeminiCall(apiKey, prompt, imageDataParts, options = {}) {
   const { signal: externalSignal, timeoutMs = 90000, model } = options
   const selectedModel = model || 'gemini-2.5-flash-image-preview'
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${selectedModel}:generateContent?key=${apiKey}`
+  const isImagen = selectedModel.includes('imagen-')
+  const url = isImagen
+    ? `https://generativelanguage.googleapis.com/v1beta/models/${selectedModel}:predict?key=${apiKey}`
+    : `https://generativelanguage.googleapis.com/v1beta/models/${selectedModel}:generateContent?key=${apiKey}`
 
-  const payload = {
-    contents: [{
-      role: 'user',
-      parts: [
-        { text: prompt },
-        ...imageDataParts,
-      ]
-    }],
-    generationConfig: {
-      responseModalities: ['TEXT', 'IMAGE'],
-    }
-  }
+  const payload = isImagen
+    ? {
+        instances: [{
+          prompt,
+        }],
+        parameters: {
+          sampleCount: 1,
+          aspectRatio: options.aspectRatio || '3:4',
+          outputMimeType: 'image/jpeg',
+        }
+      }
+    : {
+        contents: [{
+          role: 'user',
+          parts: [
+            { text: prompt },
+            ...imageDataParts,
+          ]
+        }],
+        generationConfig: {
+          responseModalities: ['TEXT', 'IMAGE'],
+        }
+      }
 
   let retries = 3
   let delay = 2000
@@ -144,7 +158,13 @@ export async function directGeminiCall(apiKey, prompt, imageDataParts, options =
       throw new Error(result.error.message)
     }
 
-    const base64 = result.candidates?.[0]?.content?.parts?.find(p => p.inlineData)?.inlineData?.data
+    let base64
+    if (isImagen) {
+      base64 = result.predictions?.[0]?.bytesBase64Encoded
+    } else {
+      base64 = result.candidates?.[0]?.content?.parts?.find(p => p.inlineData)?.inlineData?.data
+    }
+
     if (!base64) {
       throw new Error('No image generated')
     }

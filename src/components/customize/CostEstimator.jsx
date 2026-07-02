@@ -12,11 +12,13 @@ export function CostEstimator({ mode, generateVideo, outputCount = 4, aiModel, i
   const totalImageCount = mode === 'both' ? baseCount * 2 : baseCount
 
   // Output Cost (Images)
-  // Get token count for the selected resolution (default 1120 for 1K/2K)
+  const isFlat = !!profile.isFlat
   const tokensPerImage = IMAGE_OUTPUT_TOKENS[imageResolution] || IMAGE_OUTPUT_TOKENS['1K']
   const totalOutputTokens = tokensPerImage * totalImageCount
   const outputTokenRatePerToken = (profile.outputTokenCostMillion || 120) / 1000000
-  const imageCost = totalOutputTokens * outputTokenRatePerToken
+  const imageCost = isFlat
+    ? totalImageCount * (profile.flatRateCost || 0.04)
+    : totalOutputTokens * outputTokenRatePerToken
 
   const videoCost = 0 // Video disabled
 
@@ -24,7 +26,7 @@ export function CostEstimator({ mode, generateVideo, outputCount = 4, aiModel, i
   const estimatedPromptChars = mode === 'both' ? baseCount * 1100 : baseCount * 900
   const estimatedInputTokens = Math.ceil(estimatedPromptChars / 4)
   const inputRatePerToken = (profile.inputTokenCostMillion || 2.00) / 1000000
-  const tokenCost = estimatedInputTokens * inputRatePerToken
+  const tokenCost = isFlat ? 0 : estimatedInputTokens * inputRatePerToken
 
   const total = imageCost + videoCost + tokenCost
 
